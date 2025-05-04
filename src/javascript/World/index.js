@@ -23,6 +23,7 @@ import Sounds from './Sounds.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 import BoundaryWall from './BoundaryWall.js'   
+import PopupButton from './popup-button.js'
 
 export default class World
 {
@@ -78,6 +79,7 @@ export default class World
         this.setWalls()
         this.setSections()
         this.setEasterEggs()
+        this.setPopupButton()
      
     }
 
@@ -444,5 +446,39 @@ export default class World
             physics: this.physics
         })
         this.container.add(this.easterEggs.container)
+    }
+
+    setPopupButton()
+    {
+        // Popup buton
+        this.popupButton = new PopupButton({
+            resources: this.resources,
+            materials: this.materials,
+            car: this.car,
+            areas: this.areas
+        })
+        
+        // Butonu haritada 0,0 noktasına yerleştir
+        this.popupButton.container.position.set(0, 0, 0)
+        this.popupButton.container.matrixAutoUpdate = false
+        this.popupButton.container.updateMatrix()
+        
+        // Butonu sahneye ekle
+        this.container.add(this.popupButton.container)
+        
+        // Update metodu için zaman dinleyicisi ekle
+        this.time.on('tick', () => {
+            if(this.popupButton && this.car) {
+                this.popupButton.update()
+            }
+        })
+        
+        // Debug
+        if(this.debug)
+        {
+            this.debugFolder.add(this.popupButton.container.position, 'x').step(0.1).min(-50).max(50).name('popupButton x')
+            this.debugFolder.add(this.popupButton.container.position, 'y').step(0.1).min(-50).max(50).name('popupButton y')
+            this.debugFolder.add(this.popupButton.container.position, 'z').step(0.1).min(-5).max(5).name('popupButton z')
+        }
     }
 }
