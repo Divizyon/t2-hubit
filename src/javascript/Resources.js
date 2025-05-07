@@ -149,6 +149,10 @@ export default class Resources extends EventEmitter
             //Balya
             { name: 'balya2', source: './models/balya2.glb' },
             
+            // Yol Modeli
+            { name: 'roadModel', source: './models/road.glb' },
+           
+            
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },
             { name: 'hornCollision', source: './models/horn/collision.glb' },
