@@ -24,6 +24,8 @@ import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 import BoundaryWall from './BoundaryWall.js'   
 import GreenBox from './GreenBox.js'
+import GenclikMerkezi from './CalisanGenclikMerkezi.js'
+import konyagenckart from './konyagenckart.js'
 
 export default class World
 {
@@ -80,6 +82,8 @@ export default class World
         this.setSections()
         this.setEasterEggs()
         this.setGreenBox()
+        this.setGenclikMerkezi()
+        this.setkonyagenckart()
     }
 
     setReveal()
@@ -303,7 +307,24 @@ export default class World
         this.axis = new THREE.AxesHelper()
         this.container.add(this.axis)
     }
-
+    setGenclikMerkezi()
+    {
+        this.genclikMerkezi = new GenclikMerkezi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.genclikMerkezi.container)
+    }
+    setkonyagenckart()
+    {
+        this.konyagenckart = new konyagenckart({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.konyagenckart.container)
+    }
     setControls()
     {
         this.controls = new Controls({
