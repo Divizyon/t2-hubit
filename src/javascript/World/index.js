@@ -314,7 +314,8 @@ export default class World
         this.genclikMerkezi = new GenclikMerkezi({
             resources: this.resources,
             objects: this.objects,
-            debug: this.debugFolder
+            debug: this.debugFolder,
+            physics: this.physics
         })
         this.container.add(this.genclikMerkezi.container)
     }
