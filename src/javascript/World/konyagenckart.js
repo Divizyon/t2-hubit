@@ -25,8 +25,8 @@ export default class konyagenckart
 
         // Pozisyon ve rotasyon tanımla -arabanın spawn konumuna göre ayarlanışı
         // Arabaya yakın bir pozisyon 
-        const fixedPosition = new THREE.Vector3(2, -20, 3)
-        const fixedRotation = new THREE.Euler(0, 0, 0)
+        const fixedPosition = new THREE.Vector3(-75, 15, 3)
+        const fixedRotation = new THREE.Euler(0, 0, 2)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({

@@ -25,8 +25,8 @@ export default class GenclikMerkezi
 
         // Pozisyon ve rotasyon tanımla -arabanın spawn konumuna göre ayarlanışı
         // Arabaya yakın bir pozisyon (x:12, z:12)
-        const fixedPosition = new THREE.Vector3(12, -20, 0)
-        const fixedRotation = new THREE.Euler(0, 0, 0)
+        const fixedPosition = new THREE.Vector3(72.512, -46.4, 0)
+        const fixedRotation = new THREE.Euler(0, 0, 2.045)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({
