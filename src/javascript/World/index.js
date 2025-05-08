@@ -27,6 +27,9 @@ import BoundaryWall from './BoundaryWall.js'
 import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
+import BilimMerkezi from './BilimMerkezi.js'
+import KapsulBinasi from './KapsulBinasi.js'
+
 
 export default class World
 {
@@ -86,6 +89,9 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
+        this.setBilimMerkezi()
+        this.setKapsulBinasi()
+    
     }
 
     setReveal()
@@ -327,6 +333,26 @@ export default class World
         })
         this.container.add(this.konyagenckart.container)
     }
+    setBilimMerkezi()
+    {
+        this.BilimMerkezi = new BilimMerkezi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.BilimMerkezi.container)
+    }
+    
+    setKapsulBinasi()
+    {
+        this.KapsulBinasi = new KapsulBinasi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.KapsulBinasi.container)
+    }
+   
     setControls()
     {
         this.controls = new Controls({
