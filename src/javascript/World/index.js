@@ -27,6 +27,8 @@ import BoundaryWall from './BoundaryWall.js'
 import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
+import AlaaddinTepesi from './AlaaddinTepesi.js'
+import Kelebekler from './Kelebekler.js'
 
 export default class World
 {
@@ -86,6 +88,8 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
+        this.setAlaaddinTepesi()
+        this.setKelebekler()
     }
 
     setReveal()
@@ -184,6 +188,9 @@ export default class World
     {
         this.startingScreen = {}
 
+        // Debug
+        console.log('Başlangıç ekranı ayarlanıyor...')
+
         // Area
         this.startingScreen.area = this.areas.add({
             position: new THREE.Vector2(0, 0),
@@ -226,6 +233,7 @@ export default class World
         // Progress
         this.resources.on('progress', (_progress) =>
         {
+            console.log(`Yükleme ilerlemesi: %${Math.round(_progress * 100)}`)
             // Update area
             this.startingScreen.area.floorBorder.material.uniforms.uAlpha.value = 1
             this.startingScreen.area.floorBorder.material.uniforms.uLoadProgress.value = _progress
@@ -234,6 +242,7 @@ export default class World
         // Ready
         this.resources.on('ready', () =>
         {
+            console.log('Tüm kaynaklar yüklendi, başlangıç ekranı hazırlanıyor...')
             window.requestAnimationFrame(() =>
             {
                 this.startingScreen.area.activate()
@@ -241,12 +250,15 @@ export default class World
                 gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uAlpha, { value: 0.3, duration: 0.3 })
                 gsap.to(this.startingScreen.loadingLabel.material, { opacity: 0, duration: 0.3 })
                 gsap.to(this.startingScreen.startLabel.material, { opacity: 1, duration: 0.3, delay: 0.3 })
+
+                console.log('Başlangıç ekranı hazır, BAŞLA butonuna tıklayınız')
             })
         })
 
         // On interact, reveal
         this.startingScreen.area.on('interact', () =>
         {
+            console.log('Başlangıç ekranına tıklandı, oyun başlatılıyor...')
             this.startingScreen.area.deactivate()
             gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 })
             gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 })
@@ -529,5 +541,26 @@ export default class World
             shadows: this.shadows
         })
         this.container.add(this.road.container)
+    }
+
+    setAlaaddinTepesi()
+    {
+        this.alaaddinTepesi = new AlaaddinTepesi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.alaaddinTepesi.container)
+    }
+
+    setKelebekler()
+    {
+        this.kelebekler = new Kelebekler({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder,
+            time: this.time
+        })
+        this.container.add(this.kelebekler.container)
     }
 }

@@ -244,6 +244,12 @@ export default class Resources extends EventEmitter
             // GreenBox (GreenScreenRoom)
             { name: 'greenBoxModel', source: './models/modeller/greenbox/GreenBox.glb' },
             { name: 'greenBoxCollision', source: './models/modeller/greenbox/GreenBoxCollision.glb' },
+
+            // Alaaddin Tepesi
+            { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
+
+            // Kelebekler
+            { name: 'kelebeklerModel', source: './models/kelebekler .glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>
