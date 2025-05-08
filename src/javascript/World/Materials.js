@@ -158,6 +158,12 @@ export default class Materials
         this.shades.items.metal.name = 'shadeMetal'
         this.shades.items.metal.uniforms.matcap.value = this.resources.items.matcapMetalTexture
         this.items.metal = this.shades.items.metal
+        
+        // Road
+        this.shades.items.roadMaterial = new MatcapMaterial()
+        this.shades.items.roadMaterial.name = 'shadeRoad'
+        this.shades.items.roadMaterial.uniforms.matcap.value = this.resources.items.matcapGrayTexture
+        this.items.roadMaterial = this.shades.items.roadMaterial
 
         // // Gold
         // this.shades.items.gold = new MatcapMaterial()

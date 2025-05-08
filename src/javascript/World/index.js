@@ -9,6 +9,7 @@ import Car from './Car.js'
 import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
+import Road from './Road.js'
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
@@ -76,6 +77,7 @@ export default class World
         this.setZones()
         this.setObjects()
         this.setCar()
+        this.setRoad()
         this.areas.car = this.car
         this.setTiles()
         this.setWalls()
@@ -514,5 +516,18 @@ export default class World
             debug: this.debugFolder
         })
         this.container.add(this.greenBox.container)
+    }
+
+    setRoad()
+    {
+        this.road = new Road({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debug,
+            physics: this.physics,
+            materials: this.materials,
+            shadows: this.shadows
+        })
+        this.container.add(this.road.container)
     }
 }
