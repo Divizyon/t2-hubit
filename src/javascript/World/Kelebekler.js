@@ -21,7 +21,7 @@ export default class Kelebekler
             position: {
                 x: 75,
                 y: 0,
-                z: 0
+                z: -3
             },
             rotation: {
                 x: 0,

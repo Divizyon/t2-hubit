@@ -25,8 +25,8 @@ export default class BilimMerkezi
 
         // Pozisyon ve rotasyon tanımla -arabanın spawn konumuna göre ayarlanışı
         // Arabaya yakın bir pozisyon (x:12, z:12)
-        const fixedPosition = new THREE.Vector3(10, 20, -3)
-        const fixedRotation = new THREE.Euler(0, Math.PI, 90)
+        const fixedPosition = new THREE.Vector3(50, 28, -3)
+        const fixedRotation = new THREE.Euler(0, Math.PI, 22)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({

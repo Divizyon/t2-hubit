@@ -19,9 +19,9 @@ export default class AlaaddinTepesi
         // Debug
         this.debugProperties = {
             position: {
-                x: 0,
-                y: -20,
-                z: 0
+                x: -10,
+                y: -30,
+                z: -3
             },
             rotation: {
                 x: 0,
@@ -29,9 +29,9 @@ export default class AlaaddinTepesi
                 z: 0
             },
             scale: {
-                x: 0.9,
-                y: 0.9,
-                z: 0.9
+                x: 0.8,
+                y: 0.8,
+                z: 0.8
             }
         }
 
