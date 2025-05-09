@@ -26,8 +26,8 @@ export default class GenclikMerkezi
         this.model.resource = this.resources.items.CalisanGenclikMerkezi
 
         // Pozisyon ve rotasyon tanımla
-        const fixedPosition = new THREE.Vector3(72.512, -46.4, 0)
-        const fixedRotation = new THREE.Euler(0, 0, 2.045)
+        const fixedPosition = new THREE.Vector3(37.5, -8.8, 0)
+        const fixedRotation = new THREE.Euler(0, 0, -0.7)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({
