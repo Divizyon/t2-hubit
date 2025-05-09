@@ -600,6 +600,7 @@ export default class World
     }
     
 
+    setAlaaddinTepesi()
     {
         this.alaaddinTepesi = new AlaaddinTepesi({
             resources: this.resources,
