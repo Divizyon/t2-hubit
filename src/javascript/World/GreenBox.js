@@ -60,13 +60,20 @@ export default class GreenBox
         })
         
         // Oda boyutları
-        const width = 6;  // x-ekseni genişliği
+        const width = 5;  // x-ekseni genişliği
         const length = 6;  // y-ekseni uzunluğu
-        const height = 5;   // z-ekseni yüksekliği
+        const height = 12;   // z-ekseni yüksekliği
         
         // Duvar konumlarını modele yaklaştır
-        const backWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: length/2 = 5)
-        const leftWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: width/2 = 5)
+        const backWallDistance = 2.3;  // Daha küçük değer = modele daha yakın (eski değer: length/2 = 5)
+        const leftWallDistance = 2.3;  // Daha küçük değer = modele daha yakın (eski değer: width/2 = 5)
+
+        // Kamera objesinin konumu - görüntüdeki pozisyona göre yaklaşık değerler
+        const cameraPosition = {
+            x: fixedPosition.x + 5.9, 
+            y: fixedPosition.y-5.8,     // kamera collisionun konumu
+            z: fixedPosition.z      
+        };
 
         // Arka duvar (pozitif Y yönünde) - GreenBox'ın arkasına
         const backWallSize = new CANNON.Vec3(width/2, 0.5, height/2) // x, y, z yarı genişlikler
@@ -77,6 +84,18 @@ export default class GreenBox
         const leftWallSize = new CANNON.Vec3(0.5, length/2, height/2)
         const leftWallShape = new CANNON.Box(leftWallSize)
         body.addShape(leftWallShape, new CANNON.Vec3(-leftWallDistance, 0, 0)) // Modele daha yakın
+        
+        // Kamera çarpışma engeli - kamera etrafında küçük bir engel
+        const cameraSize = new CANNON.Vec3(0.8, 0.8, 1.5) // Kamera boyutu (x, y, z yarı genişlikler)
+        const cameraShape = new CANNON.Box(cameraSize)
+        body.addShape(
+            cameraShape, 
+            new CANNON.Vec3(
+                cameraPosition.x - fixedPosition.x, 
+                cameraPosition.y - fixedPosition.y, 
+                cameraPosition.z - fixedPosition.z + 1 // Kamera yüksekliği için hafif yukarıda
+            )
+        )
         
         // Fizik dünyasına ekle
         this.physics.world.addBody(body)
@@ -108,6 +127,18 @@ export default class GreenBox
                 fixedPosition.z
             )
             this.wallHelpers.add(leftWallHelper)
+            
+            // Kamera collision helper
+            const cameraHelper = new THREE.Mesh(
+                new THREE.BoxGeometry(cameraSize.x * 2, cameraSize.y * 2, cameraSize.z * 2),
+                new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true })
+            )
+            cameraHelper.position.set(
+                cameraPosition.x,
+                cameraPosition.y,
+                cameraPosition.z + 1 // Kamera yüksekliğini ayarla
+            )
+            this.wallHelpers.add(cameraHelper)
             
             this.wallHelpers.visible = false
             this.container.add(this.wallHelpers)
