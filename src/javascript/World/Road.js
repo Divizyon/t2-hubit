@@ -14,8 +14,8 @@ export default class Road
         this.walls = _options.walls
         this.tiles = _options.tiles
         this.materials = _options.materials
-        this.x = 35 // X pozisyonu
-        this.y = -10 // Y pozisyonu
+        this.x = 16 // X pozisyonu
+        this.y = 2 // Y pozisyonu
         this.z = 0.0001 // Z pozisyonu
         
         // Container oluştur
@@ -59,12 +59,12 @@ export default class Road
             // Rotasyon ayarla
             const rotation = new THREE.Euler(
                 degToRad(xRotation),
-                degToRad(yRotation),
+                degToRad(yRotation - 25),
                 degToRad(zRotation)
             )
             
             // Ölçek ayarla
-            const scale = new THREE.Vector3(1.6, 1, 2) // Yolu istenen ölçeklere getirdim
+            const scale = new THREE.Vector3(0.7, 0.467, 1) // Yolu daha küçük ölçeklere ayarladım
             
             // Mesh oluştur
             this.road.mesh = this.objects.getConvertedMesh(this.road.resource.scene.children)

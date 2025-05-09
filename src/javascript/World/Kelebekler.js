@@ -19,19 +19,19 @@ export default class Kelebekler
         // Debug
         this.debugProperties = {
             position: {
-                x: 75,
-                y: 0,
+                x: 27,
+                y: 15,
                 z: -3
             },
             rotation: {
                 x: 0,
                 y: 0, 
-                z: 0
+                z: 25
             },
             scale: {
-                x: 3,
-                y: 3,
-                z: 3
+                x: 2.6,
+                y: 2.6,
+                z: 2.6
             },
             animasyonHizi: 0.00000001,
             ucusYuksekligi: 0

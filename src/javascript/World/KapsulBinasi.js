@@ -25,8 +25,8 @@ export default class KapsulBinasi
 
         // Pozisyon ve rotasyon tanımla -arabanın spawn konumuna göre ayarlanışı
         // Konum ayarlama
-        const fixedPosition = new THREE.Vector3(20, 0, 3)
-        const fixedRotation = new THREE.Euler(-Math.PI, -Math.PI, 3)
+        const fixedPosition = new THREE.Vector3(10, 3.3, 1.5)
+        const fixedRotation = new THREE.Euler(-Math.PI, -Math.PI, 2.759)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({
