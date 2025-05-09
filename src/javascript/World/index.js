@@ -27,6 +27,7 @@ import BoundaryWall from './BoundaryWall.js'
 import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
+import Divizyon from './Divizyon.js'
 
 import AlaaddinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
@@ -92,10 +93,14 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
+
+        this.setDivizyon()
+
         this.setAlaaddinTepesi()
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
+
     }
 
     setReveal()
@@ -337,6 +342,9 @@ export default class World
         })
         this.container.add(this.genclikMerkezi.container)
     }
+   
+    
+
     setkonyagenckart()
     {
         this.konyagenckart = new konyagenckart({
@@ -570,7 +578,28 @@ export default class World
         this.container.add(this.road.container)
     }
 
-    setAlaaddinTepesi()
+    //set divizyon
+    setDivizyon()
+    {
+        console.log('setDivizyon() fonksiyonu çağrıldı, debug durumu:', this.debug);
+        this.divizyon = new Divizyon({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debug,
+            physics: this.physics,
+            materials: this.materials,
+            shadows: this.shadows
+        })
+        
+        if (this.divizyon && this.divizyon.container) {
+            console.log('Divizyon container ekleniyor');
+            this.container.add(this.divizyon.container);
+        } else {
+            console.error('Divizyon container oluşturulamadı');
+        }
+    }
+    
+
     {
         this.alaaddinTepesi = new AlaaddinTepesi({
             resources: this.resources,
@@ -590,4 +619,5 @@ export default class World
         })
         this.container.add(this.kelebekler.container)
     }
+
 }

@@ -162,6 +162,11 @@ export default class Resources extends EventEmitter
             //KapsulBinasi
             { name: 'KapsulBinasi', source: './models/Kapsul.glb'},
 
+
+            //divizyon
+            { name: 'divizyon', source: './models/DivizyonBina.glb', type: 'model', onLoad: () => console.log('DivizyonBina modeli yüklendi!') },
+
+
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
                          
