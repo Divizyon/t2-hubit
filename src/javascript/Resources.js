@@ -155,11 +155,18 @@ export default class Resources extends EventEmitter
 
             //konyagenckart
             { name: 'konyagenckart', source: './models/konyagenckart.glb'},
+            
+            //BilimMerkezi
+            { name: 'BilimMerkezi', source: './models/BilimMerkezi_BlockOut.glb'},
+            
+            //KapsulBinasi
+            { name: 'KapsulBinasi', source: './models/Kapsul.glb'},
+
 
             //divizyon
             { name: 'divizyon', source: './models/DivizyonBina.glb', type: 'model', onLoad: () => console.log('DivizyonBina modeli yüklendi!') },
 
-          
+
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
                          
@@ -247,6 +254,12 @@ export default class Resources extends EventEmitter
             // GreenBox (GreenScreenRoom)
             { name: 'greenBoxModel', source: './models/modeller/greenbox/GreenBox.glb' },
             { name: 'greenBoxCollision', source: './models/modeller/greenbox/GreenBoxCollision.glb' },
+
+            // Alaaddin Tepesi
+            { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
+
+            // Kelebekler
+            { name: 'kelebeklerModel', source: './models/kelebekler .glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>
