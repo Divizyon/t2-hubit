@@ -27,6 +27,7 @@ import BoundaryWall from './BoundaryWall.js'
 import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
+import Divizyon from './Divizyon.js'
 
 export default class World
 {
@@ -86,6 +87,7 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
+        this.setDivizyon()
     }
 
     setReveal()
@@ -318,6 +320,9 @@ export default class World
         })
         this.container.add(this.genclikMerkezi.container)
     }
+   
+    
+
     setkonyagenckart()
     {
         this.konyagenckart = new konyagenckart({
@@ -530,4 +535,25 @@ export default class World
         })
         this.container.add(this.road.container)
     }
+    //set divizyon
+    setDivizyon()
+    {
+        console.log('setDivizyon() fonksiyonu çağrıldı, debug durumu:', this.debug);
+        this.divizyon = new Divizyon({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debug,
+            physics: this.physics,
+            materials: this.materials,
+            shadows: this.shadows
+        })
+        
+        if (this.divizyon && this.divizyon.container) {
+            console.log('Divizyon container ekleniyor');
+            this.container.add(this.divizyon.container);
+        } else {
+            console.error('Divizyon container oluşturulamadı');
+        }
+    }
+    
 }

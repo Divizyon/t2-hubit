@@ -156,6 +156,9 @@ export default class Resources extends EventEmitter
             //konyagenckart
             { name: 'konyagenckart', source: './models/konyagenckart.glb'},
 
+            //divizyon
+            { name: 'divizyon', source: './models/DivizyonBina.glb', type: 'model', onLoad: () => console.log('DivizyonBina modeli yüklendi!') },
+
           
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
