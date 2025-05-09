@@ -27,7 +27,6 @@ import BoundaryWall from './BoundaryWall.js'
 import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
-import Divizyon from './Divizyon.js'
 
 import AlaaddinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
@@ -93,14 +92,10 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
-
-        this.setDivizyon()
-
         this.setAlaaddinTepesi()
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
-
     }
 
     setReveal()
@@ -342,9 +337,6 @@ export default class World
         })
         this.container.add(this.genclikMerkezi.container)
     }
-   
-    
-
     setkonyagenckart()
     {
         this.konyagenckart = new konyagenckart({
@@ -578,6 +570,7 @@ export default class World
         this.container.add(this.road.container)
     }
 
+
     //set divizyon
     setDivizyon()
     {
@@ -599,7 +592,6 @@ export default class World
         }
     }
     
-
     setAlaaddinTepesi()
     {
         this.alaaddinTepesi = new AlaaddinTepesi({
@@ -620,5 +612,4 @@ export default class World
         })
         this.container.add(this.kelebekler.container)
     }
-
 }
