@@ -10,10 +10,11 @@ import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import Road from './Road.js'
+import { Rocket } from './Rocket.js'
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
-import InformationSection from './Sections/InformationSection.js'
+// import InformationSection from './Sections/InformationSection.js'
 import PlaygroundSection from './Sections/PlaygroundSection.js'
 // import DistinctionASection from './Sections/DistinctionASection.js'
 // import DistinctionBSection from './Sections/DistinctionBSection.js'
@@ -28,6 +29,7 @@ import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
+import SesOdasi from './SesOdasi.js'
 
 import AlaaddinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
@@ -101,7 +103,11 @@ export default class World
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
+        this.setSesOdasi()
+        this.setRocket()
+        this.setSesOdasi()
         this.setSosyalInovasyonAjans()
+
     }
 
     setReveal()
@@ -321,7 +327,7 @@ export default class World
                     // Uzamsal ses kaynağını güncelle - burası önemli
                     if(this.sounds && this.sounds.updateSpatialPosition) {
                         // Ses kaynağı aracın karşısına yerleştir
-                        this.sounds.updateSpatialPosition('spatialSound1', -20, 0, 0)
+                        this.sounds.updateSpatialPosition('spatialSound1', -86.6, -12, 1.3)
                     }
                 }
             }
@@ -610,6 +616,7 @@ export default class World
         })
         this.container.add(this.alaaddinTepesi.container)
     }
+     
 
     setKelebekler()
     {
@@ -622,7 +629,86 @@ export default class World
         this.container.add(this.kelebekler.container)
     }
 
-    setSosyalInovasyonAjans()
+    setRocket() 
+    {
+        // Bu metot, Eyfel Kulesi benzeri roketi oluşturur
+        this.rocket = new Rocket({
+            time: this.time,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debug,
+            sounds: this.sounds,
+            position: new THREE.Vector3(25, 35, -10) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
+        })
+        
+        // Roketi sahneye ekle - container'ı scene'e ekleyin
+        this.container.add(this.rocket.container)
+        
+        // Roket fırlatma alanı oluştur
+        this.rocketLaunchArea = this.areas.add({
+            position: new THREE.Vector2(25, 35), // X, Y koordinatlarını 16, 28 olarak değiştirdik
+            halfExtents: new THREE.Vector2(3, 3),
+            debug: true,
+            hasKey: false
+        })
+        
+        // Fırlatma alanına etkileşim ekle
+        this.rocketLaunchArea.on('interact', () => {
+            if (!this.rocket.isLaunched) {
+                console.log('Roket fırlatılıyor!')
+                this.rocket.launch()
+            } else {
+                console.log('Roket zaten fırlatıldı!')
+            }
+        })
+        
+        // Bilgi paneli ekle
+        const rocketInfo = document.createElement('div')
+        rocketInfo.style.position = 'absolute'
+        rocketInfo.style.bottom = '20px'
+        rocketInfo.style.right = '20px'
+        rocketInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+        rocketInfo.style.color = 'white'
+        rocketInfo.style.padding = '10px'
+        rocketInfo.style.borderRadius = '5px'
+        rocketInfo.style.fontFamily = 'Arial, sans-serif'
+        rocketInfo.style.zIndex = '1000'
+        rocketInfo.textContent = 'Roket fırlatmak için K tuşuna basın veya roketin yanına gidip tıklayın!'
+        document.body.appendChild(rocketInfo)
+        
+        // 5 saniye sonra bilgi panelini gizle
+        setTimeout(() => {
+            rocketInfo.style.opacity = '0'
+            rocketInfo.style.transition = 'opacity 1s ease-in-out'
+            setTimeout(() => {
+                document.body.removeChild(rocketInfo)
+            }, 1000)
+        }, 10000)
+    }
+    
+    //set sesOdasi
+    setSesOdasi()
+    {
+        console.log('setSesOdasi() fonksiyonu çağrıldı, debug durumu:', this.debug);
+        this.sesOdasi = new SesOdasi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debug,
+            physics: this.physics,
+            materials: this.materials,
+            shadows: this.shadows
+        })
+        
+        if (this.sesOdasi && this.sesOdasi.container) {
+            console.log('SesOdasi container ekleniyor');
+            this.container.add(this.sesOdasi.container);
+        } else {
+            console.error('SesOdasi container oluşturulamadı');
+        }
+
+      
+      setSosyalInovasyonAjans()
     {
         this.sosyalInovasyonAjans = new SosyalInovasyonAjans({
             resources: this.resources,

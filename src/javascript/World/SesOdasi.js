@@ -1,25 +1,20 @@
 import * as THREE from 'three'
 
-export default class Divizyon
+export default class SesOdasi
 {
     constructor(_options)
     {
         // Debug kontrolü
-        console.log('Divizyon constructor çalıştı, debug durumu:', _options.debug);
+        console.log('SesOdasi constructor çalıştı, debug durumu:', _options.debug);
         
         // Gerekli parametreler
         this.resources = _options.resources
         this.objects = _options.objects
         this.debug = _options.debug
-        this.config = _options.config
-        this.time = _options.time
-        this.areas = _options.areas
-        this.walls = _options.walls
-        this.tiles = _options.tiles
         this.materials = _options.materials
-        this.x =  -98// X pozisyonu
-        this.y = -1 // Y pozisyonu
-        this.z = 0 // Z pozisyonu
+        this.x = -86 // X pozisyonu
+        this.y = -12 // Y pozisyonu
+        this.z = 0  // Z pozisyonu
         
         // Container oluştur
         this.container = new THREE.Object3D()
@@ -29,8 +24,8 @@ export default class Divizyon
         // Debug
         if(this.debug)
         {
-            console.log('Debug modunda Divizyon paneli oluşturuluyor');
-            this.debugFolder = this.debug.addFolder('divizyon')
+            console.log('Debug modunda SesOdasi paneli oluşturuluyor');
+            this.debugFolder = this.debug.addFolder('sesOdasi')
             this.debugFolder.open()
             
             // Position debug
@@ -41,12 +36,12 @@ export default class Divizyon
             
             // Scale debug
             this.debugObject = {
-                scaleX: 0.5,
-                scaleY: 0.5,
-                scaleZ: 0.5,
-                rotationX: 53,
-                rotationY: 90,
-                rotationZ: 180
+                scaleX: 1.0,
+                scaleY: 1.0,
+                scaleZ: 1.0,
+                rotationX: -90,
+                rotationY: -180,
+                rotationZ: 0
             }
             
             const scaleFolder = this.debugFolder.addFolder('scale')
@@ -65,23 +60,30 @@ export default class Divizyon
             console.log('Debug modu aktif değil');
         }
 
-        // Divizyon modeli ayarla
-        this.setDivizyon()
+        // SesOdasi modeli ayarla
+        this.setSesOdasi()
     }
 
-    setDivizyon()
+    setSesOdasi()
     {
-        this.divizyon = {}
+        this.sesOdasi = {}
         
-        // Divizyon modelini yükle
-        this.divizyon.resource = this.resources.items.divizyon
+        // SesOdasi modelini yükle
+        this.sesOdasi.resource = this.resources.items.sesOdasi
         
-        if(!this.divizyon.resource || !this.divizyon.resource.scene) {
-            console.error('Hata: Divizyon modeli yüklenemedi veya bulunamadı!')
-            return
+        console.log('SesOdasi resource kontrolü:', this.sesOdasi.resource);
+        
+        if(!this.sesOdasi.resource) {
+            console.error('Hata: SesOdasi modeli yüklenemedi veya bulunamadı!');
+            return;
         }
         
-        console.log('Divizyon modeli yüklendi:', this.divizyon.resource)
+        if(!this.sesOdasi.resource.scene) {
+            console.error('Hata: SesOdasi modelinin scene özelliği bulunamadı!', this.sesOdasi.resource);
+            return;
+        }
+        
+        console.log('SesOdasi modeli yüklendi:', this.sesOdasi.resource);
         
         // Mesh'i oluştur 
         try {
@@ -91,9 +93,9 @@ export default class Divizyon
             };
             
             // Eğim değerleri (derece cinsinden)
-            const xRotation = this.debug ? this.debugObject.rotationX : -Math.PI / 2;
-            const yRotation = this.debug ? this.debugObject.rotationY : -Math.PI / 2; 
-            const zRotation = this.debug ? this.debugObject.rotationZ : 50;  
+            const xRotation = this.debug ? this.debugObject.rotationX : 0;
+            const yRotation = this.debug ? this.debugObject.rotationY : 0; 
+            const zRotation = this.debug ? this.debugObject.rotationZ : -8;  
             
             // Pozisyon ayarla
             this.position = new THREE.Vector3(this.x, this.y, this.z)
@@ -106,43 +108,43 @@ export default class Divizyon
             )
             
             // Ölçek ayarla
-            const scaleX = this.debug ? this.debugObject.scaleX : 1.6;
-            const scaleY = this.debug ? this.debugObject.scaleY : 1;
-            const scaleZ = this.debug ? this.debugObject.scaleZ : 2;
+            const scaleX = this.debug ? this.debugObject.scaleX : 1.0;
+            const scaleY = this.debug ? this.debugObject.scaleY : 1.0;
+            const scaleZ = this.debug ? this.debugObject.scaleZ : 1.0;
             this.scale = new THREE.Vector3(scaleX, scaleY, scaleZ)
             
             // Mesh oluştur
-            this.divizyon.mesh = this.objects.getConvertedMesh(this.divizyon.resource.scene.children)
-            this.divizyon.mesh.position.copy(this.position)
-            this.divizyon.mesh.rotation.copy(this.rotation)
-            this.divizyon.mesh.scale.copy(this.scale)
+            this.sesOdasi.mesh = this.objects.getConvertedMesh(this.sesOdasi.resource.scene.children)
+            this.sesOdasi.mesh.position.copy(this.position)
+            this.sesOdasi.mesh.rotation.copy(this.rotation)
+            this.sesOdasi.mesh.scale.copy(this.scale)
             
             // Konteynere ekle
-            this.container.add(this.divizyon.mesh)
+            this.container.add(this.sesOdasi.mesh)
             
-            console.log('Divizyon modeli başarıyla yüklendi')
+            console.log('SesOdasi modeli başarıyla yüklendi')
         } catch(error) {
-            console.error('Divizyon modelini yüklerken hata oluştu:', error)
+            console.error('SesOdasi modelini yüklerken hata oluştu:', error)
         }
     }
 
     // Debug için yardımcı metodlar
     updatePosition() {
-        if (this.divizyon && this.divizyon.mesh) {
+        if (this.sesOdasi && this.sesOdasi.mesh) {
             this.position.set(this.x, this.y, this.z)
-            this.divizyon.mesh.position.copy(this.position)
+            this.sesOdasi.mesh.position.copy(this.position)
         }
     }
     
     updateScale() {
-        if (this.divizyon && this.divizyon.mesh) {
+        if (this.sesOdasi && this.sesOdasi.mesh) {
             this.scale.set(this.debugObject.scaleX, this.debugObject.scaleY, this.debugObject.scaleZ)
-            this.divizyon.mesh.scale.copy(this.scale)
+            this.sesOdasi.mesh.scale.copy(this.scale)
         }
     }
     
     updateRotation() {
-        if (this.divizyon && this.divizyon.mesh) {
+        if (this.sesOdasi && this.sesOdasi.mesh) {
             const degToRad = (degrees) => {
                 return degrees * (Math.PI / 180);
             };
@@ -152,7 +154,7 @@ export default class Divizyon
                 degToRad(this.debugObject.rotationY),
                 degToRad(this.debugObject.rotationZ)
             )
-            this.divizyon.mesh.rotation.copy(this.rotation)
+            this.sesOdasi.mesh.rotation.copy(this.rotation)
         }
     }
-}
+} 

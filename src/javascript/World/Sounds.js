@@ -180,7 +180,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-20, 0, 0] // Mavi küre
+                defaultPosition: [-86, -12, 0] // Mavi küre
             }
         ]
 
@@ -452,7 +452,7 @@ export default class Sounds
             for(const item of this.items) {
                 if(item.spatial) {
                     // Küre geometrisi oluştur
-                    const geometry = new THREE.SphereGeometry(0.3, 16, 16)
+                    const geometry = new THREE.SphereGeometry(0, 16, 16)
                     
                     // Mavi renk kullan
                     const color = 0x0000ff
