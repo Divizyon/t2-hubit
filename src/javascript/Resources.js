@@ -264,8 +264,8 @@ export default class Resources extends EventEmitter
             { name: 'greenBoxCollision', source: './models/modeller/greenbox/GreenBoxCollision.glb' },
 
             // Alaaddin Tepesi
-            { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
-
+            { name: 'AlaaddinTepesi', source: './models/AlaaddinTepesi.glb' },
+            
             // Kelebekler
             { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
         ])

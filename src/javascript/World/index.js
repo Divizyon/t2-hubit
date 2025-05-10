@@ -31,7 +31,7 @@ import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
 import SesOdasi from './SesOdasi.js'
 
-import AlaaddinTepesi from './AlaaddinTepesi.js'
+import AladdinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
@@ -97,7 +97,7 @@ export default class World
         this.setGenclikMerkezi()
         this.setkonyagenckart()
         this.setDivizyon()
-        this.setAlaaddinTepesi()
+        this.setAladdinTepesi()
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
@@ -607,14 +607,12 @@ export default class World
     }
     
 
-    setAlaaddinTepesi()
-    {
-        this.alaaddinTepesi = new AlaaddinTepesi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder
-        })
-        this.container.add(this.alaaddinTepesi.container)
+    setAladdinTepesi() {
+        this.aladdinTepesi = new AladdinTepesi({
+            scene: this.scene,
+            time: this.time,
+            physics: this.physics
+        });
     }
      
 
