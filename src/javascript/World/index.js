@@ -36,6 +36,7 @@ import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
+import SosyalInovasyonAjans from './SosyalInovasyonAjans.js'
 
 export default class World
 {
@@ -105,6 +106,7 @@ export default class World
         this.setSesOdasi()
         this.setRocket()
         this.setSesOdasi()
+        this.setSosyalInovasyonAjans()
 
     }
 
@@ -627,8 +629,6 @@ export default class World
         this.container.add(this.kelebekler.container)
     }
 
-
-
     setRocket() 
     {
         // Bu metot, Eyfel Kulesi benzeri roketi oluşturur
@@ -706,6 +706,16 @@ export default class World
         } else {
             console.error('SesOdasi container oluşturulamadı');
         }
+
+      
+      setSosyalInovasyonAjans()
+    {
+        this.sosyalInovasyonAjans = new SosyalInovasyonAjans({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.sosyalInovasyonAjans.container)
     }
 
 }
