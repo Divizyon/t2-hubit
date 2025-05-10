@@ -151,20 +151,23 @@ export default class Resources extends EventEmitter
 
 
             // ÇalışanGençlikMerkezi
-            { name: 'CalisanGenclikMerkezi', source: './models/CalisanGenclikMerkezi.glb'},
+            { name: 'CalisanGenclikMerkezi', source: './models/calisangenclikmerkezi/CalisanGenclikMerkezi.glb'},
 
             //konyagenckart
-            { name: 'konyagenckart', source: './models/konyagenckart.glb'},
+            { name: 'konyagenckart', source: './models/konyagenckart/konyagenckart.glb'},
             
             //BilimMerkezi
-            { name: 'BilimMerkezi', source: './models/BilimMerkezi_BlockOut.glb'},
+            { name: 'BilimMerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb'},
             
             //KapsulBinasi
-            { name: 'KapsulBinasi', source: './models/Kapsul.glb'},
+            { name: 'KapsulBinasi', source: './models/kapsül/Kapsul.glb'},
 
 
             //divizyon
             { name: 'divizyon', source: './models/divizyon/DivizyonBina.glb'},
+
+            // Sosyal İnovasyon Ajansı
+            { name: 'sosyalInovasyonAjans', source: './models/sosyalinovasyon/sosyalinovasyonajans.glb'},
 
             // Rocket model
             { name: 'rocketModel', source: './models/rocket/base.glb' },
@@ -264,10 +267,11 @@ export default class Resources extends EventEmitter
             { name: 'greenBoxCollision', source: './models/modeller/greenbox/GreenBoxCollision.glb' },
 
             // Alaaddin Tepesi
-            { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
+            { name: 'alaaddinTepesiModel', source: './models/alaaddin/AlaaddinTepesi.glb' },
 
             // Kelebekler
-            { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
+            { name: 'kelebeklerModel', source: './models/kelebekler/kelebekler.glb' },
+
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>

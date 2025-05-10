@@ -30,6 +30,7 @@ import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
 import SesOdasi from './SesOdasi.js'
+import SosyalInovasyonAjans from './SosyalInovasyonAjans.js'
 
 import AlaaddinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
@@ -86,17 +87,17 @@ export default class World
         this.setZones()
         this.setObjects()
         this.setCar()
-        this.setRoad()
         this.areas.car = this.car
         this.setTiles()
         this.setWalls()
         this.setSections()
         this.setEasterEggs()
+        this.setRoad()
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
-
-        this.setDivizyon()
+        this.setSosyalInovasyonAjans() 
+        this.setDivizyon() 
 
         this.setAlaaddinTepesi()
         this.setKelebekler()
@@ -588,9 +589,9 @@ export default class World
     {
         console.log('setDivizyon() fonksiyonu çağrıldı, debug durumu:', this.debug);
         this.divizyon = new Divizyon({
+            debug: this.debug,
             resources: this.resources,
             objects: this.objects,
-            debug: this.debug,
             physics: this.physics,
             materials: this.materials,
             shadows: this.shadows
@@ -628,6 +629,28 @@ export default class World
         this.container.add(this.kelebekler.container)
     }
 
+    setSosyalInovasyonAjans()
+    {
+        try {
+            this.sosyalInovasyonAjans = new SosyalInovasyonAjans({
+                debug: this.debug,
+                resources: this.resources,
+                objects: this.objects,
+                physics: this.physics,
+                materials: this.materials,
+                shadows: this.shadows
+            })
+            
+            if (this.sosyalInovasyonAjans && this.sosyalInovasyonAjans.container) {
+                console.log('Sosyal İnovasyon Ajansı container ekleniyor');
+                this.container.add(this.sosyalInovasyonAjans.container);
+            } else {
+                console.error('Sosyal İnovasyon Ajansı container oluşturulamadı');
+            }
+        } catch (error) {
+            console.error('Sosyal İnovasyon Ajansı yüklenirken hata oluştu:', error);
+        }
+    }
 
 
     setRocket() 
