@@ -33,6 +33,7 @@ import SesOdasi from './SesOdasi.js'
 
 import AladdinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
+import SosyalInovasyon from './SosyalInovasyon.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
@@ -97,7 +98,8 @@ export default class World
         this.setGenclikMerkezi()
         this.setkonyagenckart()
         this.setDivizyon()
-        this.setAladdinTepesi()
+        this.setAlaaddinTepesi()
+        this.setSosyalInovasyon()
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
@@ -105,6 +107,7 @@ export default class World
         this.setRocket()
         this.setSesOdasi()
         this.setCustomButton()
+
     }
 
     setReveal()
@@ -607,14 +610,30 @@ export default class World
     }
     
 
-    setAladdinTepesi() {
-        this.aladdinTepesi = new AladdinTepesi({
-            scene: this.scene,
-            time: this.time,
-            physics: this.physics
-        });
+    setAlaaddinTepesi()
+    {
+        this.alaaddinTepesi = new AlaaddinTepesi({
+            debug: this.debugFolder,
+            resources: this.resources,
+            objects: this.objects,
+            config: this.config,
+            time: this.time
+        })
+        this.container.add(this.alaaddinTepesi.container)
     }
      
+
+    setSosyalInovasyon()
+    {
+        this.sosyalInovasyon = new SosyalInovasyon({
+            debug: this.debugFolder,
+            resources: this.resources,
+            objects: this.objects,
+            config: this.config,
+            time: this.time
+        })
+        this.container.add(this.sosyalInovasyon.container)
+    }
 
     setKelebekler()
     {
