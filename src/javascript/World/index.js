@@ -607,14 +607,12 @@ export default class World
     }
     
 
-    setAlaaddinTepesi()
-    {
-        this.alaaddinTepesi = new AlaaddinTepesi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder
-        })
-        this.container.add(this.alaaddinTepesi.container)
+    setAladdinTepesi() {
+        this.aladdinTepesi = new AlaaddinTepesi({
+            scene: this.scene,
+            time: this.time,
+            physics: this.physics
+        });
     }
      
 
@@ -726,4 +724,5 @@ export default class World
             console.warn('GreenBox bulunamadı, update metodu eklenemedi');
         }
     }
+
 }
