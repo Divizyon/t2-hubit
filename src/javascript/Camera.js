@@ -344,4 +344,46 @@ export default class Camera
             this.debugFolder.add(this.orbitControls, 'enabled').name('orbitControlsEnabled')
         }
     }
+
+    shake(intensity = 1, duration = 500)
+    {
+        // Set up
+        const shakeIntensity = intensity * 0.2
+        const startTime = Date.now()
+        const endTime = startTime + duration
+        
+        // Create original position reference
+        const originalPosition = this.instance.position.clone()
+        
+        // Shake function
+        const shakeCamera = () => {
+            const now = Date.now()
+            
+            // Continue shaking until duration is complete
+            if (now < endTime) {
+                // Calculate remaining shake intensity based on time left
+                const timeLeft = (endTime - now) / duration
+                const currentIntensity = shakeIntensity * timeLeft
+                
+                // Apply random offset to camera position
+                const offsetX = (Math.random() - 0.5) * currentIntensity
+                const offsetY = (Math.random() - 0.5) * currentIntensity
+                const offsetZ = (Math.random() - 0.5) * currentIntensity
+                
+                this.instance.position.x += offsetX
+                this.instance.position.y += offsetY
+                this.instance.position.z += offsetZ
+                
+                // Request next frame
+                requestAnimationFrame(() => {
+                    // Restore original position before applying next shake
+                    this.instance.position.copy(originalPosition)
+                    shakeCamera()
+                })
+            }
+        }
+        
+        // Start shaking
+        shakeCamera()
+    }
 }
