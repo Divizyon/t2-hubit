@@ -164,6 +164,9 @@ export default class Resources extends EventEmitter
             //KapsulBinasi
             { name: 'KapsulBinasi', source: './models/Kapsul.glb'},
 
+            //render_odasi
+            { name: 'render_odasi', source: './models/render_odasi.glb'},
+
 
             //divizyon
             { name: 'divizyon', source: './models/divizyon/DivizyonBina.glb'},
