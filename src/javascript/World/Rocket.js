@@ -25,6 +25,7 @@ export class Rocket {
         this.isLanding = false
 
         this.setModels()
+        this.setPlatform()
         this.setLight()
         this.setAnimation()
         this.setPhysics()
@@ -55,7 +56,13 @@ export class Rocket {
             this.model.mesh.rotation.x = 0
             this.model.mesh.rotation.y = 0
             this.model.mesh.rotation.z = 0
+            
+            // Roketi yatay düzlemde ortala (x ve y pozisyonları)
+            this.model.mesh.position.x = -0.2 // Sola doğru hafif kaydır
             this.model.mesh.position.y = 0
+            
+            // Roketi platform üzerine yükselt - şimdi tam platforma otursun
+            this.model.mesh.position.z = 0.0
             
             // Basit materyal kullanarak renklendirme
             this.model.mesh.traverse((child) => {
@@ -347,6 +354,42 @@ export class Rocket {
             }
         })
     }
+    setPlatform() {
+        try {
+            // Platform modelini resources'dan yükle
+            if (this.resources.items.rocketPlatformModel) {
+                this.platform = {}
+                
+                // Platform modelini yükle
+                this.platform.mesh = this.resources.items.rocketPlatformModel.scene.clone()
+                
+                // Platformu konumlandır (zemin seviyesinde)
+                this.platform.mesh.position.set(0, 0, -0.1)
+                
+                // Ölçeği ayarla
+                this.platform.mesh.scale.set(1.0, 1.0, 1.0)
+                
+                // Rotasyonu ayarla
+                this.platform.mesh.rotation.x = 0
+                this.platform.mesh.rotation.y = 0
+                this.platform.mesh.rotation.z = 0
+                
+                // Platformu konumlandır
+                this.platform.mesh.position.x = this.container.position.x
+                this.platform.mesh.position.y = this.container.position.y
+                this.platform.mesh.position.z = this.container.position.z - 0.1
+                
+                // Platformu sabit tutmak için container'a değil ana scene'e ekliyoruz
+                this.objects.container.add(this.platform.mesh)
+                
+                console.log('Roket platformu başarıyla yüklendi ve sabitlendi')
+            } else {
+                console.warn('Roket platform modeli bulunamadı')
+            }
+        } catch (error) {
+            console.error('Roket platformu yüklenirken hata:', error)
+        }
+    }
 
     launch() {
         if(this.isLaunched) return
@@ -354,7 +397,7 @@ export class Rocket {
         this.isLaunched = true
         this.animation.state = 'preparing'
         
-        // Başlangıç pozisyonunu tekrar kaydet
+        // Başlangıç pozisyonunu tekrar kaydet (sadece roket için)
         this.startPosition = this.container.position.clone()
         
         // Roketin hazırlanması için titreşim animasyonu

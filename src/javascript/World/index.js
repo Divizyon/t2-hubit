@@ -634,7 +634,7 @@ export default class World
             physics: this.physics,
             debug: this.debug,
             sounds: this.sounds,
-            position: new THREE.Vector3(25, 35, 0) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
+            position: new THREE.Vector3(25, 35, -10) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
         })
         
         // Roketi sahneye ekle - container'ı scene'e ekleyin

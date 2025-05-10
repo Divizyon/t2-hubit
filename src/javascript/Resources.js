@@ -168,6 +168,9 @@ export default class Resources extends EventEmitter
 
             // Rocket model
             { name: 'rocketModel', source: './models/rocket/base.glb' },
+            
+            // Rocket platform
+            { name: 'rocketPlatformModel', source: './models/rocket/roketplatformglb.glb' },
 
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
