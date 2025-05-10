@@ -724,5 +724,6 @@ export default class World
             console.log('GreenBox update metodu time.tick eventine eklendi');
         } else {
             console.warn('GreenBox bulunamadı, update metodu eklenemedi');
-
+        }
+    }
 }
