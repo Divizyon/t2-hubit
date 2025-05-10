@@ -36,6 +36,7 @@ import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
+import render_odasi from './render_odasi.js'
 
 export default class World
 {
@@ -105,6 +106,7 @@ export default class World
         this.setRocket()
         this.setSesOdasi()
         this.setCustomButton()
+        this.setrender_odasi()
     }
 
     setReveal()
@@ -347,7 +349,17 @@ export default class World
         this.container.add(this.genclikMerkezi.container)
     }
    
-    
+    setrender_odasi()
+    {
+        this.render_odasi = new render_odasi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder,
+            physics: this.physics
+        })
+        this.container.add(this.render_odasi.container)
+    }
+   
 
     setkonyagenckart()
     {
