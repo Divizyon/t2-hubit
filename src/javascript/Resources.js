@@ -171,7 +171,10 @@ export default class Resources extends EventEmitter
             
             // Rocket platform
             { name: 'rocketPlatformModel', source: './models/rocket/roketplatformglb.glb' },
-
+             
+            //sesOdasi
+            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb', onLoad: () => console.log('SesOdasi modeli yüklendi!') },
+              
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
                          
