@@ -34,6 +34,7 @@ import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
+import SosyalInovasyonAjans from './SosyalInovasyonAjans.js'
 
 export default class World
 {
@@ -100,7 +101,7 @@ export default class World
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
-
+        this.setSosyalInovasyonAjans()
     }
 
     setReveal()
@@ -619,6 +620,16 @@ export default class World
             time: this.time
         })
         this.container.add(this.kelebekler.container)
+    }
+
+    setSosyalInovasyonAjans()
+    {
+        this.sosyalInovasyonAjans = new SosyalInovasyonAjans({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debugFolder
+        })
+        this.container.add(this.sosyalInovasyonAjans.container)
     }
 
 }

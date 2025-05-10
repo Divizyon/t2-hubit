@@ -260,11 +260,19 @@ export default class Resources extends EventEmitter
 
             // Kelebekler
             { name: 'kelebeklerModel', source: './models/kelebekler .glb' },
+
+            // Sosyal İnovasyon Ajansı
+            { name: 'sosyalInovasyonAjans', source: './models/sosyalinovasyon/sosyalinavasyonajans.glb' }
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>
         {
             this.items[_resource.name] = _data
+
+            // Debug - Sosyal İnovasyon Ajansı modelinin yüklenme durumunu kontrol et
+            if(_resource.name === 'sosyalInovasyonAjans') {
+                console.log('Debug: Sosyal İnovasyon Ajansı modeli yüklendi', _data)
+            }
 
             // Texture
             if(_resource.type === 'texture')
@@ -281,6 +289,13 @@ export default class Resources extends EventEmitter
 
         this.loader.on('end', () =>
         {
+            // Debug - Tüm modellerin yüklenme durumunu kontrol et
+            if(this.items.sosyalInovasyonAjans) {
+                console.log('Debug: Sosyal İnovasyon Ajansı model referansı:', this.items.sosyalInovasyonAjans)
+            } else {
+                console.error('Debug: Sosyal İnovasyon Ajansı modeli yüklenemedi!')
+            }
+
             // Trigger ready
             this.trigger('ready')
         })
