@@ -10,10 +10,11 @@ import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import Road from './Road.js'
+import { Rocket } from './Rocket.js'
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
-import InformationSection from './Sections/InformationSection.js'
+// import InformationSection from './Sections/InformationSection.js'
 import PlaygroundSection from './Sections/PlaygroundSection.js'
 // import DistinctionASection from './Sections/DistinctionASection.js'
 // import DistinctionBSection from './Sections/DistinctionBSection.js'
@@ -100,7 +101,7 @@ export default class World
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
-
+        this.setRocket()
     }
 
     setReveal()
@@ -609,6 +610,7 @@ export default class World
         })
         this.container.add(this.alaaddinTepesi.container)
     }
+     
 
     setKelebekler()
     {
@@ -621,4 +623,62 @@ export default class World
         this.container.add(this.kelebekler.container)
     }
 
+
+    setRocket() 
+    {
+        // Bu metot, Eyfel Kulesi benzeri roketi oluşturur
+        this.rocket = new Rocket({
+            time: this.time,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debug,
+            sounds: this.sounds,
+            position: new THREE.Vector3(25, 35, -10) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
+        })
+        
+        // Roketi sahneye ekle - container'ı scene'e ekleyin
+        this.container.add(this.rocket.container)
+        
+        // Roket fırlatma alanı oluştur
+        this.rocketLaunchArea = this.areas.add({
+            position: new THREE.Vector2(25, 35), // X, Y koordinatlarını 16, 28 olarak değiştirdik
+            halfExtents: new THREE.Vector2(3, 3),
+            debug: true,
+            hasKey: false
+        })
+        
+        // Fırlatma alanına etkileşim ekle
+        this.rocketLaunchArea.on('interact', () => {
+            if (!this.rocket.isLaunched) {
+                console.log('Roket fırlatılıyor!')
+                this.rocket.launch()
+            } else {
+                console.log('Roket zaten fırlatıldı!')
+            }
+        })
+        
+        // Bilgi paneli ekle
+        const rocketInfo = document.createElement('div')
+        rocketInfo.style.position = 'absolute'
+        rocketInfo.style.bottom = '20px'
+        rocketInfo.style.right = '20px'
+        rocketInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+        rocketInfo.style.color = 'white'
+        rocketInfo.style.padding = '10px'
+        rocketInfo.style.borderRadius = '5px'
+        rocketInfo.style.fontFamily = 'Arial, sans-serif'
+        rocketInfo.style.zIndex = '1000'
+        rocketInfo.textContent = 'Roket fırlatmak için K tuşuna basın veya roketin yanına gidip tıklayın!'
+        document.body.appendChild(rocketInfo)
+        
+        // 5 saniye sonra bilgi panelini gizle
+        setTimeout(() => {
+            rocketInfo.style.opacity = '0'
+            rocketInfo.style.transition = 'opacity 1s ease-in-out'
+            setTimeout(() => {
+                document.body.removeChild(rocketInfo)
+            }, 1000)
+        }, 10000)
+    }
 }
