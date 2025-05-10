@@ -142,6 +142,8 @@ export default class Resources extends EventEmitter
             { name: 'playgroundStaticCollision', source: './models/playground/static/collision.glb' },
             { name: 'playgroundStaticFloorShadow', source: './models/playground/static/floorShadow.png', type: 'texture' },
 
+            
+
             // Brick
             { name: 'brickBase', source: './models/brick/base.glb' },
             { name: 'brickCollision', source: './models/brick/collision.glb' },
@@ -181,6 +183,9 @@ export default class Resources extends EventEmitter
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },
             { name: 'hornCollision', source: './models/horn/collision.glb' },
+
+
+            { name: 'kaleModel', source: './models/soccer/kale.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
@@ -270,6 +275,12 @@ export default class Resources extends EventEmitter
             { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
         ])
 
+
+        this.resourceGroups = {
+            core: [],
+            footballGame: [] // Football mini oyunu kaynakları
+        }
+        
         this.loader.on('fileEnd', (_resource, _data) =>
         {
             this.items[_resource.name] = _data
