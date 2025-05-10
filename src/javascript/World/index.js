@@ -11,6 +11,7 @@ import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import Road from './Road.js'
 import { Rocket } from './Rocket.js'
+import Football from './Football.js' 
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
@@ -79,7 +80,6 @@ export default class World
             this.camera.pan.enable()
         }, 2000)
 
-        
         this.setReveal()
         this.setMaterials()
         this.setShadows()
@@ -87,7 +87,6 @@ export default class World
         this.setZones()
         this.setObjects()
         this.setCar()
-        this.setAreas()
         this.areas.car = this.car
         this.setRoad()
         this.setTiles()
@@ -106,7 +105,9 @@ export default class World
         this.setRocket()
         this.setSesOdasi()
         this.setCustomButton()
+        this.setFootball()
         this.setrender_odasi()
+
     }
 
     setReveal()
@@ -275,18 +276,23 @@ export default class World
         // On interact, reveal
         this.startingScreen.area.on('interact', () =>
         {
-            console.log('Başlangıç ekranına tıklandı, oyun başlatılıyor...')
-            this.startingScreen.area.deactivate()
-            gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 })
-            gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 })
-
-           
-            this.start()
-
-            window.setTimeout(() =>
-            {
-                this.reveal.go()
-            }, 600)
+            try {
+                console.log('Başlangıç ekranına tıklandı, oyun başlatılıyor...')
+                this.startingScreen.area.deactivate()
+                gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 })
+                gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 })
+                
+                // Güvenli bir şekilde oyunu başlat
+                window.setTimeout(() => {
+                    this.start()
+                    
+                    window.setTimeout(() => {
+                        this.reveal.go()
+                    }, 300)
+                }, 500)
+            } catch (error) {
+                console.error('Oyun başlatılırken hata oluştu:', error)
+            }
         })
     }
 
@@ -736,4 +742,25 @@ export default class World
             console.warn('GreenBox bulunamadı, update metodu eklenemedi');
         }
     }
+
+    setFootball()
+     {
+        this.football = new Football({
+            time: this.time,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            shadows: this.shadows,
+            materials: this.materials,
+            sounds: this.sounds,
+            areas: this.areas,
+            debug: this.debug
+        })
+        
+        this.container.add(this.football.container)
+        
+        // Football oyunu otomatik olarak başlatılsın, kullanıcı etkileşimine gerek yok
+        this.football.initialize()
+    }
+
 }

@@ -34,6 +34,39 @@ export default class PlaygroundSection
         this.setBowling()
     }
 
+    setFootballField() 
+    {
+        // Saha boyutları
+        const fieldWidth = 33
+        const fieldHeight = 15
+        
+        // Yeşil zemin geometrisi
+        const planeGeometry = new THREE.PlaneGeometry(fieldWidth, fieldHeight)
+        
+        // Futbol sahası texture'ı oluştur - iç içe yeşil renk tonlarıyla
+        const canvas = document.createElement('canvas')
+        canvas.width = 256
+        canvas.height = 256
+        const context = canvas.getContext('2d')
+        
+        // Açık yeşil taban rengi
+        context.fillStyle = '#4CAF50' // Ana yeşil renk
+        context.fillRect(0, 0, canvas.width, canvas.height)
+        
+        // Çim efekti ve saha çizgileri ekle
+        // ...
+        
+        // Texture ve mesh oluştur
+        // ...
+        
+        this.footballField = new THREE.Mesh(planeGeometry, fieldMaterial)
+        this.footballField.rotation.x = -Math.PI
+        this.footballField.position.set(this.x + 5, this.y + 5, 0.01)
+        
+        this.container.add(this.footballField)
+    }
+
+
     setStatic()
     {
         this.objects.add({
