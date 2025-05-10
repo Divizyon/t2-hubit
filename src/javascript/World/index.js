@@ -622,7 +622,8 @@ export default class World
             resources: this.resources,
             objects: this.objects,
             debug: this.debugFolder,
-            time: this.time
+            time: this.time,
+            physics: this.physics
         })
         this.container.add(this.kelebekler.container)
     }

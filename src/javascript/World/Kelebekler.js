@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import * as CANNON from 'cannon'
 
 export default class Kelebekler
 {
@@ -10,6 +11,7 @@ export default class Kelebekler
         this.debug = _options.debug
         this.config = _options.config
         this.time = _options.time
+        this.physics = _options.physics // Fizik motorunu al
         
         // Container oluştur
         this.container = new THREE.Object3D()
@@ -34,7 +36,8 @@ export default class Kelebekler
                 z: 2.6
             },
             animasyonHizi: 0.00000001,
-            ucusYuksekligi: 0
+            ucusYuksekligi: 0,
+            showCollision: false // Çarpışma görünürlüğü için
         }
 
         if(this.debug)
@@ -54,6 +57,11 @@ export default class Kelebekler
             
             this.debugFolder.add(this.debugProperties, 'animasyonHizi').min(0).max(2).step(0.01).name('animasyon hızı')
             this.debugFolder.add(this.debugProperties, 'ucusYuksekligi').min(0).max(5).step(0.1).name('uçuş yüksekliği')
+            this.debugFolder.add(this.debugProperties, 'showCollision').name('Çarpışma göster').onChange(() => {
+                if(this.collisionHelpers) {
+                    this.collisionHelpers.visible = this.debugProperties.showCollision
+                }
+            })
         }
 
         // Kelebekler'i ayarla
@@ -72,6 +80,20 @@ export default class Kelebekler
             this.kelebekler.model.position.x = this.debugProperties.position.x
             this.kelebekler.model.position.y = this.debugProperties.position.y
             this.kelebekler.model.position.z = this.debugProperties.position.z
+            
+            // Fizik gövdesini de güncelle
+            if(this.kelebekler.collision && this.kelebekler.collision.body) {
+                this.kelebekler.collision.body.position.set(
+                    this.debugProperties.position.x,
+                    this.debugProperties.position.y,
+                    this.debugProperties.position.z
+                )
+                
+                // Helper'ları da güncelle
+                if(this.collisionHelpers) {
+                    this.updateCollisionHelpers()
+                }
+            }
         }
     }
 
@@ -86,6 +108,22 @@ export default class Kelebekler
             this.kelebekler.model.rotation.x = degToRad(this.debugProperties.rotation.x)
             this.kelebekler.model.rotation.y = degToRad(this.debugProperties.rotation.y)
             this.kelebekler.model.rotation.z = degToRad(this.debugProperties.rotation.z)
+            
+            // Fizik gövdesini de güncelle
+            if(this.kelebekler.collision && this.kelebekler.collision.body) {
+                const rotation = new CANNON.Quaternion()
+                rotation.setFromEuler(
+                    degToRad(this.debugProperties.rotation.x),
+                    degToRad(this.debugProperties.rotation.y),
+                    degToRad(this.debugProperties.rotation.z)
+                )
+                this.kelebekler.collision.body.quaternion.copy(rotation)
+                
+                // Helper'ları da güncelle
+                if(this.collisionHelpers) {
+                    this.updateCollisionHelpers()
+                }
+            }
         }
     }
 
@@ -96,6 +134,20 @@ export default class Kelebekler
             this.kelebekler.model.scale.x = this.debugProperties.scale.x
             this.kelebekler.model.scale.y = this.debugProperties.scale.y
             this.kelebekler.model.scale.z = this.debugProperties.scale.z
+            
+            // Fizik gövdesini de güncelle - ölçek değiştiğinde collider'ları yeniden oluştur
+            if(this.physics && this.kelebekler.collision && this.kelebekler.collision.body) {
+                // Mevcut gövdeyi kaldır
+                this.physics.world.removeBody(this.kelebekler.collision.body)
+                
+                // Yeni gövde oluştur
+                this.createCollisionBody()
+                
+                // Helper'ları da güncelle
+                if(this.collisionHelpers) {
+                    this.updateCollisionHelpers()
+                }
+            }
         }
     }
 
@@ -169,9 +221,131 @@ export default class Kelebekler
             // Konteynere ekle
             this.container.add(this.kelebekler.model)
             
+            // Fizik çarpışma gövdesi oluştur
+            if(this.physics) {
+                this.createCollisionBody()
+            }
+            
             console.log('Kelebekler modeli başarıyla yüklendi')
         } catch(error) {
             console.error('Kelebekler modelini yüklerken hata oluştu:', error)
+        }
+    }
+    
+    createCollisionBody() {
+        // Fizik malzemesi al
+        const material = this.physics.materials.items.dummy
+        
+        // Kelebekler için ana sınır kutusu boyutları
+        const width = 3.5 * this.debugProperties.scale.x
+        const height = 3.5 * this.debugProperties.scale.y
+        const depth = 3.5 * this.debugProperties.scale.z
+        
+        // Fizik gövdesi oluştur - statik nesne (kütle=0)
+        const body = new CANNON.Body({
+            mass: 0, // Statik nesne
+            material: material,
+            position: new CANNON.Vec3(
+                this.debugProperties.position.x, 
+                this.debugProperties.position.y, 
+                this.debugProperties.position.z
+            ),
+            type: CANNON.Body.STATIC
+        })
+        
+        // Rotasyon ayarla
+        const degToRad = (degrees) => {
+            return degrees * (Math.PI / 180)
+        }
+        
+        const rotationQuaternion = new CANNON.Quaternion()
+        rotationQuaternion.setFromEuler(
+            degToRad(this.debugProperties.rotation.x),
+            degToRad(this.debugProperties.rotation.y),
+            degToRad(this.debugProperties.rotation.z)
+        )
+        body.quaternion = rotationQuaternion
+        
+        // Ana kutu şekli oluştur
+        const boxShape = new CANNON.Box(new CANNON.Vec3(width/2, height/2, depth/2))
+        body.addShape(boxShape)
+        
+        // Dünyaya ekle
+        this.physics.world.addBody(body)
+        
+        // Fizik gövdesini kaydet
+        this.kelebekler.collision = {
+            body: body
+        }
+        
+        // Debug için görsel helper'lar oluştur
+        if(this.debug) {
+            this.createCollisionHelpers(width, height, depth)
+        }
+    }
+    
+    createCollisionHelpers(width, height, depth) {
+        // Varsa mevcut helper'ları kaldır
+        if(this.collisionHelpers) {
+            this.container.remove(this.collisionHelpers)
+        }
+        
+        // Yeni helper grup oluştur
+        this.collisionHelpers = new THREE.Group()
+        
+        // Ana kutu helper
+        const boxHelper = new THREE.Mesh(
+            new THREE.BoxGeometry(width, height, depth),
+            new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+        )
+        
+        // Helper pozisyonunu ve rotasyonunu ayarla
+        boxHelper.position.set(
+            this.debugProperties.position.x,
+            this.debugProperties.position.y,
+            this.debugProperties.position.z
+        )
+        
+        const degToRad = (degrees) => {
+            return degrees * (Math.PI / 180)
+        }
+        
+        boxHelper.rotation.set(
+            degToRad(this.debugProperties.rotation.x),
+            degToRad(this.debugProperties.rotation.y),
+            degToRad(this.debugProperties.rotation.z)
+        )
+        
+        this.collisionHelpers.add(boxHelper)
+        
+        // Görünürlüğü ayarla
+        this.collisionHelpers.visible = this.debugProperties.showCollision
+        
+        // Container'a ekle
+        this.container.add(this.collisionHelpers)
+    }
+    
+    updateCollisionHelpers() {
+        if(this.collisionHelpers && this.collisionHelpers.children.length > 0) {
+            const boxHelper = this.collisionHelpers.children[0]
+            
+            // Helper pozisyonunu güncelle
+            boxHelper.position.set(
+                this.debugProperties.position.x,
+                this.debugProperties.position.y,
+                this.debugProperties.position.z
+            )
+            
+            // Helper rotasyonunu güncelle
+            const degToRad = (degrees) => {
+                return degrees * (Math.PI / 180)
+            }
+            
+            boxHelper.rotation.set(
+                degToRad(this.debugProperties.rotation.x),
+                degToRad(this.debugProperties.rotation.y),
+                degToRad(this.debugProperties.rotation.z)
+            )
         }
     }
     
