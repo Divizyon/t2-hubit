@@ -19,7 +19,7 @@ export default class Divizyon
         this.materials = _options.materials
         this.x =  -98// X pozisyonu
         this.y = -1 // Y pozisyonu
-        this.z = 7.6 // Z pozisyonu
+        this.z = 0 // Z pozisyonu
         
         // Container oluştur
         this.container = new THREE.Object3D()
@@ -91,9 +91,9 @@ export default class Divizyon
             };
             
             // Eğim değerleri (derece cinsinden)
-            const xRotation = this.debug ? this.debugObject.rotationX : 0;
-            const yRotation = this.debug ? this.debugObject.rotationY : 180; 
-            const zRotation = this.debug ? this.debugObject.rotationZ : 197;  
+            const xRotation = this.debug ? this.debugObject.rotationX : -Math.PI / 2;
+            const yRotation = this.debug ? this.debugObject.rotationY : -Math.PI / 2; 
+            const zRotation = this.debug ? this.debugObject.rotationZ : 50;  
             
             // Pozisyon ayarla
             this.position = new THREE.Vector3(this.x, this.y, this.z)
