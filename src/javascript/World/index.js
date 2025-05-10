@@ -30,12 +30,11 @@ import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
 import SesOdasi from './SesOdasi.js'
-
 import AladdinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
-
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
+import JaponParki from './JaponParki.js'
 
 export default class World
 {
@@ -74,38 +73,41 @@ export default class World
     start()
     {
         window.setTimeout(() =>
-        {
-            this.camera.pan.enable()
-        }, 2000)
+            {
+                this.camera.pan.enable()
+            }, 2000)
+    
+            
+            this.setReveal()
+            this.setMaterials()
+            this.setShadows()
+            this.setPhysics()
+            this.setZones()
+            this.setObjects()
+            this.setCar()
+            this.setAreas()
+            this.areas.car = this.car
+            this.setRoad()
+            this.setTiles()
+            this.setWalls()
+            this.setSections()
+            this.setEasterEggs()
+            this.setGreenBox()
+            this.setGenclikMerkezi()
+            this.setkonyagenckart()
+            this.setDivizyon()
+            this.setAladdinTepesi()
+            this.setKelebekler()
+            this.setBilimMerkezi()
+            this.setKapsulBinasi()
+            this.setSesOdasi()
+            this.setRocket()
+            this.setSesOdasi()
+            this.setCustomButton()
+            this.setJaponParki()
+        }
 
-        
-        this.setReveal()
-        this.setMaterials()
-        this.setShadows()
-        this.setPhysics()
-        this.setZones()
-        this.setObjects()
-        this.setCar()
-        this.setAreas()
-        this.areas.car = this.car
-        this.setRoad()
-        this.setTiles()
-        this.setWalls()
-        this.setSections()
-        this.setEasterEggs()
-        this.setGreenBox()
-        this.setGenclikMerkezi()
-        this.setkonyagenckart()
-        this.setDivizyon()
-        this.setAladdinTepesi()
-        this.setKelebekler()
-        this.setBilimMerkezi()
-        this.setKapsulBinasi()
-        this.setSesOdasi()
-        this.setRocket()
-        this.setSesOdasi()
-        this.setCustomButton()
-    }
+
 
     setReveal()
     {
@@ -376,6 +378,28 @@ export default class World
             debug: this.debugFolder
         })
         this.container.add(this.KapsulBinasi.container)
+    }
+   
+    setJaponParki()
+    {
+        console.log('setJaponParki() fonksiyonu çağrıldı')
+        
+        try {
+            this.japonParki = new JaponParki({
+                resources: this.resources,
+                objects: this.objects,
+                debug: this.debugFolder
+            })
+            
+            if (this.japonParki && this.japonParki.container) {
+                console.log('JaponParki container ekleniyor')
+                this.container.add(this.japonParki.container)
+            } else {
+                console.error('JaponParki container oluşturulamadı')
+            }
+        } catch (error) {
+            console.error('JaponParki oluşturulurken hata oluştu:', error)
+        }
     }
    
     setControls()

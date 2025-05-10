@@ -268,6 +268,9 @@ export default class Resources extends EventEmitter
             
             // Kelebekler
             { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
+            
+            // Japon Parkı
+            { name: 'japonParkiModel', source: './models/japonparkı/japon parkı.glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>
