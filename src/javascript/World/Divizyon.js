@@ -96,7 +96,7 @@ export default class Divizyon
             const zRotation = this.debug ? this.debugObject.rotationZ : 50;  
             
             // Pozisyon ayarla
-            this.position = new THREE.Vector3(this.x, this.y, this.z)
+            this.position = new THREE.Vector3(-5, 5, 0)
             
             // Rotasyon ayarla
             this.rotation = new THREE.Euler(
