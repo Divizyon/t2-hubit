@@ -264,7 +264,7 @@ export default class Resources extends EventEmitter
             { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
 
             // Kelebekler
-            { name: 'kelebeklerModel', source: './models/kelebekler .glb' },
+            { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) =>
