@@ -156,6 +156,12 @@ export default class GreenBox
         this.model.resource = this.resources.items.greenBoxModel
         this.model.collisionResource = this.resources.items.greenBoxCollision
 
+
+        // Pozisyon ve rotasyon tanımla
+        const fixedPosition = new THREE.Vector3(-50, 0, 0)
+        const fixedRotation = new THREE.Euler(0, 0, 0)
+
+
         // Add to objects - Sabit obje (mass: 0)
         this.model.object = this.objects.add({
             base: this.model.resource.scene,

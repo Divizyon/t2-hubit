@@ -26,8 +26,8 @@ export default class GenclikMerkezi
         this.model.resource = this.resources.items.CalisanGenclikMerkezi
 
         // Pozisyon ve rotasyon tanımla
-        const fixedPosition = new THREE.Vector3(37.5, -8.8, 0)
-        const fixedRotation = new THREE.Euler(0, 0, -0.7)
+        const fixedPosition = new THREE.Vector3(41, -14, 0)
+        const fixedRotation = new THREE.Euler(0, 0, -0.99)
 
         // Add to objects - sabit obje (mass: 0)
         this.model.object = this.objects.add({
@@ -45,13 +45,13 @@ export default class GenclikMerkezi
         const body = new CANNON.Body({
             mass: 0, // 0 kütle = statik nesne
             material: buildingMaterial,
-            position: new CANNON.Vec3(fixedPosition.x -1.4, fixedPosition.y -0.9, fixedPosition.z),
+            position: new CANNON.Vec3(fixedPosition.x + 1.5, fixedPosition.y + 1.2, fixedPosition.z),
             type: CANNON.Body.STATIC
         })
         
         // Binanın boyutları (yaklaşık değerler)
         const width = 5;  // x-ekseni genişliği
-        const length = 3.7;  // y-ekseni uzunluğu
+        const length = 3.5;  // y-ekseni uzunluğu
         const height = 5;  // z-ekseni yüksekliği
         
         // Merkez kutu oluştur (tüm binanın etrafına)
