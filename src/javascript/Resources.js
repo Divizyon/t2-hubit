@@ -266,6 +266,9 @@ export default class Resources extends EventEmitter
             // Alaaddin Tepesi
             { name: 'alaaddinTepesiModel', source: './models/AlaaddinTepesi.glb' },
 
+            // Sosyal İnovasyon Ajansı
+            { name: 'sosyalInovasyonModel', source: './models/sosyalinavasyon/sosyalinavasyonajans.glb' },
+
             // Kelebekler
             { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
         ])
