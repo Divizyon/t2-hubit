@@ -12,7 +12,7 @@ export default class SesOdasi
         this.objects = _options.objects
         this.debug = _options.debug
         this.materials = _options.materials
-        this.x = -86 // X pozisyonu
+        this.x = -50 // X pozisyonu
         this.y = -12 // Y pozisyonu
         this.z = 0  // Z pozisyonu
         
