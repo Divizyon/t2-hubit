@@ -87,8 +87,9 @@ export default class World
         this.setZones()
         this.setObjects()
         this.setCar()
-        this.setRoad()
+        this.setAreas()
         this.areas.car = this.car
+        this.setRoad()
         this.setTiles()
         this.setWalls()
         this.setSections()
@@ -96,9 +97,7 @@ export default class World
         this.setGreenBox()
         this.setGenclikMerkezi()
         this.setkonyagenckart()
-
         this.setDivizyon()
-
         this.setAlaaddinTepesi()
         this.setSosyalInovasyon()
         this.setKelebekler()
@@ -107,6 +106,8 @@ export default class World
         this.setSesOdasi()
         this.setRocket()
         this.setSesOdasi()
+        this.setCustomButton()
+
     }
 
     setReveal()
@@ -566,7 +567,10 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             sounds: this.sounds,
-            debug: this.debugFolder
+            debug: this.debugFolder,
+            materials: this.materials,
+            car: this.car,
+            areas: this.areas
         })
         this.container.add(this.greenBox.container)
     }
@@ -642,7 +646,6 @@ export default class World
         })
         this.container.add(this.kelebekler.container)
     }
-
 
 
     setRocket() 
@@ -721,7 +724,23 @@ export default class World
             this.container.add(this.sesOdasi.container);
         } else {
             console.error('SesOdasi container oluşturulamadı');
+
+        }
+      
+    }
+    setCustomButton()
+    {
+        console.log('setCustomButton çağrıldı, greenBox:', !!this.greenBox);
+        
+        // GreenBox sınıfına entegre edildiği için PopupButton artık oluşturulmuyor.
+        // GreenBox'ın update metodunu time.tick event'ine ekle
+        if (this.greenBox) {
+            this.time.on('tick', () => {
+                this.greenBox.update();
+            });
+            console.log('GreenBox update metodu time.tick eventine eklendi');
+        } else {
+            console.warn('GreenBox bulunamadı, update metodu eklenemedi');
         }
     }
-
 }
