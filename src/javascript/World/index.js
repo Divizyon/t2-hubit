@@ -29,6 +29,7 @@ import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
+import SesOdasi from './SesOdasi.js'
 import SosyalInovasyonAjans from './SosyalInovasyonAjans.js'
 
 import AlaaddinTepesi from './AlaaddinTepesi.js'
@@ -102,7 +103,10 @@ export default class World
         this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
+        this.setSesOdasi()
         this.setRocket()
+        this.setSesOdasi()
+
     }
 
     setReveal()
@@ -322,7 +326,7 @@ export default class World
                     // Uzamsal ses kaynağını güncelle - burası önemli
                     if(this.sounds && this.sounds.updateSpatialPosition) {
                         // Ses kaynağı aracın karşısına yerleştir
-                        this.sounds.updateSpatialPosition('spatialSound1', -20, 0, 0)
+                        this.sounds.updateSpatialPosition('spatialSound1', -86.6, -12, 1.3)
                     }
                 }
             }
@@ -619,7 +623,8 @@ export default class World
             resources: this.resources,
             objects: this.objects,
             debug: this.debugFolder,
-            time: this.time
+            time: this.time,
+            physics: this.physics
         })
         this.container.add(this.kelebekler.container)
     }
@@ -646,6 +651,7 @@ export default class World
             console.error('Sosyal İnovasyon Ajansı yüklenirken hata oluştu:', error);
         }
     }
+
 
     setRocket() 
     {
@@ -704,4 +710,26 @@ export default class World
             }, 1000)
         }, 10000)
     }
+    
+    //set sesOdasi
+    setSesOdasi()
+    {
+        console.log('setSesOdasi() fonksiyonu çağrıldı, debug durumu:', this.debug);
+        this.sesOdasi = new SesOdasi({
+            resources: this.resources,
+            objects: this.objects,
+            debug: this.debug,
+            physics: this.physics,
+            materials: this.materials,
+            shadows: this.shadows
+        })
+        
+        if (this.sesOdasi && this.sesOdasi.container) {
+            console.log('SesOdasi container ekleniyor');
+            this.container.add(this.sesOdasi.container);
+        } else {
+            console.error('SesOdasi container oluşturulamadı');
+        }
+    }
+
 }
