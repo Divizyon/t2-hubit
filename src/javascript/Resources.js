@@ -41,7 +41,7 @@ export default class Resources extends EventEmitter
 
             { name: 'introArrowKeyBase', source: './models/intro/arrowKey/base.glb' },
             { name: 'introArrowKeyCollision', source: './models/intro/arrowKey/collision.glb' },
-
+            
             { name: 'introBBase', source: './models/intro/b/base.glb' },
             { name: 'introBCollision', source: './models/intro/b/collision.glb' },
 
@@ -166,6 +166,8 @@ export default class Resources extends EventEmitter
             //divizyon
             { name: 'divizyon', source: './models/DivizyonBina.glb', type: 'model', onLoad: () => console.log('DivizyonBina modeli yüklendi!') },
 
+            // Rocket model
+            { name: 'rocketModel', source: './models/rocket/base.glb' },
 
             // Yol Modeli
             { name: 'roadModel', source: './models/road.glb' },
