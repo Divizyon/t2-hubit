@@ -17,8 +17,8 @@ export default class Divizyon
         this.walls = _options.walls
         this.tiles = _options.tiles
         this.materials = _options.materials
-        this.x =  -30// X pozisyonu
-        this.y = -18 // Y pozisyonu
+        this.x =  -35// X pozisyonu
+        this.y = -17 // Y pozisyonu
         this.z = 0 // Z pozisyonu
         
         // Container oluştur
@@ -93,7 +93,7 @@ export default class Divizyon
             // Eğim değerleri (derece cinsinden)
             const xRotation = this.debug ? this.debugObject.rotationX : -Math.PI / 2;
             const yRotation = this.debug ? this.debugObject.rotationY : -Math.PI / 2; 
-            const zRotation = this.debug ? this.debugObject.rotationZ : 50;  
+            const zRotation = this.debug ? this.debugObject.rotationZ : 40;  
             
             // Pozisyon ayarla
             this.position = new THREE.Vector3(this.x, this.y, this.z)
@@ -106,9 +106,9 @@ export default class Divizyon
             )
             
             // Ölçek ayarla
-            const scaleX = this.debug ? this.debugObject.scaleX : 1.4;
-            const scaleY = this.debug ? this.debugObject.scaleY : 0.8;
-            const scaleZ = this.debug ? this.debugObject.scaleZ : 1.4;
+            const scaleX = this.debug ? this.debugObject.scaleX : 1;
+            const scaleY = this.debug ? this.debugObject.scaleY : 1;
+            const scaleZ = this.debug ? this.debugObject.scaleZ : 1;
             this.scale = new THREE.Vector3(scaleX, scaleY, scaleZ)
             
             // Mesh oluştur
