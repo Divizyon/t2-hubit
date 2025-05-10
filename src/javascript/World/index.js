@@ -31,7 +31,7 @@ import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
 import SesOdasi from './SesOdasi.js'
 
-import AladdinTepesi from './AlaaddinTepesi.js'
+import AlaaddinTepesi from './AlaaddinTepesi.js'
 import Kelebekler from './Kelebekler.js'
 import SosyalInovasyon from './SosyalInovasyon.js'
 

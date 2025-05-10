@@ -54,7 +54,7 @@ export default class Road
             const zRotation = 180;  
             
             // Pozisyon ayarla
-            const position = new THREE.Vector3(this.x-40, this.y-14, this.z)
+            const position = new THREE.Vector3(this.x, this.y, this.z)
             
             // Rotasyon ayarla
             const rotation = new THREE.Euler(

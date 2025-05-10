@@ -201,7 +201,7 @@ export class Rocket {
             }
         }
         
-        // Başlangıç plyonunu kaydet
+        // Başlangıç pozisyonunu kaydet
         this.startPosition = this.container.position.clone()
         
         // Roket doğru rotasyonda olsun
@@ -364,7 +364,7 @@ export class Rocket {
                 this.platform.mesh = this.resources.items.rocketPlatformModel.scene.clone()
                 
                 // Platformu konumlandır (zemin seviyesinde)
-                this.platform.mesh.position.set(-5, 0, -0.1)
+                this.platform.mesh.position.set(0, 0, -0.1)
                 
                 // Ölçeği ayarla
                 this.platform.mesh.scale.set(1.0, 1.0, 1.0)
