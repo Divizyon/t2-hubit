@@ -153,7 +153,7 @@ export default class ProjectsSection
         const totalWidth = this.list.length * (this.interDistance / 2)
 
         const zone = this.zones.add({
-            position: { x: this.x + totalWidth - this.projectHalfWidth - 6, y: this.y },
+            position: { x: this.x + totalWidth - this.projectHalfWidth - 6 + 10, y: this.y + 10 },
             halfExtents: { x: totalWidth, y: 12 },
             data: { cameraAngle: 'projects' }
         })
@@ -175,8 +175,8 @@ export default class ProjectsSection
 
     add(_options)
     {
-        const x = this.x + this.items.length * this.interDistance
-        let y = this.y
+        const x = this.x + this.items.length * this.interDistance + 10
+        let y = this.y + 10
         if(this.items.length > 0)
         {
             y += (Math.random() - 0.5) * this.positionRandomess
