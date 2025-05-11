@@ -175,7 +175,7 @@ export default class Sounds
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound2',
-                sounds: ['./sounds/kelebek_bahcesi/kelebek_bahcesi.mp3'],
+                sounds: ['./sounds/kelebek_bahcesi/kelebek_bahcesi.wav'],
                 minDelta: 0,
                 velocityMin: 0,
                 velocityMultiplier: 0.8,
@@ -184,7 +184,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [0, 0, 0] 
+                defaultPosition: [27, 15, 0] 
             },
             {
                 name: 'rocket',
@@ -375,19 +375,36 @@ export default class Sounds
             else {
                 item.position = _options.defaultPosition || [0, 0, 0]
                 
+                // Her ses için özel panner ayarları
+                let customPannerAttr = { ...this.spatialAudioSettings };
+                
+                // spatialSound2 için özel ayarlar
+                if (_options.name === 'spatialSound2') {
+                    customPannerAttr = {
+                        panningModel: 'HRTF',
+                        refDistance: 10,         // Daha büyük referans mesafe
+                        rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
+                        distanceModel: 'inverse',
+                        maxDistance: 10,         // Daha büyük maksimum mesafe
+                        coneOuterGain: 0.6,
+                        coneOuterAngle: 360,
+                        coneInnerAngle: 360
+                    };
+                }
+                
                 item.howl = new Howl({
                     src: _options.sounds,
-                    volume: (_options.volumeMax || 1) * 0.7, // Uzamsal ses biraz daha kısık olsun
-                    loop: true,  // Uzamsal ses sürekli çalsın
-                    autoplay: false, // Otomatik çalmasın, biz kontrol edelim
-                    spatial: true,  // Uzamsal ses özelliği açık
-                    pannerAttr: this.spatialAudioSettings,
+                    volume: (_options.volumeMax || 1) * 0.6,
+                    loop: true,
+                    autoplay: false,
+                    spatial: true,
+                    pannerAttr: customPannerAttr,  // Özel panner kullan
                     pos: item.position,
-                    preload: true // Uzamsal sesler için önceden yükleme gerekli
+                    preload: true
                 })
                 
                 item.spatial = true
-                console.log(`Spatial sound ${_options.name} created at:`, item.position)
+                console.log(`Spatial sound ${_options.name} created at:`, item.position, 'with custom settings:', customPannerAttr)
             }
 
             this.items.push(item)
@@ -507,13 +524,13 @@ export default class Sounds
             const result = this.playSpatial('spatialSound1');
             firstSound1Done = true;
             console.log('İlk uzamsal ses (spatialSound1) başlatıldı:', result ? 'başarılı' : 'başarısız');
-        }, 2000); // Oyun yüklendikten 2 saniye sonra başla
+        }, 0); // Oyun yüklendikten 2 saniye sonra başla
         
         setTimeout(() => {
             const result = this.playSpatial('spatialSound2');
             firstSound2Done = true;
             console.log('İkinci uzamsal ses (spatialSound2) başlatıldı:', result ? 'başarılı' : 'başarısız');
-        }, 3000); // Birinci sesten 1 saniye sonra başlat
+        }, 0); // Birinci sesten 1 saniye sonra başlat
         
         console.log('Uzamsal ses otomatik çalma sistemi hazır - 2 uzamsal ses aktif');
     }
