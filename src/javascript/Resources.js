@@ -159,7 +159,7 @@ export default class Resources extends EventEmitter
             { name: 'konyagenckart', source: './models/konyagenckart.glb'},
             
             //BilimMerkezi
-            { name: 'BilimMerkezi', source: './models/BilimMerkezi_BlockOut.glb'},
+            { name: 'BilimMerkezi', source: './models/bilmer/bilim_merkezi.glb'},
             
             //KapsulBinasi
             { name: 'KapsulBinasi', source: './models/Kapsul.glb'},

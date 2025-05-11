@@ -379,15 +379,17 @@ export default class World
         });
       }
       
-    setBilimMerkezi()
-    {
+      setBilimMerkezi() {
         this.BilimMerkezi = new BilimMerkezi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder
-        })
-        this.container.add(this.BilimMerkezi.container)
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+        });
+      }
     
     setKapsulBinasi() {
         this.KapsulBinasi = new KapsulBinasi({
