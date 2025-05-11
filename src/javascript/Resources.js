@@ -118,6 +118,8 @@ export default class Resources extends EventEmitter
             { name: 'projectsCitrixRedbullFloor', source: './models/projects/citrixRedbull/floorTexture.png', type: 'texture' },
             { name: 'projectsPriorHoldingsFloor', source: './models/projects/priorHoldings/floorTexture.png', type: 'texture' },
             { name: 'projectsOranoFloor', source: './models/projects/orano/floorTexture.png', type: 'texture' },
+            { name: 'projectsHubitDivizyonFloor', source: './models/projects/hubitDivizyon/floorTexture.png', type: 'texture' },
+            { name: 'projectsPanoresimFloor', source: './models/projects/panoresim/floorTexture.png', type: 'texture' },
             // { name: 'projectsGleecChatFloor', source: './models/projects/gleecChat/floorTexture.png', type: 'texture' },
             // { name: 'projectsKepplerFloor', source: './models/projects/keppler/floorTexture.png', type: 'texture' },
 

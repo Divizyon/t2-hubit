@@ -570,6 +570,14 @@ export default class World
             tiles: this.tiles,
             debug: this.debugFolder
         }
+        
+        // Projects section
+        this.sections.projects = new ProjectsSection({
+            ...options,
+            x: -10,
+            y: -9.5
+        })
+        this.container.add(this.sections.projects.container)
     }
 
     setEasterEggs()
