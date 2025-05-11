@@ -197,10 +197,16 @@ export default class Resources extends EventEmitter
             { name: 'rocketPlatformModel', source: './models/rocket/roketplatformglb.glb' },
              
             //sesOdasi
-            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb', onLoad: () => console.log('SesOdasi modeli yüklendi!') },
+            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb',},
               
             // Yol Modeli
             { name: 'roadModel', source: './models/road/atmosfer_yol.glb' },
+            
+            // Basket Sahası
+            { name: 'basketSahasi', source: './models/basketSahasi/basket_sahasi.glb'},
+            
+            // Yönlendirme Tabelası
+            { name: 'yonTabelasi1', source: './models/yonTabelasi1/yontabelasi1.glb', },
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },

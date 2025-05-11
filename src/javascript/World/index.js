@@ -44,6 +44,8 @@ import KonserAlani from './KonserAlani.js'
 import CoWork from './CoWork.js'
 import KelebekVadisi from './KelebekVadisi.js'
 import TrafikLambasi from './TrafikLambasi.js'
+import BasketSahasi from './BasketSahasi.js'
+import YonTabelasi1 from './YonTabelasi1.js'
 
 export default class World
 {
@@ -119,6 +121,8 @@ export default class World
         this.setCoWork()
         this.setKelebekVadisi()
         this.setTrafikLambasi()
+        this.setBasketSahasi()
+        this.setYonTabelasi1()
     }
 
     setReveal()
@@ -375,7 +379,7 @@ export default class World
           physics:   this.physics,
           debug:     this.debugFolder,
           rotateX:   0,   // 
-          rotateY:   0,
+          rotateY:  Math.PI ,
           rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
         });
       }
@@ -547,6 +551,8 @@ export default class World
             debug: this.debugFolder
         })
         this.container.add(this.objects.container)
+        
+        
     }
 
     setCar()
@@ -591,8 +597,8 @@ export default class World
         // Projects section
         this.sections.projects = new ProjectsSection({
             ...options,
-            x: -10,
-            y: -9.5
+            x: -12,
+            y: -12
         })
         this.container.add(this.sections.projects.container)
     }
@@ -851,6 +857,36 @@ export default class World
             rotateY: 0,
             rotateZ: Math.PI / 2.2 // 90 derece dönüşle dik durmasını sağla
         });
+    }
+
+    // Basket Sahası metodunu buraya ekleyelim
+    setBasketSahasi()
+    {
+        this.basketSahasi = new BasketSahasi({
+            scene: this.scene,
+            resources: this.resources,
+            physics: this.physics,
+            position: new THREE.Vector3(-35, -35, -2),
+            rotateX: Math.PI / 2,
+            rotateY: 0,
+            rotateZ: 0,
+            scale: new THREE.Vector3(1, 1, 1)
+        })
+    }
+    
+    // Yön Tabelası metodunu ekleyelim
+    setYonTabelasi1()
+    {
+        this.yonTabelasi1 = new YonTabelasi1({
+            scene: this.scene,
+            resources: this.resources,
+            physics: this.physics,
+            position: new THREE.Vector3(16, -16, 0),
+            rotateX: 0,
+            rotateY: 0, // Y ekseni etrafında 90 derece döndür
+            rotateZ: 0,
+            scale: new THREE.Vector3(1, 1, 1)
+        })
     }
 
 }

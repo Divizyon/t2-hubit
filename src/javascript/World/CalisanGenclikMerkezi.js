@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(54, -37, 5); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(54, -37, 0); // Artık doğru yerde tanımlandı
 
 export default class GenclikMerkezi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 90, rotateY = 0, rotateZ = 0 }) {
@@ -13,7 +13,7 @@ export default class GenclikMerkezi {
 
     this.rotateX = rotateX;
     this.rotateY = rotateY;
-    this.rotateZ = rotateZ;
+    this.rotateZ = -3;
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
