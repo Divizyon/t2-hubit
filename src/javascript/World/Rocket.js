@@ -414,10 +414,22 @@ export class Rocket {
             })
         }
         
-        // Ses efekti çal
+        // roket sesleri
         if(this.sounds) {
-            // Gerçek ses dosyası yoksa konsola bilgi yazdırıyoruz
-            console.log('Roket motorları hazırlanıyor...')
+            // Roket sesi için daha güçlü bir çağrı
+            console.log('Roket sesi tetikleniyor...');
+            try {
+                // Yüksek velocity değeri ve hata yakalama ile çağrı yap
+                this.sounds.play('rocket', 20);  // Velocity'i iyice yükselt
+            } catch(error) {
+                console.error('Roket sesi çalınırken hata:', error);
+                
+                // Hata durumunda tekrar dene
+                setTimeout(() => {
+                    this.sounds.play('rocket', 20);
+                }, 100);
+            }
+            console.log('Roket motorları hazırlanıyor...');
         }
     }
     
@@ -453,7 +465,14 @@ export class Rocket {
         // Ses efekti çal
         if(this.sounds) {
             // Gerçek ses dosyası yoksa konsola bilgi yazdırıyoruz
-            console.log('Roket fırlatıldı! Motorlar tam güçte çalışıyor...')
+            console.log('Roket fırlatıldı! Motorlar tam güçte çalışıyor...');
+            
+            // Fırlatma anında tekrar ses çal
+            try {
+                this.sounds.play('rocket', 30);  // Daha da yüksek velocity
+            } catch(e) {
+                console.log('Fırlatma sesi çalma hatası:', e);
+            }
         }
     }
     
@@ -473,7 +492,14 @@ export class Rocket {
         // Sese efekti güçlendir
         if(this.sounds) {
             // Gerçek ses dosyası yoksa konsola bilgi yazdırıyoruz
-            console.log('Roket yükseliyor! Ses bariyeri aşıldı!')
+            console.log('Roket yükseliyor! Ses bariyeri aşıldı!');
+            
+            // Uçuş anında bir kez daha ses çal
+            try {
+                this.sounds.play('rocket', 40);  // En yüksek velocity
+            } catch(e) {
+                console.log('Uçuş sesi çalma hatası:', e);
+            }
         }
     }
 } 
