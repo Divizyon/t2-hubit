@@ -41,22 +41,22 @@ export default class AlaaddinTepesi {
             
             this.scene.add(this.model);
 
-          
-            if (this.physics) {
-                this.collisionBody = new CANNON.Body({
-                    mass: 0,
-                    position: new CANNON.Vec3(1, -39, .7),
-                    material: this.physics.materials.items.floor
-                });
+          // colision lar kapatıldıu
+            // if (this.physics) {
+            //     this.collisionBody = new CANNON.Body({
+            //         mass: 0,
+            //         position: new CANNON.Vec3(1, -30, .7),
+            //         material: this.physics.materials.items.floor
+            //     });
 
               
-                const radius = 5;
-                const sphereShape = new CANNON.Sphere(radius);
-                this.collisionBody.addShape(sphereShape);
+            //     const radius = 2.5;
+            //     const sphereShape = new CANNON.Sphere(radius);
+            //     this.collisionBody.addShape(sphereShape);
 
                 
-                this.physics.world.addBody(this.collisionBody);
-            }
+            //     this.physics.world.addBody(this.collisionBody);
+            // }
 
             // Işık ekle (sadece bir kez)
             if (!this.scene.__balikLightAdded) {
