@@ -34,7 +34,7 @@ export default class AlaaddinTepesi {
             
             this.model = gltf.scene;
             this.model.position.set(6, -40, 0);
-            this.model.scale.set(1.4, 1.4, 1.4);
+            this.model.scale.set(1, 1, 1);
             
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
