@@ -347,11 +347,11 @@ export default class World
                     }
                     //alaaddin tepesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound3', 9, -55, 0)
+                        this.sounds.updateSpatialPosition('spatialSound3', 9, -40, 0)
                     }
                     //japon parki icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound4', -3, -36, 0)
+                        this.sounds.updateSpatialPosition('spatialSound4', -17, -71, 0)
                     }
                 }
             }
