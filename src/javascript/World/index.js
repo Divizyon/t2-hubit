@@ -353,16 +353,19 @@ export default class World
         this.axis = new THREE.AxesHelper()
         this.container.add(this.axis)
     }
-    setGenclikMerkezi()
-    {
+    
+    setGenclikMerkezi() {
         this.genclikMerkezi = new GenclikMerkezi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder,
-            physics: this.physics
-        })
-        this.container.add(this.genclikMerkezi.container)
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+        });
+      }
+      
    
     setRender_odasi() {
         this.Render_odasi = new Render_odasi({

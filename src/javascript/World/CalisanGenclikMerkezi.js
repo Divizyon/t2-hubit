@@ -1,77 +1,115 @@
-import * as THREE from 'three'
-import * as CANNON from 'cannon'
+import * as THREE from 'three';
+import CANNON from 'cannon';
 
-export default class GenclikMerkezi
-{
-    constructor(_options)
-    {
-        // Options
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.debug = _options.debug
-        this.physics = _options.physics // Physics eklendi
+const DEFAULT_POSITION = new THREE.Vector3(54, -37, 5); // Artık doğru yerde tanımlandı
 
-        // Setup
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
+export default class GenclikMerkezi {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 90, rotateY = 0, rotateZ = 0 }) {
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
 
-        this.setModel()
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+
+    this.container = new THREE.Object3D();
+    this.position = DEFAULT_POSITION.clone();
+
+    this._buildModel();
+    this.scene.add(this.container);
+  }
+
+  _buildModel() {
+    const gltf = this.resources.items.CalisanGenclikMerkezi;
+    if (!gltf || !gltf.scene) {
+      console.error('Divizyon bina modeli bulunamadı');
+      return;
     }
 
-    setModel()
-    {       
-        this.model = {}
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    model.traverse(child => {
+      if (child.isMesh) {
+        const origMat = child.material;
+        const mat = origMat.clone();
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
-        // Resources
-        this.model.resource = this.resources.items.CalisanGenclikMerkezi
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
 
-        // Pozisyon ve rotasyon tanımla
-        const fixedPosition = new THREE.Vector3(41, -14, 0)
-        const fixedRotation = new THREE.Euler(0, 0, -0.99)
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
 
-        // Add to objects - sabit obje (mass: 0)
-        this.model.object = this.objects.add({
-            base: this.model.resource.scene,
-            collision: this.model.resource.scene, // Dinamik collision modelimiz yok, bu yüzden aynı modeli kullanıyoruz
-            offset: fixedPosition,
-            rotation: fixedRotation,
-            mass: 0 // Sabit obje
-        })
-        
-        // Manuel fizik bileşeni oluşturma
-        const buildingMaterial = this.physics.materials.items.dummy
-        
-        // Fizik gövdesi oluştur - statik bir nesne
-        const body = new CANNON.Body({
-            mass: 0, // 0 kütle = statik nesne
-            material: buildingMaterial,
-            position: new CANNON.Vec3(fixedPosition.x + 1.5, fixedPosition.y + 1.2, fixedPosition.z),
-            type: CANNON.Body.STATIC
-        })
-        
-        // Binanın boyutları (yaklaşık değerler)
-        const width = 5;  // x-ekseni genişliği
-        const length = 3.5;  // y-ekseni uzunluğu
-        const height = 5;  // z-ekseni yüksekliği
-        
-        // Merkez kutu oluştur (tüm binanın etrafına)
-        const buildingSize = new CANNON.Vec3(width/2, length/2, height/2)
-        const buildingShape = new CANNON.Box(buildingSize)
-        
-        // Rotasyonu uygulamak için bir quaternion oluştur
-        const rotation = new CANNON.Quaternion()
-        rotation.setFromEuler(fixedRotation.x, fixedRotation.y, fixedRotation.z)
-        body.quaternion = rotation
-        
-        // Ana çarpışma kutusunu ekle
-        body.addShape(buildingShape)
-        
-        // Fizik dünyasına ekle
-        this.physics.world.addBody(body)
-        
-        // Model referansı 
-        this.model.collision = {
-            body: body
-        }
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(...this.position.toArray()),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      objectEntry.collision = { body };
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
     }
+  }
 }
+
+/* 
+
+İndex.js dosyasında Divizyon'u oluşturmak için:
+import Divizyon from './Divizyon';
+
+this.setDivizyon()
+
+  setDivizyon() {
+  this.divizyon = new Divizyon({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+  });
+}
+
+
+
+*/

@@ -154,7 +154,7 @@ export default class Resources extends EventEmitter
 
 
             // ÇalışanGençlikMerkezi
-            { name: 'CalisanGenclikMerkezi', source: './models/CalisanGenclikMerkezi.glb'},
+            { name: 'CalisanGenclikMerkezi', source: './models/CalisanGenclikMerkezi/Calisan_Genclik_Merkezi_Bina.glb'},
 
             //konyagenckart
             { name: 'konyagenckart', source: './models/konyagenckart.glb'},
