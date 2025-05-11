@@ -165,6 +165,9 @@ export default class Resources extends EventEmitter
 
             //render_odasi
             { name: 'render_odasi', source: './models/render_odasi/render_odasi.glb'},
+            
+            // japon parki
+            { name: 'japon_parki', source: './models/japon_parki/japon_parki.glb'},
 
 
             //divizyon

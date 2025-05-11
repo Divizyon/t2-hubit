@@ -40,6 +40,7 @@ import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
 import render_odasi from './render_odasi.js'
 import Stadyum from './stadyum.js'
+import JaponParki from './JaponParki.js'
 
 export default class World
 {
@@ -111,6 +112,7 @@ export default class World
         this.setRender_odasi()
         this.setDivizyon()
         this.setStadyum()
+        this.setJaponParki()
     }
 
     setReveal()
@@ -774,6 +776,14 @@ export default class World
             rotateX: Math.PI / 2,   
             rotateY: 0,
             rotateZ:0 // Y ekseninde 90 derece döndürme
+        });
+    }
+
+    setJaponParki() {
+        this.japonParki = new JaponParki({
+            scene: this.scene,
+            time: this.time,
+            physics: this.physics,
         });
     }
 
