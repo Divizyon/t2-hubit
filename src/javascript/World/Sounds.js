@@ -728,7 +728,7 @@ export default class Sounds
             }
         }
         
-        // Roket iniş sesine özel işlem ekle
+        // Roket iniş sesi için özel işlem ekle
         if(_name === 'rocketLanding') {
             console.log('Roket iniş sesi çalma denemesi');
             try {
@@ -743,9 +743,9 @@ export default class Sounds
                         console.log('Roket iniş sesi yükleniyor...');
                     }
                     
-                    // Roket iniş sesi için özel ayarlar
-                    sound.volume(0.8);  // Biraz daha düşük ses
-                    sound.rate(0.8);    // Daha düşük hızda çal
+                    // Roket iniş sesi için özel ayarlar (volume değerini arttırıyoruz)
+                    sound.volume(1.0);  // Tam ses seviyesi
+                    sound.rate(0.9);    // Hafif düşük hızda çal, ama daha belirgin
                     sound.play();
                     
                     // Son çalma zamanını güncelle
@@ -787,6 +787,22 @@ export default class Sounds
                 sound.load();
             }
 
+            // Kornalar için özel işleme - korna çalarken önceki sesi durdur ve yeniden başlat
+            if(item.name === 'carHorn1' || item.name === 'carHorn2') {
+                // Çalınıyorsa durdur ve yeniden çal
+                if(sound.playing()) {
+                    sound.stop();
+                }
+                
+                // Korna için tam ses
+                sound.volume(item.volumeMax);
+                sound.rate(1.0); // Sabit hızda çal
+                sound.play();
+                
+                item.lastTime = time;
+                return;
+            }
+            
             // Ses çalınıyorsa ve yeniden çalınmaması gereken bir ses ise (engine ve reveal gibi)
             if(sound.playing() && item.name === 'engine') {
                 return

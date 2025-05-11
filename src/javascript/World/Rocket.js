@@ -259,13 +259,20 @@ export class Rocket {
                             this.animation.flightTime = 0; // Zamanı sıfırla
                             this.isLanding = true; // İniş durumunu aktifleştir
                             
-                            // İniş sesi çal
+                            // Dönüş anında hemen ses çalmak için uzun bir iniş sesi başlat
                             if(this.sounds) {
                                 try {
-                                    this.sounds.play('rocketLanding', 30); // İniş sesi çalınıyor
-                                    console.log('Roket iniş sesi tetikleniyor...');
+                                    // Daha güçlü ve belirgin bir ses
+                                    this.sounds.play('rocketLanding', 40); 
+                                    
+                                    // 200ms sonra tekrar çal (emin olmak için)
+                                    setTimeout(() => {
+                                        this.sounds.play('rocketLanding', 35);
+                                    }, 200);
+                                    
+                                    console.log('Roket dönüş sesi başlatılıyor (güçlü)...');
                                 } catch(e) {
-                                    console.error('Roket iniş sesi çalınırken hata:', e);
+                                    console.error('Roket dönüş sesi çalınırken hata:', e);
                                 }
                             }
                             
@@ -282,6 +289,26 @@ export class Rocket {
                         
                         // Yüksekliği kademeli olarak azalt
                         const height = this.animation.flightPath.maxHeight * (1 - normalizedTime);
+                        
+                        // İniş süresince periyodik olarak ses çal - normalizedTime 0.25, 0.5 ve 0.75 iken
+                        if(this.sounds) {
+                            // normalizedTime'ı yüzdelik olarak düşünelim (0-100%)
+                            const percent = normalizedTime * 100;
+                            
+                            // İniş esnasında belirli noktalarda ses çal
+                            if(percent >= 25 && percent < 26) { // %25 civarında
+                                this.sounds.play('rocketLanding', 25);
+                                console.log('İniş %25 - Roket iniş sesi tetikleniyor...');
+                            } 
+                            else if(percent >= 50 && percent < 51) { // %50 civarında
+                                this.sounds.play('rocketLanding', 20);
+                                console.log('İniş %50 - Roket iniş sesi tetikleniyor...');
+                            }
+                            else if(percent >= 75 && percent < 76) { // %75 civarında
+                                this.sounds.play('rocketLanding', 15);
+                                console.log('İniş %75 - Roket iniş sesi tetikleniyor...');
+                            }
+                        }
                         
                         // Pozisyonu güncelle - direk olarak başlangıç noktasına doğru git
                         this.container.position.set(x, y, this.startPosition.z + height);
