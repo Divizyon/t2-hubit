@@ -4,7 +4,7 @@ import CANNON from 'cannon';
 const DEFAULT_POSITION = new THREE.Vector3(42, 11, -3); // Artık doğru yerde tanımlandı
 
 export default class BilimMerkezi {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = Math.PI }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -13,7 +13,7 @@ export default class BilimMerkezi {
 
     this.rotateX = rotateX;
     this.rotateY = rotateY;
-    this.rotateZ = rotateZ;
+    this.rotateZ = Math.PI * 2.11;
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
