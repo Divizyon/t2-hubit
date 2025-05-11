@@ -29,8 +29,8 @@ export default class ProjectsSection
         // Set up
         this.items = []
 
-        this.interDistance = 10
-        this.positionRandomess = 2
+        this.interDistance = 5
+        this.positionRandomess = 0
         this.projectHalfWidth = 9
 
         this.container = new THREE.Object3D()
@@ -71,79 +71,124 @@ export default class ProjectsSection
     {
         this.list = [
             {
-                name: 'Divizyon Pano Resimleri',
+                name: 'Genç Kültür Kartı',
                 imageSources:
                 [
-                    './models/projects/panoresim/slideA.jpg',
-                    './models/projects/panoresim/slideB.jpg'
+                    './models/projects/panoresim/genç kultur kart.jpg',
                 ],
                 floorTexture: this.resources.items.projectsPanoresimFloorTexture,
                 link:
                 {
-                    href: 'https://divizyon.com',
+                    href: 'https://www.genckultur.com/',
                     x: - 4.8,
-                    y: - 3,
+                    y: 2,
                     halfExtents:
                     {
-                        x: 3.2,
+                        x: 2.0,
                         y: 1.5
                     }
                 },
-                distinctions:
-                [
-                    { type: 'fwa', x: 3.95, y: 4.15 }
-                ]
+                distinctions: []
             },
             {
-                name: 'Chartogne Taillet',
+                name: 'Gençlik Meclisi',
                 imageSources:
                 [
-                    './models/projects/panoresim/slideC.jpg',
-                    './models/projects/panoresim/slideD.jpg'
+                    './models/projects/panoresim/genclik meclisi.jpg',
                 ],
-                floorTexture: this.resources.items.projectsChartogneFloorTexture,
+                floorTexture: this.resources.items.projectsPanoresimFloorTexture,
                 link:
                 {
-                    href: 'https://chartogne-taillet.com',
+                    href: 'https://kbbgenclikmeclisi.com/hosgeldin',
                     x: - 4.8,
-                    y: - 3.3,
+                    y: 2,
                     halfExtents:
                     {
-                        x: 3.2,
+                        x: 2.0,
                         y: 1.5
                     }
                 },
-                distinctions:
-                [
-                    { type: 'awwwards', x: 3.95, y: 4.15 },
-                    { type: 'fwa', x: 5.6, y: 4.15 },
-                    { type: 'cssda', x: 7.2, y: 4.15 }
-                ]
+                distinctions: []
             },
             {
-                name: 'Luni.app',
+                name: 'Karatay Medresesi',
                 imageSources:
                 [
-                    './models/projects/luni/slideA.webp',
-                    './models/projects/luni/slideB.webp'
+                    './models/projects/panoresim/karatay medresesi.jpg',
                 ],
-                floorTexture: this.resources.items.projectsLuniFloorTexture,
+                floorTexture: this.resources.items.projectsPanoresimFloorTexture,
                 link:
                 {
-                    href: 'https://luni.app',
+                    href: 'https://gokonya.com/tr/karatay-medresesi',
                     x: - 4.8,
-                    y: - 3,
+                    y: 2,
                     halfExtents:
                     {
-                        x: 3.2,
+                        x: 2.0,
                         y: 1.5
                     }
                 },
-                distinctions:
+                distinctions: []
+            },
+            {
+                name: 'Çatalhöyük',
+                imageSources:
                 [
-                    { type: 'awwwards', x: 3.95, y: 4.15 },
-                    { type: 'fwa', x: 5.6, y: 4.15 },
-                ]
+                    './models/projects/panoresim/catalhoyuk.jpg'
+                ],
+                floorTexture: this.resources.items.projectsPanoresimFloorTexture,
+                link:
+                {
+                    href: 'https://gokonya.com/en/catalhoyuk',
+                    x: - 4.8,
+                    y: 2,
+                    halfExtents:
+                    {
+                        x: 2.0,
+                        y: 1.5
+                    }
+                },
+                distinctions: []
+            },
+            {
+                name: 'Sille Köyü',
+                imageSources:
+                [
+                    './models/projects/panoresim/sille köyü.jpg',
+                ],
+                floorTexture: this.resources.items.projectsPanoresimFloorTexture,
+                link:
+                {
+                    href: 'https://gokonya.com/en/sille-2',
+                    x: - 4.8,
+                    y: 2,
+                    halfExtents:
+                    {
+                        x: 2.0,
+                        y: 1.5
+                    }
+                },
+                distinctions: []
+            },
+            {
+                name: 'Mevlana Türbesi',
+                imageSources:
+                [
+                    './models/projects/panoresim/mevlana turbesi.jpg',
+                ],
+                floorTexture: this.resources.items.projectsPanoresimFloorTexture,
+                link:
+                {
+                    href: 'https://gokonya.com/en/mevlana',
+                    x: - 4.8,
+                    y: 2,
+                    halfExtents:
+                    {
+                        x: 2.0,
+                        y: 1.5
+                    }
+                },
+                distinctions: []
             },
         ]
     }
@@ -176,12 +221,8 @@ export default class ProjectsSection
     add(_options)
     {
         const x = this.x + this.items.length * this.interDistance + 10
-        let y = this.y + 10
-        if(this.items.length > 0)
-        {
-            y += (Math.random() - 0.5) * this.positionRandomess
-        }
-
+        let y = this.y + 6.5
+        
         // Create project
         const project = new Project({
             time: this.time,
@@ -191,25 +232,12 @@ export default class ProjectsSection
             geometries: this.geometries,
             meshes: this.meshes,
             debug: this.debugFolder,
-            x: x,
+            x: x - 3,
             y: y,
             ..._options
         })
 
         this.container.add(project.container)
-
-        // Add tiles
-        if(this.items.length >= 1)
-        {
-            const previousProject = this.items[this.items.length - 1]
-            const start = new THREE.Vector2(previousProject.x + this.projectHalfWidth, previousProject.y)
-            const end = new THREE.Vector2(project.x - this.projectHalfWidth, project.y)
-            const delta = end.clone().sub(start)
-            this.tiles.add({
-                start: start,
-                delta: delta
-            })
-        }
 
         // Save
         this.items.push(project)

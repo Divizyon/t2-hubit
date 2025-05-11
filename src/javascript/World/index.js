@@ -591,8 +591,8 @@ export default class World
         // Projects section
         this.sections.projects = new ProjectsSection({
             ...options,
-            x: -10,
-            y: -9.5
+            x: -12,
+            y: -12
         })
         this.container.add(this.sections.projects.container)
     }
