@@ -664,7 +664,9 @@ export default class World
         this.aladdinTepesi = new AladdinTepesi({
             scene: this.scene,
             time: this.time,
-            physics: this.physics
+            physics: this.physics,
+            materials: this.materials,
+            areas: this.areas
         });
     }
      
