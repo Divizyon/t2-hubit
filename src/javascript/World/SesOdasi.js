@@ -12,8 +12,8 @@ export default class SesOdasi
         this.objects = _options.objects
         this.debug = _options.debug
         this.materials = _options.materials
-        this.x = -50 // X pozisyonu
-        this.y = -12 // Y pozisyonu
+        this.x = -84 // X pozisyonu
+        this.y = -35 // Y pozisyonu
         this.z = 0  // Z pozisyonu
         
         // Container oluştur
@@ -108,9 +108,9 @@ export default class SesOdasi
             )
             
             // Ölçek ayarla
-            const scaleX = this.debug ? this.debugObject.scaleX : 1.0;
-            const scaleY = this.debug ? this.debugObject.scaleY : 1.0;
-            const scaleZ = this.debug ? this.debugObject.scaleZ : 1.0;
+            const scaleX = this.debug ? this.debugObject.scaleX : 1; // ses odası boyutu
+            const scaleY = this.debug ? this.debugObject.scaleY : 1; // ses odası boyutu
+            const scaleZ = this.debug ? this.debugObject.scaleZ : 1; // ses odası boyutu
             this.scale = new THREE.Vector3(scaleX, scaleY, scaleZ)
             
             // Mesh oluştur

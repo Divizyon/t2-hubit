@@ -26,7 +26,7 @@ export default class GreenBox
         this.container.matrixAutoUpdate = false
 
         // Green Box'ın konumu (sabit pozisyon)
-        this.position = new THREE.Vector3(-30, -10, 0)
+        this.position = new THREE.Vector3(-76, -19, 0)
         
         // Popup Button'un konumu (Green Box'ın yanında)
         this.buttonPosition = {

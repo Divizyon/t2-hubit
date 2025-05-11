@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-40, 0, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-85, -25, 0); // Artık doğru yerde tanımlandı
 
 export default class Divizyon {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -31,6 +31,10 @@ export default class Divizyon {
 
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
+    
+    // Tüm model parçalarını 1.5 kat büyüt
+    model.scale.set(1, 1, 1);
+    
     model.traverse(child => {
       if (child.isMesh) {
         const origMat = child.material;
@@ -48,15 +52,15 @@ export default class Divizyon {
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
-    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ-0.5);
     this.container.add(model);
 
-    // Bounding box hesapla
+    // Bounding box hesapla - ölçeklendirme sonrası
     model.updateMatrixWorld(true);
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
 
-    // Fizik gövdesi oluştur
+    // Fizik gövdesi oluştur - ölçeklendirilmiş boyutlar
     const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
     const boxShape = new CANNON.Box(halfExtents);
 
