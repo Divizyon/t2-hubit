@@ -367,15 +367,18 @@ export default class World
     }
    
 
-    setkonyagenckart()
-    {
+    setkonyagenckart() {
         this.konyagenckart = new konyagenckart({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder
-        })
-        this.container.add(this.konyagenckart.container)
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+        });
+      }
+      
     setBilimMerkezi()
     {
         this.BilimMerkezi = new BilimMerkezi({
