@@ -33,8 +33,8 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(9, -55, 0);
-            this.model.scale.set(.5, .5, .5);
+            this.model.position.set(9, -40, 0);
+            this.model.scale.set(1.4, 1.4, 1.4);
             
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;

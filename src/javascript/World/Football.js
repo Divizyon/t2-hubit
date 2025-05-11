@@ -57,19 +57,19 @@ export default class Football
 
         // Futbol topu
         this.models.ball = {}
-        this.models.ball.offset = new THREE.Vector3(0, 0, 0.2) // Topun yerden yüksekliği
+        this.models.ball.offset = new THREE.Vector3(0, 0, 0) // Topun yerden yüksekliği
         this.models.ball.radius = 1 // Top yarıçapı
         this.models.ball.position = new THREE.Vector3(0, 0, 0) // Başlangıç pozisyonu - daha sonra güncellenecek
 
         // Kale boyutları - kale.glb modeline uygun olarak güncellenmiş
         this.models.goal = {}
         this.models.goal.size = new THREE.Vector3(2.0, 0.8, 1.2) // genişlik, derinlik, yükseklik
-        this.models.goal.position = new THREE.Vector3(5, 0, 0) // Kale pozisyonu
+        this.models.goal.position = new THREE.Vector3(-65, 21, 0) // Yeni kale pozisyonu
 
         // Topun başlangıç pozisyonu - kaleden belirli bir mesafede
         this.models.ball.initialPosition = new THREE.Vector3(
             this.models.goal.position.x + 5, // Kaleden 5 birim uzakta
-            this.models.goal.position.y -68,
+            this.models.goal.position.y + 3, // Y ekseninde 5 birim daha yüksekte
             this.models.ball.offset.z
         )
         this.models.ball.position.copy(this.models.ball.initialPosition)
@@ -93,10 +93,10 @@ export default class Football
             // Tüm kale bileşenlerini tutacak nesne
             this.goal = {}
             
-            // Kale pozisyonu (sabit değerler)
-            const goalX = -14;
-            const goalY = -70;
-            const goalZ = 0;
+            // Kale pozisyonu - models.goal.position'dan al
+            const goalX = this.models.goal.position.x;
+            const goalY = this.models.goal.position.y;
+            const goalZ = this.models.goal.position.z;
             const goalWidth = 2.0;
             const goalHeight = 1.2;
             const goalDepth = 0.8;
@@ -121,7 +121,7 @@ export default class Football
                 // Kale modelini ayarla
                 kaleModel.scale.set(2.0, 2.0, 2.0)
                 kaleModel.rotation.x = 0
-                kaleModel.position.set(-10, -70, -0.5)
+                kaleModel.position.set(0, 0, -0.5) // Modeli container'a göre konumlandır
                 
                 // Kale modelinin tüm parçalarını geç ve materyal uygula
                 kaleModel.traverse((child) => {
@@ -241,105 +241,22 @@ export default class Football
             this.allGoalBodies.push(this.goal.ghostBody);
             
             // ----------------------------------
-            // 3. ADIM: GOL ALGILAMA TRİGGER'I OLUŞTURMA (İÇİNDEN GEÇİLEBİLİR)
+            // 3. ADIM: YENİ GOL ALGILAMA ÇİZGİSİ OLUŞTURMA (x=-73.5 sabit, y=19.6 ile y=27 arası)
             // ----------------------------------
             
-            // Gol trigger'ı - kale ağzında duracak
-            // ÖNEMLİ: GHOST BODY - İÇİNDEN GEÇİLEBİLİR!
-            this.goal.goalTrigger = new CANNON.Body({
-                mass: 0,
-                material: this.physics.materials.items.dummy,
-                collisionResponse: false, // ÖNEMLİ: İÇİNDEN GEÇİLEBİLİR!
-                type: CANNON.Body.STATIC,
-                collisionFilterGroup: 0, // Hiçbir grupla çarpışmaz 
-                collisionFilterMask: 0   // Hiçbir grupla çarpışmaz
-            });
+            // Yeni gol çizgisi için trigger noktaları - kullanıcının belirttiği koordinatlar
+            this.goalLine = {
+                x: -73.5,
+                y1: 19.6,
+                y2: 27,
+                z: goalZ, // Kale z seviyesi
+                tolerance: 1.0 // Geçiş toleransı (metre)
+            };
             
-            // Kale ağzına yerleştir - BU KISIMDAKI X, Y, Z DEĞERLERİNİ DEĞİŞTİREBİLİRSİNİZ
-            const triggerCenter = new CANNON.Vec3(
-                goalX - 1.5,           // Kalenin X merkezinde
-                goalY + 3,          // Kalenin Y merkezinde
-                goalZ + goalHeight * 0.8  // Kalenin biraz daha yükseğinde
-            );
-            this.goal.goalTrigger.position.copy(triggerCenter);
+            // Debug modunda gol çizgisini görselleştirmeyi kaldırdık - kullanıcı isteği üzerine
+            // Görünmez algılama alanı olarak çalışacak
             
-            // Trigger şekli - BURADAKI BOYUT DEĞERLERİNİ DEĞİŞTİREBİLİRSİNİZ
-            this.triggerShape = new CANNON.Box(new CANNON.Vec3(
-                goalWidth * 1.1,     // Kale genişliğinden %10 daha geniş
-                goalDepth * 5,     // Kale derinliğinin 2 katı derinlik
-                goalHeight * 1.5     // Kale yüksekliğinden %20 daha yüksek
-            ));
-            
-            // Trigger'ı ekle (hiçbir offset eklemeden, merkeze)
-            this.goal.goalTrigger.addShape(this.triggerShape);
-            
-            // Fizik motoruna ekle
-            this.physics.world.addBody(this.goal.goalTrigger);
-            this.allGoalBodies.push(this.goal.goalTrigger);
-            
-            // Trigger pozisyonunu sınıf içinde sakla
-            this.triggerPosition = this.goal.goalTrigger.position;
-            
-            // ----------------------------------
-            // 4. ADIM: GÖRÜNÜR COLLIDER'LAR KALDIRILIYOR 
-            // ----------------------------------
-            
-            // // Debug modunda collider'ları görselleştir
-            // if (this.debug) {
-            //     this.colliderVisuals = new THREE.Group();
-                
-            //     // Kale çerçevesi için wireframe
-            //     const leftPostVisual = this.createDebugBox(
-            //         leftPostShape.halfExtents,
-            //         this.goal.ghostBody.position,
-            //         new CANNON.Vec3(-goalWidth/2, 0, goalHeight/2),
-            //         0xffff00 // Sarı
-            //     );
-                
-            //     const rightPostVisual = this.createDebugBox(
-            //         rightPostShape.halfExtents,
-            //         this.goal.ghostBody.position,
-            //         new CANNON.Vec3(goalWidth/2, 0, goalHeight/2),
-            //         0xffff00 // Sarı
-            //     );
-                
-            //     const crossbarVisual = this.createDebugBox(
-            //         crossbarShape.halfExtents,
-            //         this.goal.ghostBody.position,
-            //         new CANNON.Vec3(0, 0, goalHeight),
-            //         0xffff00 // Sarı
-            //     );
-                
-            //     // Trigger alanı görselleştirme (yarı saydam, içinden geçilebilir olduğunu belli etmek için)
-            //     const triggerGeometry = new THREE.BoxGeometry(
-            //         this.triggerShape.halfExtents.x * 2,
-            //         this.triggerShape.halfExtents.y * 2,
-            //         this.triggerShape.halfExtents.z * 2
-            //     );
-                
-            //     const triggerMaterial = new THREE.MeshBasicMaterial({
-            //         color: 0x00ff00, // Yeşil
-            //         wireframe: true,  
-            //         transparent: true,
-            //         opacity: 0.5     // Yarı saydam
-            //     });
-                
-            //     const triggerVisual = new THREE.Mesh(triggerGeometry, triggerMaterial);
-            //     triggerVisual.position.copy(this.triggerPosition);
-                
-            //     // Görsel container'a ekle
-            //     this.colliderVisuals.add(leftPostVisual);
-            //     this.colliderVisuals.add(rightPostVisual);
-            //     this.colliderVisuals.add(crossbarVisual);
-            //     this.colliderVisuals.add(triggerVisual);
-                
-            //     // Sahneye ekle
-            //     this.container.add(this.colliderVisuals);
-                
-            //     console.log('Collider görselleştirmeleri oluşturuldu');
-            // }
-            
-            console.log('Kale ve trigger alanı oluşturuldu - tamamen içinden geçilebilir');
+            console.log('Yeni gol çizgisi oluşturuldu (görünmez):', this.goalLine);
             
         } catch (error) {
             console.error('Kale oluşturulamadı:', error);
@@ -379,33 +296,58 @@ export default class Football
     }
 
     /**
-     * Gol kontrolü için yardımcı fonksiyon
+     * Gol kontrolü için yeni fonksiyon - çizgi bazlı kontrol
      */
-    checkGoal(body) {
-        // Eğer top ise ve daha önce gol olmadıysa
-        if (body === this.ball?.body && !this.hasScored) {
-            console.log('GOL OLDU! Trigger çalıştı!')
-            // Gol oldu!
-            this.hasScored = true
+    checkBallCrossedGoalLine() {
+        if (!this.ball || !this.ball.body || !this.goalLine || this.hasScored) {
+            return false;
+        }
+        
+        const ballPos = this.ball.body.position;
+        const prevBallPos = this.ball.previousPosition || ballPos.clone();
+        
+        // Topun önceki ve şimdiki pozisyonu arasında x ekseninde çizgiyi geçti mi kontrol et
+        // ve topun y pozisyonu gol çizgisinin y aralığında mı kontrol et
+        
+        // Topun önceki pozisyonu çizginin sağında mı?
+        const wasRightOfLine = prevBallPos.x > this.goalLine.x;
+        // Topun şimdiki pozisyonu çizginin solunda mı?
+        const isLeftOfLine = ballPos.x < this.goalLine.x;
+        // Çizgiyi x ekseninde sağdan sola geçti mi?
+        const crossedX = wasRightOfLine && isLeftOfLine;
+        
+        // Top y ekseninde gol çizgisi aralığında mı?
+        const isInYRange = ballPos.y >= this.goalLine.y1 && ballPos.y <= this.goalLine.y2;
+        
+        // Top çizgiyi geçti ve y aralığında ise gol oldu
+        if (crossedX && isInYRange) {
+            console.log('GOL OLDU! Top çizgiyi geçti!', ballPos);
+            this.hasScored = true;
             
             // Gol mesajını göster
             if (this.gui && this.gui.goalMessage) {
-                this.gui.goalMessage.style.display = 'block'
+                this.gui.goalMessage.style.display = 'block';
             }
             
             // Ses efekti
             if (this.sounds) {
-                this.sounds.play('carHit', 3)
+                this.sounds.play('carHit', 3);
             }
             
             // 3 saniye sonra mesajı gizle ve topu sıfırla
             setTimeout(() => {
                 if (this.gui && this.gui.goalMessage) {
-                    this.gui.goalMessage.style.display = 'none'
+                    this.gui.goalMessage.style.display = 'none';
                 }
                 this.resetBall();
-            }, 3000)
+            }, 3000);
+            
+            return true;
         }
+        
+        // Topun önceki pozisyonunu kaydet
+        this.ball.previousPosition = ballPos.clone();
+        return false;
     }
 
     /**
@@ -430,6 +372,13 @@ export default class Football
                 angularDamping: 0.5
             })
             this.physics.world.addBody(this.ball.body)
+
+            // Top başlangıç pozisyonu kaydedilir (önceki pozisyon takibi için)
+            this.ball.previousPosition = new CANNON.Vec3(
+                this.models.ball.initialPosition.x,
+                this.models.ball.initialPosition.y,
+                this.models.ball.initialPosition.z
+            );
 
             // Görsel model - daha güzel top
             const ballGeometry = new THREE.SphereGeometry(this.models.ball.radius, 32, 32)
@@ -490,28 +439,8 @@ export default class Football
                     this.ball.mesh.position.copy(this.ball.body.position)
                     this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
                     
-                    // Top trigger içinde mi kontrol et
-                    if (this.goal && this.goal.goalTrigger && this.triggerShape) {
-                        // Top ve trigger pozisyonları
-                        const ballPos = this.ball.body.position;
-                        const triggerPos = this.triggerPosition;
-                        const triggerSize = this.triggerShape.halfExtents;
-                        
-                        // Küre ve kutu çarpışma kontrolü
-                        const isInside = (
-                            ballPos.x > triggerPos.x - triggerSize.x - this.models.ball.radius &&
-                            ballPos.x < triggerPos.x + triggerSize.x + this.models.ball.radius &&
-                            ballPos.y > triggerPos.y - triggerSize.y - this.models.ball.radius &&
-                            ballPos.y < triggerPos.y + triggerSize.y + this.models.ball.radius &&
-                            ballPos.z > triggerPos.z - triggerSize.z - this.models.ball.radius &&
-                            ballPos.z < triggerPos.z + triggerSize.z + this.models.ball.radius
-                        );
-                        
-                        // Gol durumu
-                        if (isInside && !this.hasScored) {
-                            this.checkGoal(this.ball.body);
-                        }
-                    }
+                    // YENİ: Gol çizgisini geçip geçmediğini kontrol et
+                    this.checkBallCrossedGoalLine();
                     
                     // Debug modu açıksa collider görsellerini güncelle
                     if (this.debug && this.colliderVisuals) {
@@ -576,18 +505,18 @@ export default class Football
     setResetButton()
     {
         try {
-            // Reset butonu için bir alan oluştur
+            // Reset butonu için bir alan oluştur - yeni konuma göre güncellendi
             this.resetArea = this.areas.add({
                 position: new THREE.Vector2(
-                    this.models.ball.initialPosition.x - 1,
-                    this.models.ball.initialPosition.y
+                    this.models.ball.initialPosition.x +5 , // Topun sol tarafında
+                    this.models.ball.initialPosition.y   // Ve biraz aşağısında
                 ),
-                halfExtents: new THREE.Vector2(0.5, 0.5),
+                halfExtents: new THREE.Vector2(2.5, 2.5), // 5 kat daha büyük (0.5 * 5 = 2.5)
                 debug: this.debug ? { color: 0x00ff00 } : false,
                 text: {
                     value: 'SIFIRLA',
                     position: new THREE.Vector2(0, 0),
-                    size: 0.5
+                    size: 2.5 // Yazı boyutunu da 5 kat büyüt
                 }
             })
 

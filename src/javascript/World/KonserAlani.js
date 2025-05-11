@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-50, -35, 0); // Konser alanı konumu
+const DEFAULT_POSITION = new THREE.Vector3(-50, -10, 0); // Konser alanı konumu
 
 export default class KonserAlani {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0}) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;

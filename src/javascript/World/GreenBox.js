@@ -30,8 +30,8 @@ export default class GreenBox
         
         // Popup Button'un konumu (Green Box'ın yanında)
         this.buttonPosition = {
-            x: -23,  // Green Box'ın sağına
-            y: -13    // Biraz arkaya
+            x: -70,  // Green Box ile aynı x pozisyonu
+            y: -18   // Green Box'ın biraz önünde
         }
         
         // Arabanın Green Box içindeki hedef konumu
@@ -57,8 +57,8 @@ export default class GreenBox
         
         // Panel özellikleri
         this.panelProperties = {
-            width: 2.0,
-            height: 1.8,
+            width: 2.5,
+            height: 1.2,
             positions: [
                 // Arka panel (merkez)
                 new THREE.Vector3(this.position.x - 1.5, this.position.y, this.position.z + 1.5),
@@ -186,42 +186,25 @@ export default class GreenBox
         })
         
         // Oda boyutları
-        const width = 5;  // x-ekseni genişliği
-        const length = 6;  // y-ekseni uzunluğu
+        const width = 4.6;  // x-ekseni genişliği
+        const length = 2;  // y-ekseni uzunluğu
         const height = 12; // z-ekseni yüksekliği
         
         // Duvar konumlarını modele yaklaştır
-        const backWallDistance = 2.3;  // Daha küçük değer = modele daha yakın (eski değer: length/2 = 5)
-        const leftWallDistance = 2.3;  // Daha küçük değer = modele daha yakın (eski değer: width/2 = 5)
+        const backWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: length/2 = 5)
+        const leftWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: width/2 = 5)
 
-        // Kamera objesinin konumu - görüntüdeki pozisyona göre yaklaşık değerler
-        const cameraPosition = {
-            x: this.position.x + 5.9, 
-            y: this.position.y-5.8,     // kamera collisionun konumu
-            z: this.position.z      
-        };
+
 
         // Arka duvar (pozitif Y yönünde) - GreenBox'ın arkasına
         const backWallSize = new CANNON.Vec3(width/2, 0.5, height/2) // x, y, z yarı genişlikler
         const backWallShape = new CANNON.Box(backWallSize)
-        body.addShape(backWallShape, new CANNON.Vec3(0, backWallDistance, 0)) // Modele daha yakın
+        body.addShape(backWallShape, new CANNON.Vec3(0, backWallDistance+1.3, 0)) // Modele daha yakın
         
         // Sol duvar (negatif X yönünde) - GreenBox'ın soluna
         const leftWallSize = new CANNON.Vec3(0.5, length/2, height/2)
         const leftWallShape = new CANNON.Box(leftWallSize)
         body.addShape(leftWallShape, new CANNON.Vec3(-leftWallDistance, 0, 0)) // Modele daha yakın
-        
-        // Kamera çarpışma engeli - kamera etrafında küçük bir engel
-        const cameraSize = new CANNON.Vec3(0.8, 0.8, 1.5) // Kamera boyutu (x, y, z yarı genişlikler)
-        const cameraShape = new CANNON.Box(cameraSize)
-        body.addShape(
-            cameraShape, 
-            new CANNON.Vec3(
-                cameraPosition.x - this.position.x, 
-                cameraPosition.y - this.position.y, 
-                cameraPosition.z - this.position.z + 1 // Kamera yüksekliği için hafif yukarıda
-            )
-        )
         
         // Fizik dünyasına ekle
         this.physics.world.addBody(body)
@@ -253,18 +236,6 @@ export default class GreenBox
                 this.position.z
             )
             this.wallHelpers.add(leftWallHelper)
-            
-            // Kamera collision helper
-            const cameraHelper = new THREE.Mesh(
-                new THREE.BoxGeometry(cameraSize.x * 2, cameraSize.y * 2, cameraSize.z * 2),
-                new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true })
-            )
-            cameraHelper.position.set(
-                cameraPosition.x,
-                cameraPosition.y,
-                cameraPosition.z + 1 // Kamera yüksekliğini ayarla
-            )
-            this.wallHelpers.add(cameraHelper)
             
             this.wallHelpers.visible = false
             this.container.add(this.wallHelpers)
@@ -646,47 +617,21 @@ export default class GreenBox
                 ${index > 2 ? 'display: none;' : ''}
             `;
             
-            // Tıklama olayı - seçim işlevi ve kaydırma
+            // Mouse ile tıklama işlevini kaldırıyoruz, sadece Enter tuşu ile seçim yapılabilecek
             card.addEventListener('click', () => {
                 // Eğer sürükleme esnasında tıklanmışsa, normal tıklama olarak değerlendirme
                 if (isDragging) return;
                 
-                // Eğer ortadaki kart ise seç
-                if (parseInt(card.dataset.index) === this.popup.currentIndex + 1) {
-                    // Seçilen kartı işaretle
-                    this.popup.selectedImage = manzara;
-                    
-                    // Önceki seçili kartların işaretlerini kaldır
-                    allCards.forEach(c => {
-                        if (c.querySelector('.check-icon')) {
-                            c.querySelector('.check-icon').style.opacity = '0';
-                        }
-                    });
-                    
-                    // Bu kartı işaretle
-                    card.querySelector('.check-icon').style.opacity = '1';
-                    
-                    // Resmi yeşil ekrana uygula
-                    this.changeBackgroundImage(manzara);
-                    
-                    // Sadece arabayı ışınla
-                    setTimeout(() => {
-                        this.teleportCarToGreenBox();
-                    }, 800);
-                    
-                    // Popup'ı otomatik olarak kapat
-                    setTimeout(() => {
-                        this.hidePopup();
-                    }, 500); // Kullanıcıya seçtiğini görmesi için kısa bir süre bekle
-                } 
-                // Eğer üstteki kart ise bir yukarı kay
-                else if (parseInt(card.dataset.index) === this.popup.currentIndex) {
+                // Tıklamalar sadece navigasyon için kullanılacak
+                if (parseInt(card.dataset.index) === this.popup.currentIndex) {
+                    // Üstteki karta tıklandığında yukarı kay
                     this.navigateCarousel('prev');
                 } 
-                // Eğer alttaki kart ise bir aşağı kay
                 else if (parseInt(card.dataset.index) === this.popup.currentIndex + 2) {
+                    // Alttaki karta tıklandığında aşağı kay
                     this.navigateCarousel('next');
                 }
+                // Ortadaki karta tıklama işlevi kaldırıldı - sadece Enter tuşu ile seçim
             });
             
             // Resim - tam kart boyutunda
@@ -911,9 +856,67 @@ export default class GreenBox
                 } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
                     this.navigateCarousel('next');
                     event.preventDefault();
+                } else if (event.key === 'Enter') {
+                    // Enter tuşuyla ortadaki kartı seç
+                    this.selectCurrentCard();
+                    event.preventDefault();
                 }
             }
         });
+    }
+    
+    // Mevcut görünen kartı seç
+    selectCurrentCard() {
+        if (!this.popup.visible) return;
+        
+        console.log('Enter tuşuna basıldı, ortadaki kart seçiliyor...');
+        
+        // Merkezi görünen kartın indeksi (popup.currentIndex + 1)
+        const currentIndex = this.popup.currentIndex + 1;
+        
+        // Ortadaki kartın manzarasını bulalım
+        if (currentIndex >= 0 && currentIndex < this.backgrounds.length) {
+            const selectedManzara = this.backgrounds[currentIndex];
+            console.log('Seçilen manzara:', selectedManzara.id);
+            
+            // Popup'daki kartları bulalım
+            const allCards = document.querySelectorAll('.manzara-card');
+            
+            // Tüm kartlarda tik işaretini kaldır
+            allCards.forEach(card => {
+                if (card.querySelector('.check-icon')) {
+                    card.querySelector('.check-icon').style.opacity = '0';
+                }
+            });
+            
+            // Ortadaki kartın tik işaretini göster
+            allCards.forEach(card => {
+                if (parseInt(card.dataset.index) === currentIndex) {
+                    if (card.querySelector('.check-icon')) {
+                        card.querySelector('.check-icon').style.opacity = '1';
+                    }
+                }
+            });
+            
+            // Seçilen manzarayı uygula
+            this.popup.selectedImage = selectedManzara;
+            this.changeBackgroundImage(selectedManzara);
+            
+            // Arabayı ışınla
+            setTimeout(() => {
+                this.teleportCarToGreenBox();
+            }, 500);
+            
+            // Popup'ı kapat
+            setTimeout(() => {
+                this.hidePopup();
+            }, 200);
+            
+            return true;
+        } else {
+            console.error('Geçersiz kart indeksi:', currentIndex);
+            return false;
+        }
     }
     
     // Arabanın butonun etkileşim alanı içinde olup olmadığını kontrol eden metod
@@ -957,6 +960,9 @@ export default class GreenBox
             this.popup.htmlElement.style.opacity = '1';
             this.popup.htmlElement.style.transform = 'translate(-50%, -50%) scale(1)';
             
+            // Enter tuşu kullanım hatırlatıcısı ekle
+            this.addEnterKeyHint();
+            
             // Arka plandaki oyun etkileşimini engelle
             this.createGameBlocker();
             
@@ -964,6 +970,62 @@ export default class GreenBox
             this.disableCarControls();
         } else {
             // HTML element bulunamadı
+        }
+    }
+    
+    // Enter tuşu kullanım hatırlatıcısı ekle
+    addEnterKeyHint() {
+        // Önceki bir ipucu varsa kaldır
+        this.removeEnterKeyHint();
+        
+        // Enter ipucu için div oluştur
+        const enterHint = document.createElement('div');
+        enterHint.className = 'enter-key-hint';
+        enterHint.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: pulseHint 1.5s infinite alternate;
+        `;
+        
+        // CSS animasyonu ekle
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes pulseHint {
+                from { opacity: 0.7; transform: translateX(-50%) scale(1); }
+                to { opacity: 1; transform: translateX(-50%) scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // İpucu metni
+        enterHint.innerHTML = `
+            <strong>Seçim yapmak için ENTER tuşuna basın</strong><br>
+            <small>Gezinmek için ↑↓ ok tuşlarını kullanın</small>
+        `;
+        
+        // Sayfaya ekle
+        document.body.appendChild(enterHint);
+        
+        // Referansı sakla
+        this.enterKeyHint = enterHint;
+    }
+    
+    // Enter tuşu ipucunu kaldır
+    removeEnterKeyHint() {
+        if (this.enterKeyHint && this.enterKeyHint.parentNode) {
+            document.body.removeChild(this.enterKeyHint);
+            this.enterKeyHint = null;
         }
     }
     
@@ -976,6 +1038,9 @@ export default class GreenBox
             this.popup.htmlElement.style.visibility = 'hidden';
             this.popup.htmlElement.style.opacity = '0';
             this.popup.htmlElement.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            
+            // Enter tuşu ipucunu kaldır
+            this.removeEnterKeyHint();
             
             // Oyun etkileşim engelleyicisini kaldır
             this.removeGameBlocker();
@@ -1109,9 +1174,10 @@ export default class GreenBox
             
             // Green Box'ın içindeki hedef pozisyona teleport et
             // YÜKSEK POZİSYON: z değerini arttırarak yukarıdan düşmeyi sağlama
-            carBody.position.x = this.carTargetPosition.x;
-            carBody.position.y = this.carTargetPosition.y;
-            carBody.position.z = this.carTargetPosition.z + 5; // 5 birim yukarıda başlat (10'dan düşürüldü)
+            // Green Box'ın merkezine yakın bir konum
+            carBody.position.x = this.position.x + 1;  // Green Box'ın biraz sağına
+            carBody.position.y = this.position.y;      // Green Box'ın y pozisyonuyla aynı
+            carBody.position.z = this.position.z + 5;  // 5 birim yukarıda başlat
             
             // Hedef rotasyonu quaternion'a çevir
             const quaternion = new CANNON.Quaternion();

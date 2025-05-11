@@ -32,7 +32,7 @@ export default class Divizyon {
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
     
-    // Tüm model parçalarını 1.5 kat büyüt
+    // model boyutu
     model.scale.set(1, 1, 1);
     
     model.traverse(child => {
@@ -61,7 +61,7 @@ export default class Divizyon {
     const size = bbox.getSize(new THREE.Vector3());
 
     // Fizik gövdesi oluştur - ölçeklendirilmiş boyutlar
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const halfExtents = new CANNON.Vec3(size.x / 2.7, size.y / 2.7, size.z / 2.7);
     const boxShape = new CANNON.Box(halfExtents);
 
     const body = new CANNON.Body({
