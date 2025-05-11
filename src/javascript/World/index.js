@@ -34,7 +34,6 @@ import SesOdasi from './SesOdasi.js'
 
 import AladdinTepesi from './AlaaddinTepesi.js'
 import Render_odasi from './render_odasi.js'
-import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
@@ -42,6 +41,9 @@ import render_odasi from './render_odasi.js'
 import Stadyum from './stadyum.js'
 import JaponParki from './JaponParki.js'
 import KonserAlani from './KonserAlani.js'
+import CoWork from './CoWork.js'
+import KelebekVadisi from './KelebekVadisi.js'
+import TrafikLambasi from './TrafikLambasi.js'
 
 export default class World
 {
@@ -102,7 +104,6 @@ export default class World
         this.setkonyagenckart()
         this.setDivizyon()
         this.setAladdinTepesi()
-        this.setKelebekler()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
         this.setSesOdasi()
@@ -115,6 +116,9 @@ export default class World
         this.setStadyum()
         this.setJaponParki()
         this.setKonserAlani()
+        this.setCoWork()
+        this.setKelebekVadisi()
+        this.setTrafikLambasi()
     }
 
     setReveal()
@@ -655,19 +659,6 @@ export default class World
     }
      
 
-    setKelebekler()
-    {
-        this.kelebekler = new Kelebekler({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder,
-            time: this.time,
-            physics: this.physics
-        })
-        this.container.add(this.kelebekler.container)
-    }
-
-
     setRocket() 
     {
         // Bu metot, Eyfel Kulesi benzeri roketi oluşturur
@@ -814,6 +805,45 @@ export default class World
             rotateX: 0,   
             rotateY: 0,
             rotateZ: 0
+        });
+    }
+
+    setCoWork() {
+        this.coWork = new CoWork({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: 0,   
+            rotateY: 0,
+            rotateZ: 0
+        });
+    }
+
+    setKelebekVadisi() {
+        this.kelebekVadisi = new KelebekVadisi({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: 0,   
+            rotateY: 0,
+            rotateZ: 0
+        });
+    }
+
+    setTrafikLambasi() {
+        this.trafikLambasi = new TrafikLambasi({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: 0,   
+            rotateY: 0,
+            rotateZ: Math.PI / 2.2 // 90 derece dönüşle dik durmasını sağla
         });
     }
 

@@ -181,6 +181,15 @@ export default class Resources extends EventEmitter
             //konserAlani
             { name: 'konserAlani', source: './models/konserAlanı/konser_alani.glb'},
             
+            //coWork
+            { name: 'coWork', source: './models/coWork/Cowork.glb'},
+            
+            //kelebekVadisi
+            { name: 'kelebekVadisi', source: './models/kelebekVadisi/kelebek vadisi.glb'},
+            
+            //trafikLambasi
+            { name: 'trafikLambasi', source: './models/trafikLambasi/traficlamba.glb'},
+            
             // Rocket model
             { name: 'rocketModel', source: './models/rocket/base.glb' },
             
@@ -284,8 +293,6 @@ export default class Resources extends EventEmitter
             // Alaaddin Tepesi
             { name: 'AlaaddinTepesi', source: './models/AlaaddinTepesi.glb' },
             
-            // Kelebekler
-            { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
         ])
 
 
