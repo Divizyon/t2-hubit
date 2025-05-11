@@ -1,158 +1,115 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
+import CANNON from 'cannon';
 
-export default class Divizyon
-{
-    constructor(_options)
-    {
-        // Debug kontrolü
-        console.log('Divizyon constructor çalıştı, debug durumu:', _options.debug);
-        
-        // Gerekli parametreler
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.debug = _options.debug
-        this.config = _options.config
-        this.time = _options.time
-        this.areas = _options.areas
-        this.walls = _options.walls
-        this.tiles = _options.tiles
-        this.materials = _options.materials
-        this.x =  -35// X pozisyonu
-        this.y = -17 // Y pozisyonu
-        this.z = 0 // Z pozisyonu
-        
-        // Container oluştur
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
-        this.container.updateMatrix()
+const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 0); // Artık doğru yerde tanımlandı
 
-        // Debug
-        if(this.debug)
-        {
-            console.log('Debug modunda Divizyon paneli oluşturuluyor');
-            this.debugFolder = this.debug.addFolder('divizyon')
-            this.debugFolder.open()
-            
-            // Position debug
-            const positionFolder = this.debugFolder.addFolder('position')
-            positionFolder.add(this, 'x').name('X').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            positionFolder.add(this, 'y').name('Y').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            positionFolder.add(this, 'z').name('Z').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            
-            // Scale debug
-            this.debugObject = {
-                scaleX: 0.5,
-                scaleY: 0.5,
-                scaleZ: 0.5,
-                rotationX: 53,
-                rotationY: 90,
-                rotationZ: 180
-            }
-            
-            const scaleFolder = this.debugFolder.addFolder('scale')
-            scaleFolder.add(this.debugObject, 'scaleX').name('Scale X').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            scaleFolder.add(this.debugObject, 'scaleY').name('Scale Y').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            scaleFolder.add(this.debugObject, 'scaleZ').name('Scale Z').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            
-            // Rotation debug
-            const rotationFolder = this.debugFolder.addFolder('rotation')
-            rotationFolder.add(this.debugObject, 'rotationX').name('Rotation X').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-            rotationFolder.add(this.debugObject, 'rotationY').name('Rotation Y').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-            rotationFolder.add(this.debugObject, 'rotationZ').name('Rotation Z').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-        }
-        else
-        {
-            console.log('Debug modu aktif değil');
-        }
+export default class Divizyon {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
 
-        // Divizyon modeli ayarla
-        this.setDivizyon()
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+
+    this.container = new THREE.Object3D();
+    this.position = DEFAULT_POSITION.clone();
+
+    this._buildModel();
+    this.scene.add(this.container);
+  }
+
+  _buildModel() {
+    const gltf = this.resources.items.divizyon;
+    if (!gltf || !gltf.scene) {
+      console.error('Divizyon bina modeli bulunamadı');
+      return;
     }
 
-    setDivizyon()
-    {
-        this.divizyon = {}
-        
-        // Divizyon modelini yükle
-        this.divizyon.resource = this.resources.items.divizyon
-        
-        if(!this.divizyon.resource || !this.divizyon.resource.scene) {
-            console.error('Hata: Divizyon modeli yüklenemedi veya bulunamadı!')
-            return
-        }
-        
-        console.log('Divizyon modeli yüklendi:', this.divizyon.resource)
-        
-        // Mesh'i oluştur 
-        try {
-            // Dereceyi radyana çeviren yardımcı fonksiyon
-            const degToRad = (degrees) => {
-                return degrees * (Math.PI / 180);
-            };
-            
-            // Eğim değerleri (derece cinsinden)
-            const xRotation = this.debug ? this.debugObject.rotationX : -Math.PI / 2;
-            const yRotation = this.debug ? this.debugObject.rotationY : -Math.PI / 2; 
-            const zRotation = this.debug ? this.debugObject.rotationZ : 40;  
-            
-            // Pozisyon ayarla
-            this.position = new THREE.Vector3(this.x, this.y, this.z)
-            
-            // Rotasyon ayarla
-            this.rotation = new THREE.Euler(
-                degToRad(xRotation),
-                degToRad(yRotation),
-                degToRad(zRotation)
-            )
-            
-            // Ölçek ayarla
-            const scaleX = this.debug ? this.debugObject.scaleX : 1;
-            const scaleY = this.debug ? this.debugObject.scaleY : 1;
-            const scaleZ = this.debug ? this.debugObject.scaleZ : 1;
-            this.scale = new THREE.Vector3(scaleX, scaleY, scaleZ)
-            
-            // Mesh oluştur
-            this.divizyon.mesh = this.objects.getConvertedMesh(this.divizyon.resource.scene.children)
-            this.divizyon.mesh.position.copy(this.position)
-            this.divizyon.mesh.rotation.copy(this.rotation)
-            this.divizyon.mesh.scale.copy(this.scale)
-            
-            // Konteynere ekle
-            this.container.add(this.divizyon.mesh)
-            
-            console.log('Divizyon modeli başarıyla yüklendi')
-        } catch(error) {
-            console.error('Divizyon modelini yüklerken hata oluştu:', error)
-        }
-    }
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    model.traverse(child => {
+      if (child.isMesh) {
+        const origMat = child.material;
+        const mat = origMat.clone();
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
-    // Debug için yardımcı metodlar
-    updatePosition() {
-        if (this.divizyon && this.divizyon.mesh) {
-            this.position.set(this.x, this.y, this.z)
-            this.divizyon.mesh.position.copy(this.position)
-        }
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
+
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
+
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(...this.position.toArray()),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      objectEntry.collision = { body };
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
     }
-    
-    updateScale() {
-        if (this.divizyon && this.divizyon.mesh) {
-            this.scale.set(this.debugObject.scaleX, this.debugObject.scaleY, this.debugObject.scaleZ)
-            this.divizyon.mesh.scale.copy(this.scale)
-        }
-    }
-    
-    updateRotation() {
-        if (this.divizyon && this.divizyon.mesh) {
-            const degToRad = (degrees) => {
-                return degrees * (Math.PI / 180);
-            };
-            
-            this.rotation.set(
-                degToRad(this.debugObject.rotationX),
-                degToRad(this.debugObject.rotationY),
-                degToRad(this.debugObject.rotationZ)
-            )
-            this.divizyon.mesh.rotation.copy(this.rotation)
-        }
-    }
+  }
 }
+
+/* 
+
+İndex.js dosyasında Divizyon'u oluşturmak için:
+import Divizyon from './Divizyon';
+
+this.setDivizyon()
+
+  setDivizyon() {
+  this.divizyon = new Divizyon({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+  });
+}
+
+
+
+*/

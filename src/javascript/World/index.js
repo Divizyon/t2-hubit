@@ -604,25 +604,17 @@ export default class World
     }
 
     //set divizyon
-    setDivizyon()
-    {
-        console.log('setDivizyon() fonksiyonu çağrıldı, debug durumu:', this.debug);
+    setDivizyon() {
         this.divizyon = new Divizyon({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debug,
-            physics: this.physics,
-            materials: this.materials,
-            shadows: this.shadows
-        })
-        
-        if (this.divizyon && this.divizyon.container) {
-            console.log('Divizyon container ekleniyor');
-            this.container.add(this.divizyon.container);
-        } else {
-            console.error('Divizyon container oluşturulamadı');
-        }
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+        });
+      }
     
 
     setAladdinTepesi() {
