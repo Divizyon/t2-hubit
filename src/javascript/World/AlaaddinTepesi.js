@@ -10,7 +10,12 @@ export default class AlaaddinTepesi {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
+        
+        // Platform
+        this.platform = null;
+        
         this.setModel();
+        this.createPlatform();
         
         if (this.time) {
             this.time.on('tick', () => {
@@ -29,11 +34,11 @@ export default class AlaaddinTepesi {
 
         const loader = new GLTFLoader();
         loader.load('./models/AlaaddinTepesi.glb', (gltf) => {
-            console.log('Balık modeli yüklendi:', gltf);
+            console.log('Alaaddin Tepesi modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(6, -40, 0);
+            this.model.position.set(6, -40, 1.5); // Z pozisyonunu 5 birim yükselttim
             this.model.scale.set(1, 1, 1);
             
             // Modeli döndür
@@ -106,6 +111,74 @@ export default class AlaaddinTepesi {
                 console.warn('Hiç animasyon bulunamadı!');
             }
         });
+    }
+    
+    // Altına kare platform ekle
+    createPlatform() {
+        if (!this.scene) {
+            console.warn('AlaaddinTepesi: scene parametresi verilmedi, platform eklenmeyecek.');
+            return;
+        }
+        
+        // Kare platform oluştur
+        const platformSize = 26; // Kare platformun bir kenar uzunluğu (14*2)
+        const platformGeometry = new THREE.BoxGeometry(platformSize, platformSize, 1); // Kare platform
+        const platformMaterial = new THREE.MeshStandardMaterial({
+            color: 0x808080, // Gri
+            metalness: 0.5,  // Daha az metalik
+            roughness: 0.5,  // Daha mat yüzey
+        });
+        
+        this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
+        this.platform.position.set(4.5, -38, 0); // Modelin altında
+        this.platform.rotation.x = Math.PI; // Yatay duruma getir
+        this.platform.castShadow = true;
+        this.platform.receiveShadow = true;
+        
+        this.scene.add(this.platform);
+        
+        // Platform için fizik ekle
+        if (this.physics) {
+            // Platformun fiziksel boyutları - yarı boyutlar olarak tanımlanır
+            const halfSize = platformSize / 2; // Kenar uzunluğunun yarısı
+            const collisionHeight = 5; // Z boyutunu artırıyoruz (5 birim yükseklik)
+            
+            const platformBody = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(4.5, -38, 0), // Platform ile aynı pozisyon (güncellendi)
+                material: this.physics.materials.items.floor
+            });
+            
+            // Kare platform şekli - BoxShape kullanılıyor
+            const platformShape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, collisionHeight / 2)); // Yarı boyutlar (13, 13, 2.5)
+            
+            platformBody.addShape(platformShape);
+            
+            // Platformu fizik dünyasına ekle
+            this.physics.world.addBody(platformBody);
+            
+            console.log('Kare platform fizik gövdesi güncellendi, boyut:', platformSize, 'yükseklik:', collisionHeight);
+            
+            // Debug görselleştirme - fizik gövdesini görselleştir (eğer debug modu aktifse)
+            if (this.debug) {
+                const debugGeometry = new THREE.BoxGeometry(platformSize, platformSize, collisionHeight);
+                const debugMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff0000,
+                    wireframe: true,
+                    opacity: 0.5,
+                    transparent: true
+                });
+                
+                const debugMesh = new THREE.Mesh(debugGeometry, debugMaterial);
+                debugMesh.position.copy(this.platform.position); // Platform konumunu kopyala
+                debugMesh.rotation.copy(this.platform.rotation);
+                
+                this.scene.add(debugMesh);
+                console.log('Fizik gövdesi debug mesh güncellendi, yeni konum:', this.platform.position);
+            }
+        }
+        
+        console.log('Kare platform eklendi, boyut:', platformSize);
     }
 
     tick(delta) {
