@@ -276,6 +276,9 @@ export default class Resources extends EventEmitter
             
             // Kelebekler
             { name: 'kelebeklerModel', source: './models/kelebekler.glb' },
+
+            // Trafik Lambası
+            { name: 'trafikLambasi', source: './models/traficlamba.glb', onLoad: () => console.log('Trafik lambası modeli yüklendi!') },
         ])
 
 

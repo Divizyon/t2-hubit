@@ -38,6 +38,7 @@ import Kelebekler from './Kelebekler.js'
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
 import render_odasi from './render_odasi.js'
+import TrafikLambasi from './TrafikLambasi.js'
 
 export default class World
 {
@@ -107,7 +108,7 @@ export default class World
         this.setCustomButton()
         this.setFootball()
         this.setrender_odasi()
-
+        this.setTrafikLambasi()
     }
 
     setReveal()
@@ -760,4 +761,16 @@ export default class World
         this.football.initialize()
     }
 
+    setTrafikLambasi()
+    {
+        this.trafikLambasi = new TrafikLambasi({
+            time: this.time,
+            resources: this.resources,
+            debug: this.debug,
+            scene: this.container,
+            x: 5,
+            y: 0,
+            z: 0
+        })
+    }
 }
