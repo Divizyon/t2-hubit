@@ -38,11 +38,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=block" rel="stylesheet">
   
+    <style>
+        /* Araç Konum Göstergesi Stili */
+        #carLocation {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Comic Neue', cursive;
+            font-size: 16px;
+            z-index: 1000;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        #carLocation:hover {
+            transform: scale(1.05);
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        @media (max-width: 768px) {
+            #carLocation {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 
     <canvas class="canvas js-canvas"></canvas>
 
+    <!-- Araç konum bilgisi Car.js içinde programatik olarak ekleniyor -->
 
     <div class="threejs-journey is-hover-none js-threejs-journey">
         <div class="message js-message">

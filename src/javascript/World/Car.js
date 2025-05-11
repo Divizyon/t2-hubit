@@ -23,6 +23,10 @@ export default class Car
         // Set up
         this.container = new THREE.Object3D()
         this.position = new THREE.Vector3()
+        
+        // Konum takibi için DOM elementi
+        this.locationElement = null
+        this.createLocationElement()
 
         // Debug
         if(this.debug)
@@ -39,6 +43,172 @@ export default class Car
         this.setTransformControls()
         this.setShootingBall()
         this.setKlaxon()
+        this.updateLocation() // Konum güncellemesini başlat
+    }
+    
+    // Konum görüntüleme elementi oluşturma
+    createLocationElement() {
+        // Eğer element zaten varsa oluşturmaya gerek yok
+        if (document.getElementById('carLocation')) {
+            this.locationElement = document.getElementById('carLocation')
+            return
+        }
+        
+        // Yeni element oluştur
+        this.locationElement = document.createElement('div')
+        this.locationElement.id = 'carLocation'
+        
+        // Stil özellikleri
+        this.locationElement.style.position = 'fixed'
+        this.locationElement.style.top = '10px'
+        this.locationElement.style.right = '10px'
+        this.locationElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+        this.locationElement.style.color = 'white'
+        this.locationElement.style.padding = '8px 12px'
+        this.locationElement.style.borderRadius = '4px'
+        this.locationElement.style.fontFamily = 'Arial, sans-serif'
+        this.locationElement.style.fontSize = '14px'
+        this.locationElement.style.zIndex = '1000'
+        this.locationElement.style.userSelect = 'none'
+        this.locationElement.style.transition = 'opacity 0.3s'
+        
+        // İçerik
+        this.locationElement.innerHTML = 'Konum: X: 0.00, Y: 0.00'
+        
+        // Konum panelini gizle/göster butonu
+        const toggleButton = document.createElement('button')
+        toggleButton.id = 'toggleLocationButton'
+        toggleButton.innerHTML = '×'
+        toggleButton.style.position = 'absolute'
+        toggleButton.style.top = '2px'
+        toggleButton.style.right = '2px'
+        toggleButton.style.width = '20px'
+        toggleButton.style.height = '20px'
+        toggleButton.style.border = 'none'
+        toggleButton.style.borderRadius = '50%'
+        toggleButton.style.background = 'rgba(255, 255, 255, 0.2)'
+        toggleButton.style.color = 'white'
+        toggleButton.style.fontSize = '16px'
+        toggleButton.style.lineHeight = '16px'
+        toggleButton.style.padding = '0'
+        toggleButton.style.cursor = 'pointer'
+        toggleButton.style.display = 'flex'
+        toggleButton.style.justifyContent = 'center'
+        toggleButton.style.alignItems = 'center'
+        
+        // Panel durumu
+        let isPanelMinimized = false
+        
+        // Toggle butonuna tıklama olayı
+        toggleButton.addEventListener('click', (e) => {
+            e.stopPropagation() // Tıklama olayının daha üst elementlere geçmesini engelle
+            
+            if (isPanelMinimized) {
+                // Paneli göster
+                this.locationElement.style.width = 'auto'
+                this.locationElement.style.height = 'auto'
+                this.locationElement.style.overflow = 'visible'
+                toggleButton.innerHTML = '×'
+                
+                // İçeriği göster
+                const contentElements = this.locationElement.querySelectorAll('div')
+                contentElements.forEach(el => {
+                    el.style.display = 'block'
+                })
+            } else {
+                // Paneli gizle
+                this.locationElement.style.width = '26px'
+                this.locationElement.style.height = '26px'
+                this.locationElement.style.overflow = 'hidden'
+                toggleButton.innerHTML = '+'
+                
+                // İçeriği gizle
+                const contentElements = this.locationElement.querySelectorAll('div')
+                contentElements.forEach(el => {
+                    el.style.display = 'none'
+                })
+            }
+            
+            isPanelMinimized = !isPanelMinimized
+        })
+        
+        // Toggle butonunu elementin içine ekle
+        this.locationElement.appendChild(toggleButton)
+        
+        // Paneli açma/kapama
+        this.locationElement.addEventListener('click', () => {
+            if (isPanelMinimized) {
+                // Küçültülmüşse, tıklandığında açılsın
+                toggleButton.click()
+            }
+        })
+        
+        // Sayfaya ekle
+        document.body.appendChild(this.locationElement)
+    }
+    
+    // Konum bilgisini güncelleme
+    updateLocation() {
+        // Time tick event'ine abone ol
+        this.time.on('tick', () => {
+            if (this.locationElement && this.position) {
+                // Pozisyonu sadece 2 ondalık basamakla göster
+                const x = this.position.x.toFixed(2)
+                const y = this.position.y.toFixed(2)
+                
+                // Hız bilgisini hesapla ve göster (km/s benzeri bir birim)
+                const speed = this.movement ? Math.sqrt(
+                    Math.pow(this.movement.localSpeed.x, 2) + 
+                    Math.pow(this.movement.localSpeed.y, 2)
+                ).toFixed(1) : '0.0'
+                
+                // Yön bilgisini hesapla (derece cinsinden, 0 derece kuzey)
+                let direction = '?'
+                let directionSymbol = '↑' // Varsayılan olarak kuzey
+                
+                if (this.chassis && this.chassis.object) {
+                    // Rotasyonu dereceye çevir (z ekseni)
+                    const rotationDegrees = (this.chassis.object.rotation.z * (180 / Math.PI)).toFixed(0)
+                    // Pozitif değerler saat yönünün tersine döndüğünü gösterir
+                    const normalizedDegrees = ((360 - rotationDegrees) % 360)
+                    direction = normalizedDegrees.toFixed(0) + '°'
+                    
+                    // Yön sembolünü belirle (8 yön: K, KD, D, GD, G, GB, B, KB)
+                    if (normalizedDegrees >= 337.5 || normalizedDegrees < 22.5) {
+                        directionSymbol = '↑' // Kuzey
+                    } else if (normalizedDegrees >= 22.5 && normalizedDegrees < 67.5) {
+                        directionSymbol = '↗' // Kuzeydoğu
+                    } else if (normalizedDegrees >= 67.5 && normalizedDegrees < 112.5) {
+                        directionSymbol = '→' // Doğu
+                    } else if (normalizedDegrees >= 112.5 && normalizedDegrees < 157.5) {
+                        directionSymbol = '↘' // Güneydoğu
+                    } else if (normalizedDegrees >= 157.5 && normalizedDegrees < 202.5) {
+                        directionSymbol = '↓' // Güney
+                    } else if (normalizedDegrees >= 202.5 && normalizedDegrees < 247.5) {
+                        directionSymbol = '↙' // Güneybatı
+                    } else if (normalizedDegrees >= 247.5 && normalizedDegrees < 292.5) {
+                        directionSymbol = '←' // Batı
+                    } else if (normalizedDegrees >= 292.5 && normalizedDegrees < 337.5) {
+                        directionSymbol = '↖' // Kuzeybatı
+                    }
+                }
+                
+                // Elementi güncelle
+                this.locationElement.innerHTML = `
+                    <div><strong>Konum:</strong> X: ${x}, Y: ${y}</div>
+                    <div><strong>Hız:</strong> ${speed} km/s</div>
+                    <div><strong>Yön:</strong> ${direction} ${directionSymbol}</div>
+                `
+                
+                // Konum panelini gizle/göster butonu yeniden ekle
+                if (document.getElementById('toggleLocationButton')) {
+                    const toggleButton = document.getElementById('toggleLocationButton')
+                    if (!this.locationElement.contains(toggleButton)) {
+                        this.locationElement.appendChild(toggleButton)
+                    }
+                }
+            }
+        })
     }
 
     setModels()
