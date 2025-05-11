@@ -158,17 +158,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1
             },
-            {
-                name: 'horn',
-                sounds: ['./sounds/horns/horn-1.mp3', './sounds/horns/horn-2.mp3', './sounds/horns/horn-3.mp3'],
-                minDelta: 100,
-                velocityMin: 1,
-                velocityMultiplier: 0.75,
-                volumeMin: 0.5,
-                volumeMax: 1,
-                rateMin: 0.75,
-                rateMax: 1
-            },
+            
             {//Uzamsal sesler icin.
                 name: 'spatialSound1',
                 sounds: ['./sounds/car-horns/car-horn-3.mp3'],
@@ -181,6 +171,17 @@ export default class Sounds
                 rateMax: 1,
                 spatial: true,
                 defaultPosition: [-86, -12, 0] // Mavi küre
+            },
+            {
+                name: 'rocket',
+                sounds: ['./sounds/rocket/rocket_sesi.wav'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 1,
+                volumeMin: 0.8,
+                volumeMax: 1,
+                rateMin: 1,
+                rateMax: 1
             }
         ]
 
@@ -350,7 +351,7 @@ export default class Sounds
                     // Normal sesler için web audio kullan, html5 modu kullanma (gecikme yaratabilir)
                     const sound = new Howl({ 
                         src: [_sound],
-                        preload: _options.name === 'reveal' || _options.name === 'engine',
+                        preload: _options.name === 'reveal' || _options.name === 'engine' || _options.name === 'rocket',
                         html5: false
                     })
                     item.sounds.push(sound)
@@ -523,6 +524,39 @@ export default class Sounds
 
     play(_name, _velocity)
     {
+        // Roket sesine özel işlem ekle
+        if(_name === 'rocket') {
+            console.log('Roket sesi çalma denemesi');
+            try {
+                const item = this.items.find((_item) => _item.name === _name);
+                
+                if(item && item.sounds.length > 0) {
+                    const sound = item.sounds[0];
+                    
+                    // Ses yüklenmemiş mi kontrol et
+                    if(!sound.state() || sound.state() === 'unloaded') {
+                        sound.load();
+                        console.log('Roket sesi yükleniyor...');
+                    }
+                    
+                    // Roket sesi için özel ayarlar
+                    sound.volume(1);  // Tam ses
+                    sound.play();
+                    
+                    // Son çalma zamanını güncelle
+                    item.lastTime = Date.now();
+                    
+                    console.log('Roket sesi başarıyla çalındı!');
+                    return; // Önemli - burada işlemi sonlandır
+                } else {
+                    console.error('Roket ses öğesi bulunamadı!');
+                }
+            } catch(error) {
+                console.error('Roket sesi çalınırken hata:', error);
+            }
+        }
+      
+        // Normal ses çalma kodu burada devam eder...
         const item = this.items.find((_item) => _item.name === _name)
         const time = Date.now()
         const velocity = typeof _velocity === 'undefined' ? 0 : _velocity
@@ -548,7 +582,7 @@ export default class Sounds
                 sound.load();
             }
 
-            // Ses çalınıyorsa ve yeniden çalınmaması gereken bir ses ise (engine gibi)
+            // Ses çalınıyorsa ve yeniden çalınmaması gereken bir ses ise (engine ve reveal gibi)
             if(sound.playing() && (item.name === 'engine' || item.name === 'reveal')) {
                 return
             }
