@@ -1,83 +1,115 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
+import CANNON from 'cannon';
 
-export default class Road
-{
-    constructor(_options)
-    {
-        // Gerekli parametreler
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.debug = _options.debug
-        this.config = _options.config
-        this.time = _options.time
-        this.areas = _options.areas
-        this.walls = _options.walls
-        this.tiles = _options.tiles
-        this.materials = _options.materials
-        this.x = 16 // X pozisyonu
-        this.y = 2 // Y pozisyonu
-        this.z = 0.0001 // Z pozisyonu
-        
-        // Container oluştur
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
-        this.container.updateMatrix()
+const DEFAULT_POSITION = new THREE.Vector3(-24, -12, 0.0001); // Artık doğru yerde tanımlandı
 
-        // Yolu ayarla
-        this.setRoad()
+export default class Road {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
+
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+
+    this.container = new THREE.Object3D();
+    this.position = DEFAULT_POSITION.clone();
+
+    this._buildModel();
+    this.scene.add(this.container);
+  }
+
+  _buildModel() {
+    const gltf = this.resources.items.roadModel;
+    if (!gltf || !gltf.scene) {
+      console.error('Divizyon bina modeli bulunamadı');
+      return;
     }
 
-    setRoad()
-    {
-        this.road = {}
-        
-        // Road modelini yükle
-        this.road.resource = this.resources.items.roadModel
-        
-        if(!this.road.resource || !this.road.resource.scene) {
-            console.error('Hata: Road modeli yüklenemedi veya bulunamadı!')
-            return
-        }
-        
-        console.log('Road modeli yüklendi:', this.road.resource)
-        
-        // Yol mesh'i oluştur 
-        try {
-            // Dereceyi radyana çeviren yardımcı fonksiyon
-            const degToRad = (degrees) => {
-                return degrees * (Math.PI / 180);
-            };
-            
-            // Eğim değerleri (derece cinsinden)
-            const xRotation = -90;
-            const yRotation = 180; 
-            const zRotation = 180;  
-            
-            // Pozisyon ayarla
-            const position = new THREE.Vector3(this.x-40, this.y-14, this.z)
-            
-            // Rotasyon ayarla
-            const rotation = new THREE.Euler(
-                degToRad(xRotation),
-                degToRad(yRotation - 25),
-                degToRad(zRotation)
-            )
-            
-            // Ölçek ayarla
-            const scale = new THREE.Vector3(0.7, 0.467, 1) // Yolu daha küçük ölçeklere ayarladım
-            
-            // Mesh oluştur
-            this.road.mesh = this.objects.getConvertedMesh(this.road.resource.scene.children)
-            this.road.mesh.position.copy(position)
-            this.road.mesh.rotation.copy(rotation)
-            this.road.mesh.scale.copy(scale)
-            
-            // Konteynere ekle
-            this.container.add(this.road.mesh)
-            
-            console.log('Yol modeli başarıyla yüklendi')
-        } catch(error) {
-            console.error('Yol modelini yüklerken hata oluştu:', error)
-        }
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    model.traverse(child => {
+      if (child.isMesh) {
+        const origMat = child.material;
+        const mat = origMat.clone();
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
+
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
+
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(...this.position.toArray()),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      objectEntry.collision = { body };
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
     }
+  }
 }
+
+/* 
+
+İndex.js dosyasında Divizyon'u oluşturmak için:
+import Divizyon from './Divizyon';
+
+this.setDivizyon()
+
+  setDivizyon() {
+  this.divizyon = new Divizyon({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+  });
+}
+
+
+
+*/

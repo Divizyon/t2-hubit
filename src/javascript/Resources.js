@@ -184,7 +184,7 @@ export default class Resources extends EventEmitter
             { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb', onLoad: () => console.log('SesOdasi modeli yüklendi!') },
               
             // Yol Modeli
-            { name: 'roadModel', source: './models/road.glb' },
+            { name: 'roadModel', source: './models/road/atmosfer_yol.glb' },
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },

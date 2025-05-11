@@ -599,18 +599,17 @@ export default class World
         this.container.add(this.greenBox.container)
     }
 
-    setRoad()
-    {
+    setRoad() {
         this.road = new Road({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debug,
-            physics: this.physics,
-            materials: this.materials,
-            shadows: this.shadows
-        })
-        this.container.add(this.road.container)
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   Math.PI / 2,   // 
+          rotateY:   0,
+          rotateZ:   0// Y ekseninde 90 derece,
+        });
+      }
 
     //set divizyon
     setDivizyon() {
