@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(10, -25, 0); // Stadyum konumu
+const DEFAULT_POSITION = new THREE.Vector3(19, -43, 0); // Stadyum konumu
 
 export default class Stadyum {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {

@@ -41,6 +41,7 @@ import KapsulBinasi from './KapsulBinasi.js'
 import render_odasi from './render_odasi.js'
 import Stadyum from './stadyum.js'
 import JaponParki from './JaponParki.js'
+import KonserAlani from './KonserAlani.js'
 
 export default class World
 {
@@ -113,6 +114,7 @@ export default class World
         this.setDivizyon()
         this.setStadyum()
         this.setJaponParki()
+        this.setKonserAlani()
     }
 
     setReveal()
@@ -672,7 +674,7 @@ export default class World
             physics: this.physics,
             debug: this.debug,
             sounds: this.sounds,
-            position: new THREE.Vector3(25, 35, -10) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
+            position: new THREE.Vector3(58, 14, -10) // X, Y, Z koordinatlarını 16, 28, 0 olarak değiştirdik
         })
         
         // Roketi sahneye ekle - container'ı scene'e ekleyin
@@ -680,7 +682,7 @@ export default class World
         
         // Roket fırlatma alanı oluştur
         this.rocketLaunchArea = this.areas.add({
-            position: new THREE.Vector2(25, 35), // X, Y koordinatlarını 16, 28 olarak değiştirdik
+            position: new THREE.Vector2(58, 14), // X, Y koordinatlarını 16, 28 olarak değiştirdik
             halfExtents: new THREE.Vector2(3, 3),
             debug: true,
             hasKey: false
@@ -795,6 +797,19 @@ export default class World
             scene: this.scene,
             time: this.time,
             physics: this.physics,
+        });
+    }
+
+    setKonserAlani() {
+        this.konserAlani = new KonserAlani({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: 0,   
+            rotateY: 0,
+            rotateZ: 0
         });
     }
 

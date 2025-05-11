@@ -178,6 +178,9 @@ export default class Resources extends EventEmitter
             //stadyum
             { name: 'stadyum', source: './models/stadyum/stadyum.glb'},
 
+            //konserAlani
+            { name: 'konserAlani', source: './models/konserAlanı/konser_alani.glb'},
+            
             // Rocket model
             { name: 'rocketModel', source: './models/rocket/base.glb' },
             

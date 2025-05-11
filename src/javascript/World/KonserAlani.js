@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(32, -14, 1.5); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-50, -35, 0); // Konser alanı konumu
 
-export default class KapsulBinasi {
+export default class KonserAlani {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
     this.scene = scene;
     this.resources = resources;
@@ -13,7 +13,7 @@ export default class KapsulBinasi {
 
     this.rotateX = rotateX;
     this.rotateY = rotateY;
-    this.rotateZ = Math.PI * 1.5;
+    this.rotateZ = rotateZ;
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
@@ -23,9 +23,9 @@ export default class KapsulBinasi {
   }
 
   _buildModel() {
-    const gltf = this.resources.items.KapsulBinasi;
+    const gltf = this.resources.items.konserAlani;
     if (!gltf || !gltf.scene) {
-      console.error('Divizyon bina modeli bulunamadı');
+      console.error('Konser Alanı modeli bulunamadı');
       return;
     }
 
@@ -90,26 +90,3 @@ export default class KapsulBinasi {
     }
   }
 }
-
-/* 
-
-İndex.js dosyasında Divizyon'u oluşturmak için:
-import Divizyon from './Divizyon';
-
-this.setDivizyon()
-
-  setDivizyon() {
-  this.divizyon = new Divizyon({
-    scene:     this.scene,
-    resources: this.resources,
-    physics:   this.physics,
-    debug:     this.debugFolder,
-    rotateX:   0,   // 
-    rotateY:   0,
-    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
-  });
-}
-
-
-
-*/

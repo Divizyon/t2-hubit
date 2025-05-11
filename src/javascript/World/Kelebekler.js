@@ -21,8 +21,8 @@ export default class Kelebekler
         // Debug
         this.debugProperties = {
             position: {
-                x: 27,
-                y: 15,
+                x: 52,
+                y: -7,
                 z: -3
             },
             rotation: {
