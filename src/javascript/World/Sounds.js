@@ -49,17 +49,7 @@ export default class Sounds
     setSettings()
     {
         this.settings = [
-            {
-                name: 'reveal',
-                sounds: ['./sounds/reveal/reveal-1.mp3'],
-                minDelta: 100,
-                velocityMin: 0,
-                velocityMultiplier: 1,
-                volumeMin: 1,
-                volumeMax: 1,
-                rateMin: 1,
-                rateMax: 1
-            },
+            
             {
                 name: 'brick',
                 sounds: ['./sounds/bricks/brick-1.mp3', './sounds/bricks/brick-2.mp3', './sounds/bricks/brick-4.mp3', './sounds/bricks/brick-6.mp3', './sounds/bricks/brick-7.mp3', './sounds/bricks/brick-8.mp3'],
@@ -185,6 +175,19 @@ export default class Sounds
                 rateMax: 1,
                 spatial: true,
                 defaultPosition: [27, 15, 0] 
+            },
+            {//Uzamsal sesler icin.
+                name: 'spatialSound3',
+                sounds: ['./sounds/tramvay/tramvay.wav'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 0.8,
+                volumeMin: 0.6,
+                volumeMax: 0.8,
+                rateMin: 1,
+                rateMax: 1,
+                spatial: true,
+                defaultPosition: [5, -10, 0] 
             },
             {
                 name: 'rocket',
@@ -365,7 +368,7 @@ export default class Sounds
                     // Normal sesler için web audio kullan, html5 modu kullanma (gecikme yaratabilir)
                     const sound = new Howl({ 
                         src: [_sound],
-                        preload: _options.name === 'reveal' || _options.name === 'engine' || _options.name === 'rocket',
+                        preload: _options.name === 'engine' || _options.name === 'rocket',
                         html5: false
                     })
                     item.sounds.push(sound)
@@ -387,6 +390,18 @@ export default class Sounds
                         distanceModel: 'inverse',
                         maxDistance: 10,         // Daha büyük maksimum mesafe
                         coneOuterGain: 0.6,
+                        coneOuterAngle: 360,
+                        coneInnerAngle: 360
+                    };
+                }
+                if (_options.name === 'spatialSound3') {
+                    customPannerAttr = {
+                        panningModel: 'HRTF',
+                        refDistance: 200,         // Daha büyük referans mesafe (100 -> 200)
+                        rolloffFactor: 0.1,       // Daha düşük azalma faktörü (0.2 -> 0.1)  
+                        distanceModel: 'inverse',
+                        maxDistance: 300,         // Daha büyük maksimum mesafe (100 -> 300)
+                        coneOuterGain: 1.0,       // Tam güç (0.9 -> 1.0)
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
@@ -494,6 +509,7 @@ export default class Sounds
         // Otomatik çalmayı yalnızca oyun hazır olduğunda başlat
         let firstSound1Done = false;
         let firstSound2Done = false;
+        let firstSound3Done = false;
         
         // 1. ses için
         this.soundInterval1 = setInterval(() => {
@@ -518,19 +534,40 @@ export default class Sounds
                 }
             }
         }, 10000); // 10 saniyede bir çal (daha seyrek)
+
+        //3. ses için
+        this.soundInterval3 = setInterval(() => {
+            // İlk çalma gerçekleştiyse çalmaya devam et
+            if(firstSound3Done) {
+                // Uzamsal sesi çal
+                const result = this.playSpatial('spatialSound3');
+                if(!result) {
+                    console.log("spatialSound3 çalınamadı, tekrar denenecek");
+                }
+            }
+        }, 2000); // 8 saniyede bir çal (daha seyrek)
         
         // İlk ses çalmaları için başlangıç ayarları
+        //1. ses için
         setTimeout(() => {
             const result = this.playSpatial('spatialSound1');
             firstSound1Done = true;
             console.log('İlk uzamsal ses (spatialSound1) başlatıldı:', result ? 'başarılı' : 'başarısız');
         }, 0); // Oyun yüklendikten 2 saniye sonra başla
-        
+
+        //2. ses için
         setTimeout(() => {
             const result = this.playSpatial('spatialSound2');
             firstSound2Done = true;
             console.log('İkinci uzamsal ses (spatialSound2) başlatıldı:', result ? 'başarılı' : 'başarısız');
         }, 0); // Birinci sesten 1 saniye sonra başlat
+
+        //3. ses için
+        setTimeout(() => {
+            const result = this.playSpatial('spatialSound3');
+            firstSound3Done = true;
+            console.log('Üçüncü uzamsal ses (spatialSound3) başlatıldı:', result ? 'başarılı' : 'başarısız');
+        }, 0); // İkinci sesten 1 saniye sonra başlat
         
         console.log('Uzamsal ses otomatik çalma sistemi hazır - 2 uzamsal ses aktif');
     }
@@ -596,7 +633,7 @@ export default class Sounds
             }
 
             // Ses çalınıyorsa ve yeniden çalınmaması gereken bir ses ise (engine ve reveal gibi)
-            if(sound.playing() && (item.name === 'engine' || item.name === 'reveal')) {
+            if(sound.playing() && item.name === 'engine') {
                 return
             }
 

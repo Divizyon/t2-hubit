@@ -152,7 +152,7 @@ export default class World
             gsap.fromTo(this.sounds.engine.volume, { master: 0 }, { master: 0.7, duration: 0.5, delay: 0.3, ease: 'power2.in' })
             window.setTimeout(() =>
             {
-                this.sounds.play('reveal')
+            
             }, 400)
 
             // Controls
@@ -340,6 +340,10 @@ export default class World
                     //kelebek bahcesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
                         this.sounds.updateSpatialPosition('spatialSound2', 27, 15, 0)
+                    }
+                    //kelebek bahcesi icin uzamsal ses pozisyonu
+                    if(this.sounds && this.sounds.updateSpatialPosition) {
+                        this.sounds.updateSpatialPosition('spatialSound3', 5, -10, 0)
                     }
                 }
             }
