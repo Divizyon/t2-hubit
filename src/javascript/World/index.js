@@ -33,6 +33,7 @@ import Divizyon from './Divizyon.js'
 import SesOdasi from './SesOdasi.js'
 
 import AladdinTepesi from './AlaaddinTepesi.js'
+import Render_odasi from './render_odasi.js'
 import Kelebekler from './Kelebekler.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
@@ -107,7 +108,7 @@ export default class World
         this.setSesOdasi()
         this.setCustomButton()
         this.setFootball()
-        this.setrender_odasi()
+        this.setRender_odasi()
         this.setDivizyon()
         this.setStadyum()
     }
@@ -357,15 +358,12 @@ export default class World
         this.container.add(this.genclikMerkezi.container)
     }
    
-    setrender_odasi()
-    {
-        this.render_odasi = new render_odasi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder,
+    setRender_odasi() {
+        this.Render_odasi = new Render_odasi({
+            scene: this.scene,
+            time: this.time,
             physics: this.physics
-        })
-        this.container.add(this.render_odasi.container)
+        });
     }
    
 
