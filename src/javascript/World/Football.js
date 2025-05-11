@@ -21,8 +21,16 @@ export default class Football
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
         
+        // Debug modunu açık tut ki collision görünür olsun
+        this.debug = true
+        
         // Optimizasyon - başlangıçta sadece modelleri tanımla, diğer nesneleri lazım olduğunda oluştur
         this.initialized = false
+        
+        // Trigger şekli ve pozisyonu sınıf kapsamında
+        this.triggerShape = null
+        this.triggerPosition = null
+        
         this.setModels()
     }
     
@@ -77,135 +85,49 @@ export default class Football
     }
 
     /**
-     * Kaleyi oluştur (optimize edilmiş)
+     * Kaleyi oluştur (tamamen içinden geçilebilir, collision olmayan şekilde)
      */
     setGoal()
     {
         try {
+            // Tüm kale bileşenlerini tutacak nesne
             this.goal = {}
-
-            // Fizik gövdesi - kalenin dikey ve yatay direkleri için
-            this.goal.body = new CANNON.Body({
-                mass: 0, // Statik gövde
-                material: this.physics.materials.items.dummy,
-                collisionResponse: true // Direkler topa çarpabilir
-            })
-
-            // Kale çerçevesi için fizik şekilleri
-            const frameShape = new CANNON.Box(new CANNON.Vec3(
-                this.models.goal.size.x / 1,
-                this.models.goal.size.y * 6, 
-                this.models.goal.size.z * 2
-            ))
-
-            // Fizik şeklini pozisyonlandır ve gövdeye ekle
-            this.goal.body.addShape(
-                frameShape,
-                new CANNON.Vec3(
-                    -17, -70, 0
-                )
-            )
-
-            // Kale ağzı için normal collider kullanalım - algılamayı daha kolay hale getirmek için
-            this.goal.netTrigger = new CANNON.Body({
-                mass: 0,
-                collisionResponse: true, // Top çarpacak, normal fizik kurallarıyla
-                material: this.physics.materials.items.dummy
-            })
             
-            // Kale ağzı collider şekli - çok daha büyük yapıp algılamayı kesin hale getirelim
-            const netTriggerShape = new CANNON.Box(new CANNON.Vec3(
-                this.models.goal.size.x * 2, // genişlik - daha da büyüttüm
-                this.models.goal.size.y * 10, // derinlik - daha da büyüttüm  
-                this.models.goal.size.z * 3  // yükseklik - daha da büyüttüm
-            ))
+            // Kale pozisyonu (sabit değerler)
+            const goalX = -14;
+            const goalY = -70;
+            const goalZ = 0;
+            const goalWidth = 2.0;
+            const goalHeight = 1.2;
+            const goalDepth = 0.8;
             
-            // Top-kale ağzı etkileşimi için özel materyal
-            const ballGoalContactMaterial = new CANNON.ContactMaterial(
-                this.physics.materials.items.dummy, // Top materyali
-                this.physics.materials.items.dummy, // Kale materyali
-                {
-                    friction: 0.1, // Düşük sürtünme
-                    restitution: 0.7, // Daha fazla sıçrama
-                }
-            )
+            // ----------------------------------
+            // 1. ADIM: GÖRSEL MODEL OLUŞTURMA
+            // ----------------------------------
             
-            // Materyali dünyaya ekle
-            this.physics.world.addContactMaterial(ballGoalContactMaterial)
-            
-            // Pozisyonu ayarla - kale ağzından çok daha ileride
-            const netTriggerPosition = new CANNON.Vec3(-17, -60, 0); // y değerini -65'ten -60'a değiştirdim
-            
-            this.goal.netTrigger.addShape(
-                netTriggerShape,
-                netTriggerPosition
-            )
-            
-            // Çarpışma olayını dinle
-            this.goal.netTrigger.addEventListener('collide', (event) => {
-                // Top kontrolleri
-                if (event.body === this.ball?.body) {
-                    // Eğer top ise ve daha önce gol olmadıysa
-                    if (!this.hasScored) {
-                        console.log('GOL OLDU!')
-                        // Gol oldu!
-                        this.hasScored = true
-                        
-                        // Gol mesajını göster
-                        if (this.gui && this.gui.goalMessage) {
-                            this.gui.goalMessage.style.display = 'block'
-                        }
-                        
-                        // Ses efekti
-                        if (this.sounds) {
-                            this.sounds.play('carHit', 3)
-                        }
-                        
-                        // 3 saniye sonra mesajı gizle ve topu sıfırla
-                        setTimeout(() => {
-                            if (this.gui && this.gui.goalMessage) {
-                                this.gui.goalMessage.style.display = 'none'
-                            }
-                            this.resetBall();
-                        }, 3000)
-                    }
-                }
-            })
-
-            // Fizik dünyasına ekle
-            this.physics.world.addBody(this.goal.body)
-            this.physics.world.addBody(this.goal.netTrigger)
-
-            // Görsel model - kale.glb modeli kullan
+            // Görsel model container'ı
             this.goal.container = new THREE.Object3D()
             this.goal.container.position.copy(this.models.goal.position)
-
+            
             // kale.glb modelini yükle
             if (this.resources.items.kaleModel) {
-                // Model varsa kullan
                 console.log('Kale modeli bulundu, yükleniyor...')
                 
-                // GLTFLoader ile yüklenen model doğrudan kullanılabilir
                 this.goal.model = new THREE.Object3D()
                 
                 // Kale modelini kopyala
                 const kaleModel = this.resources.items.kaleModel.scene.clone()
                 
-                // Kale modelini ölçeklendir (boyutu ayarla)
+                // Kale modelini ayarla
                 kaleModel.scale.set(2.0, 2.0, 2.0)
-                
-                // Modeli döndür (kale modeli doğru yöne baksın)
                 kaleModel.rotation.x = 0
-                
-                // Pozisyonu ayarla - tam olarak doğru konumda olması için
                 kaleModel.position.set(-10, -70, -0.5)
                 
-                // Kale modelinin tüm çocuk mesh'lerini döngü ile gezelim
+                // Kale modelinin tüm parçalarını geç ve materyal uygula
                 kaleModel.traverse((child) => {
                     if (child.isMesh) {
                         console.log('Kale mesh bulundu:', child.name)
                         
-                        // Mesh'lere parlak beyaz materyal uygula
                         child.material = new THREE.MeshStandardMaterial({
                             color: 0xffffff,
                             metalness: 0.3,
@@ -214,27 +136,25 @@ export default class Football
                             emissiveIntensity: 0.5
                         });
                         
-                        // Gölgeleri etkinleştir
                         child.castShadow = true;
                         child.receiveShadow = true;
                     }
                 });
                 
-                // Modeli container'a ekle
                 this.goal.model.add(kaleModel)
                 this.goal.container.add(this.goal.model)
                 console.log('Kale modeli başarıyla yüklendi')
             } else {
                 console.warn('Kale modeli bulunamadı, basit kale kullanılıyor')
                 
-                // Basit bir kale oluştur
+                // Basit kale oluştur
                 const goalMaterial = new THREE.MeshStandardMaterial({ 
                     color: 0xffffff,
                     metalness: 0.3,
                     roughness: 0.2
                 })
 
-                // U şeklinde kale oluştur
+                // U şeklinde kale direkleri
                 const postSize = { width: 0.1, height: 1.2 };
                 const crossbarSize = { width: 2.0, height: 0.1 };
 
@@ -259,51 +179,237 @@ export default class Football
                 );
                 crossbar.position.set(0, 0, postSize.height);
                 
-                // Direkleri container'a ekle
                 this.goal.container.add(leftPost);
                 this.goal.container.add(rightPost);
                 this.goal.container.add(crossbar);
             }
 
-            // Container'a ekle
+            // Görsel modeli ana container'a ekle
             this.container.add(this.goal.container)
-
-            // Debug için trigger görselleştirme
-            if (this.debug) {
-                // Kale ağı collider'ı görselleştirme - debug için - son ayarlar
-                const netTriggerGeometry = new THREE.BoxGeometry(
-                    this.models.goal.size.x * 4,  // genişlik - collider ile uyumlu
-                    this.models.goal.size.y * 20,  // derinlik - collider ile uyumlu
-                    this.models.goal.size.z * 6  // yükseklik - collider ile uyumlu
-                )
+            
+            // ----------------------------------
+            // 2. ADIM: TAMAMEN GHOST BODY OLUŞTURMA (HİÇBİR FİZİK ETKİLEŞİMİ OLMAYACAK)
+            // ----------------------------------
+            
+            // Tüm kale collider'ları - bunları takip edeceğiz
+            this.allGoalBodies = [];
+            
+            // Kale ana ghost body - direkler için
+            // ÖNEMLİ: TAMAMEN GHOST - FİZİK ETKİLEŞİMİ YOK!
+            const ghostOptions = {
+                mass: 0,
+                material: this.physics.materials.items.dummy,
+                collisionResponse: false, // ÖNEMLİ: İÇİNDEN GEÇİLEBİLİR
+                type: CANNON.Body.STATIC,
+                collisionFilterGroup: 0, // Hiçbir grupla çarpışmaz
+                collisionFilterMask: 0   // Hiçbir grupla çarpışmaz
+            };
+            
+            this.goal.ghostBody = new CANNON.Body(ghostOptions);
+            this.goal.ghostBody.position.set(goalX, goalY, goalZ);
+            
+            // Sol direk collider
+            const leftPostShape = new CANNON.Box(new CANNON.Vec3(
+                0.1, 0.1, goalHeight/2
+            ));
+            
+            // Sağ direk collider
+            const rightPostShape = new CANNON.Box(new CANNON.Vec3(
+                0.1, 0.1, goalHeight/2
+            ));
+            
+            // Üst direk collider
+            const crossbarShape = new CANNON.Box(new CANNON.Vec3(
+                goalWidth/2, 0.1, 0.1
+            ));
+            
+            // Collider'ları ghost body'ye ekle
+            this.goal.ghostBody.addShape(leftPostShape, new CANNON.Vec3(
+                -goalWidth/2, 0, goalHeight/2
+            ));
+            
+            this.goal.ghostBody.addShape(rightPostShape, new CANNON.Vec3(
+                goalWidth/2, 0, goalHeight/2
+            ));
+            
+            this.goal.ghostBody.addShape(crossbarShape, new CANNON.Vec3(
+                0, 0, goalHeight
+            ));
+            
+            // Fizik motoruna ghost body'yi ekle
+            this.physics.world.addBody(this.goal.ghostBody);
+            this.allGoalBodies.push(this.goal.ghostBody);
+            
+            // ----------------------------------
+            // 3. ADIM: GOL ALGILAMA TRİGGER'I OLUŞTURMA (İÇİNDEN GEÇİLEBİLİR)
+            // ----------------------------------
+            
+            // Gol trigger'ı - kale ağzında duracak
+            // ÖNEMLİ: GHOST BODY - İÇİNDEN GEÇİLEBİLİR!
+            this.goal.goalTrigger = new CANNON.Body({
+                mass: 0,
+                material: this.physics.materials.items.dummy,
+                collisionResponse: false, // ÖNEMLİ: İÇİNDEN GEÇİLEBİLİR!
+                type: CANNON.Body.STATIC,
+                collisionFilterGroup: 0, // Hiçbir grupla çarpışmaz 
+                collisionFilterMask: 0   // Hiçbir grupla çarpışmaz
+            });
+            
+            // Kale ağzına yerleştir - BU KISIMDAKI X, Y, Z DEĞERLERİNİ DEĞİŞTİREBİLİRSİNİZ
+            const triggerCenter = new CANNON.Vec3(
+                goalX - 1.5,           // Kalenin X merkezinde
+                goalY + 3,          // Kalenin Y merkezinde
+                goalZ + goalHeight * 0.8  // Kalenin biraz daha yükseğinde
+            );
+            this.goal.goalTrigger.position.copy(triggerCenter);
+            
+            // Trigger şekli - BURADAKI BOYUT DEĞERLERİNİ DEĞİŞTİREBİLİRSİNİZ
+            this.triggerShape = new CANNON.Box(new CANNON.Vec3(
+                goalWidth * 1.1,     // Kale genişliğinden %10 daha geniş
+                goalDepth * 5,     // Kale derinliğinin 2 katı derinlik
+                goalHeight * 1.5     // Kale yüksekliğinden %20 daha yüksek
+            ));
+            
+            // Trigger'ı ekle (hiçbir offset eklemeden, merkeze)
+            this.goal.goalTrigger.addShape(this.triggerShape);
+            
+            // Fizik motoruna ekle
+            this.physics.world.addBody(this.goal.goalTrigger);
+            this.allGoalBodies.push(this.goal.goalTrigger);
+            
+            // Trigger pozisyonunu sınıf içinde sakla
+            this.triggerPosition = this.goal.goalTrigger.position;
+            
+            // ----------------------------------
+            // 4. ADIM: GÖRÜNÜR COLLIDER'LAR KALDIRILIYOR 
+            // ----------------------------------
+            
+            // // Debug modunda collider'ları görselleştir
+            // if (this.debug) {
+            //     this.colliderVisuals = new THREE.Group();
                 
-                // Daha belirgin bir görsellik
-                const netTriggerMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0xff0000,  // kırmızı renk
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.9  // çok daha belirgin
-                })
+            //     // Kale çerçevesi için wireframe
+            //     const leftPostVisual = this.createDebugBox(
+            //         leftPostShape.halfExtents,
+            //         this.goal.ghostBody.position,
+            //         new CANNON.Vec3(-goalWidth/2, 0, goalHeight/2),
+            //         0xffff00 // Sarı
+            //     );
                 
-                this.goal.netTriggerMesh = new THREE.Mesh(netTriggerGeometry, netTriggerMaterial)
+            //     const rightPostVisual = this.createDebugBox(
+            //         rightPostShape.halfExtents,
+            //         this.goal.ghostBody.position,
+            //         new CANNON.Vec3(goalWidth/2, 0, goalHeight/2),
+            //         0xffff00 // Sarı
+            //     );
                 
-                // Kale collider'ının pozisyonu ile aynı olmalı
-                this.goal.netTriggerMesh.position.copy(netTriggerPosition)
+            //     const crossbarVisual = this.createDebugBox(
+            //         crossbarShape.halfExtents,
+            //         this.goal.ghostBody.position,
+            //         new CANNON.Vec3(0, 0, goalHeight),
+            //         0xffff00 // Sarı
+            //     );
                 
-                // Görselleştirmeyi ekle
-                this.container.add(this.goal.netTriggerMesh)
+            //     // Trigger alanı görselleştirme (yarı saydam, içinden geçilebilir olduğunu belli etmek için)
+            //     const triggerGeometry = new THREE.BoxGeometry(
+            //         this.triggerShape.halfExtents.x * 2,
+            //         this.triggerShape.halfExtents.y * 2,
+            //         this.triggerShape.halfExtents.z * 2
+            //     );
                 
-                // Debug konsola bilgi yazdır
-                console.log('Kale collider boyutları:', netTriggerShape)
-                console.log('Kale collider pozisyonu:', netTriggerPosition)
-            }
+            //     const triggerMaterial = new THREE.MeshBasicMaterial({
+            //         color: 0x00ff00, // Yeşil
+            //         wireframe: true,  
+            //         transparent: true,
+            //         opacity: 0.5     // Yarı saydam
+            //     });
+                
+            //     const triggerVisual = new THREE.Mesh(triggerGeometry, triggerMaterial);
+            //     triggerVisual.position.copy(this.triggerPosition);
+                
+            //     // Görsel container'a ekle
+            //     this.colliderVisuals.add(leftPostVisual);
+            //     this.colliderVisuals.add(rightPostVisual);
+            //     this.colliderVisuals.add(crossbarVisual);
+            //     this.colliderVisuals.add(triggerVisual);
+                
+            //     // Sahneye ekle
+            //     this.container.add(this.colliderVisuals);
+                
+            //     console.log('Collider görselleştirmeleri oluşturuldu');
+            // }
+            
+            console.log('Kale ve trigger alanı oluşturuldu - tamamen içinden geçilebilir');
+            
         } catch (error) {
-            console.error('Kale oluşturulamadı:', error)
+            console.error('Kale oluşturulamadı:', error);
+        }
+    }
+    
+    /**
+     * Debug için wireframe box oluşturur
+     */
+    createDebugBox(halfExtents, bodyPosition, shapeOffset, color) {
+        // Tam boyutlarla kutu geometrisi oluştur
+        const geometry = new THREE.BoxGeometry(
+            halfExtents.x * 2,
+            halfExtents.y * 2,
+            halfExtents.z * 2
+        );
+        
+        // Wireframe materyal
+        const material = new THREE.MeshBasicMaterial({
+            color: color,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.7
+        });
+        
+        // Mesh oluştur
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        // Pozisyonu ayarla (body pozisyonu + shape offset)
+        mesh.position.set(
+            bodyPosition.x + shapeOffset.x,
+            bodyPosition.y + shapeOffset.y,
+            bodyPosition.z + shapeOffset.z
+        );
+        
+        return mesh;
+    }
+
+    /**
+     * Gol kontrolü için yardımcı fonksiyon
+     */
+    checkGoal(body) {
+        // Eğer top ise ve daha önce gol olmadıysa
+        if (body === this.ball?.body && !this.hasScored) {
+            console.log('GOL OLDU! Trigger çalıştı!')
+            // Gol oldu!
+            this.hasScored = true
+            
+            // Gol mesajını göster
+            if (this.gui && this.gui.goalMessage) {
+                this.gui.goalMessage.style.display = 'block'
+            }
+            
+            // Ses efekti
+            if (this.sounds) {
+                this.sounds.play('carHit', 3)
+            }
+            
+            // 3 saniye sonra mesajı gizle ve topu sıfırla
+            setTimeout(() => {
+                if (this.gui && this.gui.goalMessage) {
+                    this.gui.goalMessage.style.display = 'none'
+                }
+                this.resetBall();
+            }, 3000)
         }
     }
 
     /**
-     * Futbol topunu oluştur (optimize edilmiş)
+     * Futbol topunu oluştur
      */
     setBall()
     {
@@ -383,6 +489,35 @@ export default class Football
                 if (this.ball && this.ball.mesh && this.ball.body) {
                     this.ball.mesh.position.copy(this.ball.body.position)
                     this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
+                    
+                    // Top trigger içinde mi kontrol et
+                    if (this.goal && this.goal.goalTrigger && this.triggerShape) {
+                        // Top ve trigger pozisyonları
+                        const ballPos = this.ball.body.position;
+                        const triggerPos = this.triggerPosition;
+                        const triggerSize = this.triggerShape.halfExtents;
+                        
+                        // Küre ve kutu çarpışma kontrolü
+                        const isInside = (
+                            ballPos.x > triggerPos.x - triggerSize.x - this.models.ball.radius &&
+                            ballPos.x < triggerPos.x + triggerSize.x + this.models.ball.radius &&
+                            ballPos.y > triggerPos.y - triggerSize.y - this.models.ball.radius &&
+                            ballPos.y < triggerPos.y + triggerSize.y + this.models.ball.radius &&
+                            ballPos.z > triggerPos.z - triggerSize.z - this.models.ball.radius &&
+                            ballPos.z < triggerPos.z + triggerSize.z + this.models.ball.radius
+                        );
+                        
+                        // Gol durumu
+                        if (isInside && !this.hasScored) {
+                            this.checkGoal(this.ball.body);
+                        }
+                    }
+                    
+                    // Debug modu açıksa collider görsellerini güncelle
+                    if (this.debug && this.colliderVisuals) {
+                        // Debug olarak eklenen görsel öğeleri güncelle
+                        // Böylece fizik motorundaki pozisyonlar görsel olarak da görünür
+                    }
                 }
             })
         } catch (error) {
@@ -391,7 +526,7 @@ export default class Football
     }
 
     /**
-     * UI ve gol mesajını ayarla (basitleştirilmiş)
+     * UI ve gol mesajını ayarla
      */
     setGUI()
     {
@@ -436,7 +571,7 @@ export default class Football
     }
 
     /**
-     * Reset butonunu oluştur (basitleştirilmiş)
+     * Reset butonunu oluştur
      */
     setResetButton()
     {
@@ -492,19 +627,35 @@ export default class Football
     }
 
     /**
-     * Etkileşimleri kontrol et (gol)
+     * Etkileşimleri kontrol et
      */
     checkInteractions()
     {
         try {
-            // ARTIK İHTİYAÇ YOK - YENİ NETTIRGGER KULLANILIYOR
-            // Eski trigger kodunu siliyorum çünkü artık kale ağzında daha iyi bir trigger var
-            console.log('Futbol etkileşimi başlatıldı - sadece kale ağzı tetikleyici kullanılıyor')
+            console.log('Kale-top etkileşimleri kontrolü başlatıldı.');
             
-            // Top ve araba arasındaki etkileşimleri eklemek isterseniz buraya ekleyebilirsiniz
+            // CANNON.js çarpışma olay dinleyicileri
+            this.ball?.body?.addEventListener('collide', (event) => {
+                // Hangi body ile çarpıştı kontrol et
+                const collidedBody = event.body;
+                
+                // Eğer kale trigger'ı ile çarpıştıysa (olmaması lazım, collisionResponse: false)
+                if (this.goal && collidedBody === this.goal.goalTrigger) {
+                    console.error('HATA: Top trigger ile çarpıştı! collisionResponse: false olmalıydı!');
+                    console.error('Top hızı:', this.ball.body.velocity);
+                    console.error('Collision body:', collidedBody);
+                }
+                
+                // Diğer kale collider'ları ile çarpışma (olmaması lazım)
+                if (this.allGoalBodies && this.allGoalBodies.includes(collidedBody)) {
+                    console.error('HATA: Top kale bileşeni ile çarpıştı! collisionResponse: false olmalıydı!');
+                    console.error('Top hızı:', this.ball.body.velocity); 
+                    console.error('Collision body:', collidedBody);
+                }
+            });
             
         } catch (error) {
-            console.error('Etkileşim kontrolü kurulamadı:', error)
+            console.error('Etkileşim kontrolü kurulamadı:', error);
         }
     }
 } 
