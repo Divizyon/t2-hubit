@@ -1,5 +1,6 @@
 import { Howl, Howler } from 'howler'
-import * as THREE from 'three'
+// THREE kütüphanesini kaldırıyoruz - artık ihtiyaç yok
+// import * as THREE from 'three'
 
 export default class Sounds
 {
@@ -41,8 +42,8 @@ export default class Sounds
         // Dinleyici pozisyonu
         Howler.pos(0, 0, 0);
         
-        // Uzamsal ses objelerini oluştur
-        this.createSpatialSoundObjects();
+        // Uzamsal ses ayarlarını başlat
+        this.setupSpatialAudio();
     }
 
     setSettings()
@@ -170,7 +171,20 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-86, -12, 0] // Mavi küre
+                defaultPosition: [-86, -12, 0] 
+            },
+            {//Uzamsal sesler icin.
+                name: 'spatialSound2',
+                sounds: ['./sounds/kelebek_bahcesi/kelebek_bahcesi.mp3'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 0.8,
+                volumeMin: 0.6,
+                volumeMax: 0.8,
+                rateMin: 1,
+                rateMax: 1,
+                spatial: true,
+                defaultPosition: [0, 0, 0] 
             },
             {
                 name: 'rocket',
@@ -416,21 +430,19 @@ export default class Sounds
         }
     }
     
-    // Uzamsal ses pozisyonunu güncelleme
+    // Uzamsal ses pozisyonunu güncelleme (sadece ses pozisyonu)
     updateSpatialPosition(name, x, y, z) {
         try {
             const item = this.items.find(item => item.name === name)
             
             if(item && item.spatial) {
+                // Pozisyon bilgisini kaydet
                 item.position = [x, y, z]
                 
+                // Howl nesnesinin pozisyonunu güncelle
                 if(item.howl) {
                     item.howl.pos(x, y, z)
-                }
-                
-                // Görselleştirme objesini güncelle
-                if(this.spatialSoundObjects && this.spatialSoundObjects[name]) {
-                    this.spatialSoundObjects[name].position.set(x, y, z)
+                    console.log(`Uzamsal ses "${name}" pozisyonu güncellendi: [${x}, ${y}, ${z}]`);
                 }
                 
                 return true
@@ -442,84 +454,68 @@ export default class Sounds
         }
     }
     
-    // Uzamsal ses objeleri oluştur (THREE.js ile görselleştirme)
-    createSpatialSoundObjects() {
+    // Uzamsal ses ayarlarını başlat (görselleştirme nesneleri olmadan)
+    setupSpatialAudio() {
         try {
-            this.spatialSoundObjects = {}
-            this.spatialContainer = new THREE.Object3D()
-            this.spatialContainer.name = 'spatialSoundContainer'
-            
-            // Her uzamsal ses için görsel temsil oluştur
-            for(const item of this.items) {
-                if(item.spatial) {
-                    // Küre geometrisi oluştur
-                    const geometry = new THREE.SphereGeometry(0, 16, 16)
-                    
-                    // Mavi renk kullan
-                    const color = 0x0000ff
-                    
-                    // Materyal
-                    const material = new THREE.MeshBasicMaterial({ 
-                        color: color,
-                        wireframe: true 
-                    })
-                    
-                    // Mesh oluştur
-                    const mesh = new THREE.Mesh(geometry, material)
-                    
-                    // Pozisyonu ayarla
-                    mesh.position.set(
-                        item.position[0] || 0,
-                        item.position[1] || 0,
-                        item.position[2] || 0
-                    )
-                    
-                    // Işık ekle
-                    const light = new THREE.PointLight(color, 1, 10)
-                    light.position.copy(mesh.position)
-                    
-                    // Container'a ekle
-                    this.spatialContainer.add(mesh)
-                    this.spatialContainer.add(light)
-                    
-                    // Referansını kaydet
-                    this.spatialSoundObjects[item.name] = mesh
-                }
-            }
+            // Sadece uzamsal sesleri yönetecek basit bir mekanizma kur
+            console.log('Uzamsal ses ayarları başlatılıyor...');
             
             // Otomatik çalma ayarla - uzamsal sesi başlat
             setTimeout(() => {
                 this.setupAutoPlay();
             }, 100); // Biraz geciktir, diğer seslerin yüklenmesine öncelik ver
             
-            return this.spatialContainer
+            return null; // Artık THREE.js nesnesi döndürmüyoruz
         } catch(error) {
-            console.error('Error creating spatial sound objects:', error)
-            return null
+            console.error('Error setting up spatial audio:', error)
+            return null;
         }
     }
     
     // Otomatik ses çalma
     setupAutoPlay() {
         // Otomatik çalmayı yalnızca oyun hazır olduğunda başlat
-        let firstPlayDone = false;
+        let firstSound1Done = false;
+        let firstSound2Done = false;
         
-        // Daha az sıklıkla çalarak daha performanslı olacak
+        // 1. ses için
         this.soundInterval1 = setInterval(() => {
             // İlk çalma gerçekleştiyse çalmaya devam et
-            if(firstPlayDone) {
-                this.playSpatial('spatialSound1')
+            if(firstSound1Done) {
+                // Uzamsal sesi çal
+                const result = this.playSpatial('spatialSound1');
+                if(!result) {
+                    console.log("spatialSound1 çalınamadı, tekrar denenecek");
+                }
             }
-        }, 5000) // 5 saniyede bir çal (daha seyrek)
+        }, 5000); // 5 saniyede bir çal (daha seyrek)
+       
+        //2. ses için
+        this.soundInterval2 = setInterval(() => {
+            // İlk çalma gerçekleştiyse çalmaya devam et
+            if(firstSound2Done) {
+                // Uzamsal sesi çal
+                const result = this.playSpatial('spatialSound2');
+                if(!result) {
+                    console.log("spatialSound2 çalınamadı, tekrar denenecek");
+                }
+            }
+        }, 10000); // 10 saniyede bir çal (daha seyrek)
         
-        // İlk ses çağrısını biraz geciktirme ile yap
+        // İlk ses çalmaları için başlangıç ayarları
         setTimeout(() => {
-            this.playSpatial('spatialSound1')
-            firstPlayDone = true;
-            console.log('İlk uzamsal ses çalmaya başladı')
-        }, 2000) // Oyun yüklendikten 2 saniye sonra başla
+            const result = this.playSpatial('spatialSound1');
+            firstSound1Done = true;
+            console.log('İlk uzamsal ses (spatialSound1) başlatıldı:', result ? 'başarılı' : 'başarısız');
+        }, 2000); // Oyun yüklendikten 2 saniye sonra başla
         
-        console.log('Uzamsal ses otomatik çalma ayarlandı')
+        setTimeout(() => {
+            const result = this.playSpatial('spatialSound2');
+            firstSound2Done = true;
+            console.log('İkinci uzamsal ses (spatialSound2) başlatıldı:', result ? 'başarılı' : 'başarısız');
+        }, 3000); // Birinci sesten 1 saniye sonra başlat
+        
+        console.log('Uzamsal ses otomatik çalma sistemi hazır - 2 uzamsal ses aktif');
     }
 
     play(_name, _velocity)

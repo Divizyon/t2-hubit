@@ -334,6 +334,10 @@ export default class World
                         // Ses kaynağı aracın karşısına yerleştir
                         this.sounds.updateSpatialPosition('spatialSound1', -86.6, -12, 1.3)
                     }
+                    //kelebek bahcesi icin uzamsal ses pozisyonu
+                    if(this.sounds && this.sounds.updateSpatialPosition) {
+                        this.sounds.updateSpatialPosition('spatialSound2', 27, 15, 0)
+                    }
                 }
             }
         })
