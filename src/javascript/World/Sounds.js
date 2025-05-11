@@ -187,7 +187,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [9, -55, 0] 
+                defaultPosition: [9, -40, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound4',
@@ -200,7 +200,20 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-3, -36, 0] 
+                defaultPosition: [-17, -71, 0] 
+            },
+            {//Uzamsal sesler icin.
+                name: 'spatialSound5',
+                sounds: ['./sounds/konser_alani/KonserAlani.mp3'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 0.8,
+                volumeMin: 0.6,
+                volumeMax: 0.8,
+                rateMin: 1,
+                rateMax: 1,
+                spatial: true,
+                defaultPosition: [-50, -10, 0] 
             },
             {
                 name: 'rocketPrepare',
@@ -447,15 +460,15 @@ export default class Sounds
                 if (_options.name === 'spatialSound3') {
                     customPannerAttr = {
                         panningModel: 'HRTF',
-                        refDistance: 150,         // Daha büyük referans mesafe (100 -> 200)
+                        refDistance: 200,         // Daha büyük referans mesafe (100 -> 200)
                         rolloffFactor: 0.1,       // Daha düşük azalma faktörü (0.2 -> 0.1)  
                         distanceModel: 'inverse',
-                        maxDistance: 200,         // Daha büyük maksimum mesafe (100 -> 300)
+                        maxDistance: 300,         // Daha büyük maksimum mesafe (100 -> 300)
                         coneOuterGain: 1.0,       // Tam güç (0.9 -> 1.0)
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 4;
+                    _options.volumeMax = 6;
                 }
                 if (_options.name === 'spatialSound4') {
                     customPannerAttr = {
@@ -464,6 +477,19 @@ export default class Sounds
                         rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
                         distanceModel: 'inverse',
                         maxDistance: 10,         // Daha büyük maksimum mesafe
+                        coneOuterGain: 0.6,
+                        coneOuterAngle: 360,
+                        coneInnerAngle: 360
+                    };
+                    _options.volumeMax = 6;
+                }
+                if (_options.name === 'spatialSound5') {
+                    customPannerAttr = {
+                        panningModel: 'HRTF',
+                        refDistance: 20,         // Daha büyük referans mesafe
+                        rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
+                        distanceModel: 'inverse',
+                        maxDistance: 30,         // Daha büyük maksimum mesafe
                         coneOuterGain: 0.6,
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
@@ -575,6 +601,7 @@ export default class Sounds
         let firstSound2Done = false;
         let firstSound3Done = false;
         let firstSound4Done = false;
+        let firstSound5Done = false;
         // 1. ses için
         this.soundInterval1 = setInterval(() => {
             // İlk çalma gerçekleştiyse çalmaya devam et
@@ -622,6 +649,19 @@ export default class Sounds
                 }
             }
         }, 3000); // 8 saniyede bir çal (daha seyrek)
+
+        //5. ses için
+        this.soundInterval5 = setInterval(() => {
+            // İlk çalma gerçekleştiyse çalmaya devam et
+            if(firstSound5Done) {
+                // Uzamsal sesi çal
+                const result = this.playSpatial('spatialSound5');
+                if(!result) {
+                    console.log("spatialSound5 çalınamadı, tekrar denenecek");
+                }
+            }
+        }, 3000); // 8 saniyede bir çal (daha seyrek)
+        
         
         // İlk ses çalmaları için başlangıç ayarları
         //1. ses için
@@ -649,8 +689,16 @@ export default class Sounds
         setTimeout(() => {
             const result = this.playSpatial('spatialSound4');
             firstSound4Done = true;
-            console.log('Üçüncü uzamsal ses (spatialSound3) başlatıldı:', result ? 'başarılı' : 'başarısız');
+            console.log('Üçüncü uzamsal ses (spatialSound4) başlatıldı:', result ? 'başarılı' : 'başarısız');
         }, 0); // İkinci sesten 1 saniye sonra başlat
+
+        //5. ses için
+        setTimeout(() => {
+            const result = this.playSpatial('spatialSound5');
+            firstSound5Done = true;
+            console.log('Üçüncü uzamsal ses (spatialSound5) başlatıldı:', result ? 'başarılı' : 'başarısız');
+        }, 0); // İkinci sesten 1 saniye sonra başlat
+        
         
         console.log('Uzamsal ses otomatik çalma sistemi hazır - 2 uzamsal ses aktif');
     }
