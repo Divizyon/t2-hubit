@@ -13,7 +13,7 @@ export default class TrafikLambasi {
 
     this.rotateX = rotateX;
     this.rotateY = rotateY;
-    this.rotateZ = rotateZ;
+    this.rotateZ = rotateZ -3;
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
