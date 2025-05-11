@@ -389,15 +389,17 @@ export default class World
         this.container.add(this.BilimMerkezi.container)
     }
     
-    setKapsulBinasi()
-    {
+    setKapsulBinasi() {
         this.KapsulBinasi = new KapsulBinasi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debugFolder
-        })
-        this.container.add(this.KapsulBinasi.container)
-    }
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+        });
+      }
    
     setControls()
     {

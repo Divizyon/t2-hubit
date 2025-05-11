@@ -1,40 +1,115 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
+import CANNON from 'cannon';
 
-export default class KapsulBinasi
-{
-    constructor(_options)
-    {
-        // Options
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.debug = _options.debug
+const DEFAULT_POSITION = new THREE.Vector3(10, 3.4, 1.5); // Artık doğru yerde tanımlandı
 
-        // Setup
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
+export default class KapsulBinasi {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
 
-        this.setModel()
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+
+    this.container = new THREE.Object3D();
+    this.position = DEFAULT_POSITION.clone();
+
+    this._buildModel();
+    this.scene.add(this.container);
+  }
+
+  _buildModel() {
+    const gltf = this.resources.items.KapsulBinasi;
+    if (!gltf || !gltf.scene) {
+      console.error('Divizyon bina modeli bulunamadı');
+      return;
     }
 
-    setModel()
-    {       
-        this.model = {}
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    model.traverse(child => {
+      if (child.isMesh) {
+        const origMat = child.material;
+        const mat = origMat.clone();
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
-        // Resources
-        this.model.resource = this.resources.items.KapsulBinasi
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
 
-        // Pozisyon ve rotasyon tanımla -arabanın spawn konumuna göre ayarlanışı
-        // Konum ayarlama
-        const fixedPosition = new THREE.Vector3(10, 3.3, 1.5)
-        const fixedRotation = new THREE.Euler(-Math.PI, -Math.PI, 2.759)
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
 
-        // Add to objects - sabit obje (mass: 0)
-        this.model.object = this.objects.add({
-            base: this.model.resource.scene,
-            collision: this.model.resource.scene, // Fizik olmayacağı için 
-            offset: fixedPosition,
-            rotation: fixedRotation,
-            mass: 0 // Sabit obje,fizik yok
-        })
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(...this.position.toArray()),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      objectEntry.collision = { body };
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
     }
-} 
+  }
+}
+
+/* 
+
+İndex.js dosyasında Divizyon'u oluşturmak için:
+import Divizyon from './Divizyon';
+
+this.setDivizyon()
+
+  setDivizyon() {
+  this.divizyon = new Divizyon({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+  });
+}
+
+
+
+*/
