@@ -38,6 +38,7 @@ import Kelebekler from './Kelebekler.js'
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
 import render_odasi from './render_odasi.js'
+import Stadyum from './stadyum.js'
 
 export default class World
 {
@@ -107,7 +108,8 @@ export default class World
         this.setCustomButton()
         this.setFootball()
         this.setrender_odasi()
-
+        this.setDivizyon()
+        this.setStadyum()
     }
 
     setReveal()
@@ -760,6 +762,18 @@ export default class World
         
         // Football oyunu otomatik olarak başlatılsın, kullanıcı etkileşimine gerek yok
         this.football.initialize()
+    }
+
+    setStadyum() {
+        this.stadyum = new Stadyum({
+            scene: this.scene,
+            resources: this.resources,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: Math.PI / 2,   
+            rotateY: 0,
+            rotateZ:0 // Y ekseninde 90 derece döndürme
+        });
     }
 
 }

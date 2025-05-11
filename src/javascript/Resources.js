@@ -170,6 +170,9 @@ export default class Resources extends EventEmitter
 
             //divizyon
             { name: 'divizyon', source: './models/divizyon/DivizyonBina.glb'},
+            
+            //stadyum
+            { name: 'stadyum', source: './models/stadyum/stadyum.glb'},
 
             // Rocket model
             { name: 'rocketModel', source: './models/rocket/base.glb' },
