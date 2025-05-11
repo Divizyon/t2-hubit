@@ -149,7 +149,7 @@ export default class World
 
             // Car
             this.physics.car.chassis.body.sleep()
-            this.physics.car.chassis.body.position.set(12, -12, 12)
+            this.physics.car.chassis.body.position.set(0, -5, 14)
 
             window.setTimeout(() =>
             {

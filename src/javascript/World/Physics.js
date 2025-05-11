@@ -122,22 +122,22 @@ export default class Physics
         this.car.options.chassisWidth = 1.02;
         this.car.options.chassisHeight = 0.2
         this.car.options.chassisDepth = 2.03
-        this.car.options.chassisOffset = new CANNON.Vec3(0, 0, 0.20)
+        this.car.options.chassisOffset = new CANNON.Vec3(0, 0, 0.6)
         this.car.options.chassisMass = 40
         
         // Tekerlek konumları (derinlik = ileri/geri, genişlik = sağ/sol)
         if(this.config && this.config.togg) {
-            // Togg modeli için özel tekerlek ayarları
-            this.car.options.wheelFrontLeftPosition = { depth: 0.67, width: 0.38 };  // Sol ön
-            this.car.options.wheelFrontRightPosition = { depth: 0.67, width: -0.45 }; // Sağ ön
-            this.car.options.wheelBackLeftPosition = { depth: -0.63, width: 0.38 };   // Sol arka
-            this.car.options.wheelBackRightPosition = { depth: -0.63, width: -0.45 };  // Sağ arka
+            // Togg modeli için özel tekerlek ayarları - sol tekerlekleri biraz sağa aldık
+            this.car.options.wheelFrontLeftPosition = { depth: 0.58, width: 0.35 };  // Sol ön
+            this.car.options.wheelFrontRightPosition = { depth: 0.58, width: -0.40 }; // Sağ ön
+            this.car.options.wheelBackLeftPosition = { depth: -0.70, width: 0.35};   // Sol arka
+            this.car.options.wheelBackRightPosition = { depth: -0.70, width: -0.40 };  // Sağ arka
         } else {
             // Normal araba için tekerlek ayarları
-            this.car.options.wheelFrontLeftPosition = { depth: 0.635, width: 0.60 };   // Sol ön
-            this.car.options.wheelFrontRightPosition = { depth: 0.635, width: -0.60 };  // Sağ ön
-            this.car.options.wheelBackLeftPosition = { depth: -0.475, width: 0.60 };    // Sol arka
-            this.car.options.wheelBackRightPosition = { depth: -0.475, width: -0.60 };   // Sağ arka
+            this.car.options.wheelFrontLeftPosition = { depth: 0.635, width: 0.50 };   // Sol ön
+            this.car.options.wheelFrontRightPosition = { depth: 0.635, width: -0.50 };  // Sağ ön
+            this.car.options.wheelBackLeftPosition = { depth: -0.475, width: 0.50 };    // Sol arka
+            this.car.options.wheelBackRightPosition = { depth: -0.475, width: -0.50 };   // Sağ arka
         }
         
         // Bu değerler sadece geriye dönük uyumluluk için kullanılıyor
@@ -147,12 +147,12 @@ export default class Physics
         
         this.car.options.wheelRadius = 0.25
         this.car.options.wheelHeight = 0.24
-        this.car.options.wheelSuspensionStiffness = 30
-        this.car.options.wheelSuspensionRestLength = 0.1
+        this.car.options.wheelSuspensionStiffness = 50
+        this.car.options.wheelSuspensionRestLength = 0.3
         this.car.options.wheelFrictionSlip = 10
         this.car.options.wheelDampingRelaxation = 1.8
         this.car.options.wheelDampingCompression = 1.5
-        this.car.options.wheelMaxSuspensionForce = 100000
+        this.car.options.wheelMaxSuspensionForce = 200000
         this.car.options.wheelRollInfluence =  0.01
         this.car.options.wheelMaxSuspensionTravel = 0.3
         this.car.options.wheelCustomSlidingRotationalSpeed = - 30
@@ -199,7 +199,7 @@ export default class Physics
 
             this.car.chassis.body = new CANNON.Body({ mass: this.car.options.chassisMass })
             this.car.chassis.body.allowSleep = false
-            this.car.chassis.body.position.set(0, 0, 12)
+            this.car.chassis.body.position.set(0, -5, 14)
             this.car.chassis.body.sleep()
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)
             this.car.chassis.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), - Math.PI * 0.5)
