@@ -259,6 +259,16 @@ export class Rocket {
                             this.animation.flightTime = 0; // Zamanı sıfırla
                             this.isLanding = true; // İniş durumunu aktifleştir
                             
+                            // İniş sesi çal
+                            if(this.sounds) {
+                                try {
+                                    this.sounds.play('rocketLanding', 30); // İniş sesi çalınıyor
+                                    console.log('Roket iniş sesi tetikleniyor...');
+                                } catch(e) {
+                                    console.error('Roket iniş sesi çalınırken hata:', e);
+                                }
+                            }
+                            
                             // Uçuş başarılı mesajı
                             console.log('Roket dönüş yörüngesine girdi!');
                         }
@@ -285,6 +295,16 @@ export class Rocket {
                             this.isLaunched = false;
                             this.isLanding = false; // İniş durumunu sıfırla
                             this.animation.flightTime = 0;
+                            
+                            // İniş tamamlanma sesi
+                            if(this.sounds) {
+                                try {
+                                    this.sounds.play('rocketLanding', 15); // Daha düşük hızda iniş sesi
+                                    console.log('Roket iniş tamamlanma sesi tetikleniyor...');
+                                } catch(e) {
+                                    console.error('Roket iniş tamamlanma sesi çalınırken hata:', e);
+                                }
+                            }
                             
                             // Final iniş animasyonu - doğrudan iniş yerine geri dön
                             gsap.to(this.container.position, {
@@ -420,13 +440,13 @@ export class Rocket {
             console.log('Roket sesi tetikleniyor...');
             try {
                 // Yüksek velocity değeri ve hata yakalama ile çağrı yap
-                this.sounds.play('rocket', 20);  // Velocity'i iyice yükselt
+                this.sounds.play('rocketPrepare', 20);  // Velocity'i iyice yükselt
             } catch(error) {
                 console.error('Roket sesi çalınırken hata:', error);
                 
                 // Hata durumunda tekrar dene
                 setTimeout(() => {
-                    this.sounds.play('rocket', 20);
+                    this.sounds.play('rocketPrepare', 20);
                 }, 100);
             }
             console.log('Roket motorları hazırlanıyor...');
@@ -469,7 +489,7 @@ export class Rocket {
             
             // Fırlatma anında tekrar ses çal
             try {
-                this.sounds.play('rocket', 30);  // Daha da yüksek velocity
+                this.sounds.play('rocketPrepare', 30);  // Daha da yüksek velocity
             } catch(e) {
                 console.log('Fırlatma sesi çalma hatası:', e);
             }
@@ -496,7 +516,7 @@ export class Rocket {
             
             // Uçuş anında bir kez daha ses çal
             try {
-                this.sounds.play('rocket', 40);  // En yüksek velocity
+                this.sounds.play('rocketPrepare', 40);  // En yüksek velocity
             } catch(e) {
                 console.log('Uçuş sesi çalma hatası:', e);
             }

@@ -152,7 +152,7 @@ export default class Sounds
             
             {//Uzamsal sesler icin.
                 name: 'spatialSound1',
-                sounds: ['./sounds/car-horns/car-horn-3.mp3'],
+                sounds: ['./sounds/ses_odasi/sesOdasi.mp3'],
                 minDelta: 0,
                 velocityMin: 0,
                 velocityMultiplier: 0.8,
@@ -161,7 +161,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-86, -12, 0] 
+                defaultPosition: [-84, -35, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound2',
@@ -174,7 +174,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [27, 15, 0] 
+                defaultPosition: [52, -7, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound3',
@@ -187,11 +187,24 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [5, -10, 0] 
+                defaultPosition: [9, -55, 0] 
+            },
+            {//Uzamsal sesler icin.
+                name: 'spatialSound4',
+                sounds: ['./sounds/japon_parki/blob.wav'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 0.8,
+                volumeMin: 0.6,
+                volumeMax: 0.8,
+                rateMin: 1,
+                rateMax: 1,
+                spatial: true,
+                defaultPosition: [-3, -36, 0] 
             },
             {
-                name: 'rocket',
-                sounds: ['./sounds/rocket/rocket_sesi.wav'],
+                name: 'rocketPrepare',
+                sounds: ['./sounds/rocket/roket_sesi.mp3'],
                 minDelta: 0,
                 velocityMin: 0,
                 velocityMultiplier: 1,
@@ -199,6 +212,28 @@ export default class Sounds
                 volumeMax: 1,
                 rateMin: 1,
                 rateMax: 1
+            },
+            {
+                name: 'rocketLaunch',
+                sounds: ['./sounds/rocket/roket_sesi_2.mp3'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 1,
+                volumeMin: 0.8,
+                volumeMax: 1,
+                rateMin: 1,
+                rateMax: 1
+            },
+            {
+                name: 'rocketLanding',
+                sounds: ['./sounds/rocket/roket_sesi_2.mp3'], // İniş için de aynı sesi kullanıyoruz, farklı ayarlarla
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 0.8,
+                volumeMin: 0.6,
+                volumeMax: 0.8,
+                rateMin: 0.8, // Biraz daha düşük hızda çalınacak
+                rateMax: 0.9
             }
         ]
 
@@ -368,7 +403,7 @@ export default class Sounds
                     // Normal sesler için web audio kullan, html5 modu kullanma (gecikme yaratabilir)
                     const sound = new Howl({ 
                         src: [_sound],
-                        preload: _options.name === 'engine' || _options.name === 'rocket',
+                        preload: _options.name === 'engine' || _options.name === 'rocketPrepare' || _options.name === 'rocketLaunch' || _options.name === 'rocketLanding',
                         html5: false
                     })
                     item.sounds.push(sound)
@@ -380,6 +415,20 @@ export default class Sounds
                 
                 // Her ses için özel panner ayarları
                 let customPannerAttr = { ...this.spatialAudioSettings };
+
+                if (_options.name === 'spatialSound1') {
+                    customPannerAttr = {
+                        panningModel: 'HRTF',
+                        refDistance: 10,         // Daha büyük referans mesafe
+                        rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
+                        distanceModel: 'inverse',
+                        maxDistance: 10,         // Daha büyük maksimum mesafe
+                        coneOuterGain: 0.6,
+                        coneOuterAngle: 360,
+                        coneInnerAngle: 360
+                    };
+                    _options.volumeMax = 4;
+                }
                 
                 // spatialSound2 için özel ayarlar
                 if (_options.name === 'spatialSound2') {
@@ -393,18 +442,33 @@ export default class Sounds
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
+                    _options.volumeMax = 4;
                 }
                 if (_options.name === 'spatialSound3') {
                     customPannerAttr = {
                         panningModel: 'HRTF',
-                        refDistance: 200,         // Daha büyük referans mesafe (100 -> 200)
+                        refDistance: 150,         // Daha büyük referans mesafe (100 -> 200)
                         rolloffFactor: 0.1,       // Daha düşük azalma faktörü (0.2 -> 0.1)  
                         distanceModel: 'inverse',
-                        maxDistance: 300,         // Daha büyük maksimum mesafe (100 -> 300)
+                        maxDistance: 200,         // Daha büyük maksimum mesafe (100 -> 300)
                         coneOuterGain: 1.0,       // Tam güç (0.9 -> 1.0)
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
+                    _options.volumeMax = 4;
+                }
+                if (_options.name === 'spatialSound4') {
+                    customPannerAttr = {
+                        panningModel: 'HRTF',
+                        refDistance: 10,         // Daha büyük referans mesafe
+                        rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
+                        distanceModel: 'inverse',
+                        maxDistance: 10,         // Daha büyük maksimum mesafe
+                        coneOuterGain: 0.6,
+                        coneOuterAngle: 360,
+                        coneInnerAngle: 360
+                    };
+                    _options.volumeMax = 6;
                 }
                 
                 item.howl = new Howl({
@@ -510,7 +574,7 @@ export default class Sounds
         let firstSound1Done = false;
         let firstSound2Done = false;
         let firstSound3Done = false;
-        
+        let firstSound4Done = false;
         // 1. ses için
         this.soundInterval1 = setInterval(() => {
             // İlk çalma gerçekleştiyse çalmaya devam et
@@ -546,6 +610,18 @@ export default class Sounds
                 }
             }
         }, 2000); // 8 saniyede bir çal (daha seyrek)
+
+        //4. ses için
+        this.soundInterval4 = setInterval(() => {
+            // İlk çalma gerçekleştiyse çalmaya devam et
+            if(firstSound4Done) {
+                // Uzamsal sesi çal
+                const result = this.playSpatial('spatialSound4');
+                if(!result) {
+                    console.log("spatialSound4 çalınamadı, tekrar denenecek");
+                }
+            }
+        }, 3000); // 8 saniyede bir çal (daha seyrek)
         
         // İlk ses çalmaları için başlangıç ayarları
         //1. ses için
@@ -568,15 +644,22 @@ export default class Sounds
             firstSound3Done = true;
             console.log('Üçüncü uzamsal ses (spatialSound3) başlatıldı:', result ? 'başarılı' : 'başarısız');
         }, 0); // İkinci sesten 1 saniye sonra başlat
+
+        //4. ses için
+        setTimeout(() => {
+            const result = this.playSpatial('spatialSound4');
+            firstSound4Done = true;
+            console.log('Üçüncü uzamsal ses (spatialSound3) başlatıldı:', result ? 'başarılı' : 'başarısız');
+        }, 0); // İkinci sesten 1 saniye sonra başlat
         
         console.log('Uzamsal ses otomatik çalma sistemi hazır - 2 uzamsal ses aktif');
     }
 
     play(_name, _velocity)
     {
-        // Roket sesine özel işlem ekle
-        if(_name === 'rocket') {
-            console.log('Roket sesi çalma denemesi');
+        // Roket hazırlanma sesine özel işlem ekle
+        if(_name === 'rocketPrepare') {
+            console.log('Roket hazırlanma sesi çalma denemesi');
             try {
                 const item = this.items.find((_item) => _item.name === _name);
                 
@@ -586,7 +669,46 @@ export default class Sounds
                     // Ses yüklenmemiş mi kontrol et
                     if(!sound.state() || sound.state() === 'unloaded') {
                         sound.load();
-                        console.log('Roket sesi yükleniyor...');
+                        console.log('Roket hazırlanma sesi yükleniyor...');
+                    }
+                    
+                    // Roket sesi için özel ayarlar
+                    sound.volume(1);  // Tam ses
+                    
+                    // Hazırlanma sesi bittikten sonra fırlatma sesini çal
+                    sound.on('end', () => {
+                        console.log('Hazırlanma sesi bitti, fırlatma sesi başlıyor...');
+                        this.play('rocketLaunch');
+                    });
+                    
+                    sound.play();
+                    
+                    // Son çalma zamanını güncelle
+                    item.lastTime = Date.now();
+                    
+                    console.log('Roket hazırlanma sesi başarıyla çalındı!');
+                    return; // Önemli - burada işlemi sonlandır
+                } else {
+                    console.error('Roket hazırlanma ses öğesi bulunamadı!');
+                }
+            } catch(error) {
+                console.error('Roket hazırlanma sesi çalınırken hata:', error);
+            }
+        }
+        
+        // Roket fırlatma sesine özel işlem ekle
+        if(_name === 'rocketLaunch') {
+            console.log('Roket fırlatma sesi çalma denemesi');
+            try {
+                const item = this.items.find((_item) => _item.name === _name);
+                
+                if(item && item.sounds.length > 0) {
+                    const sound = item.sounds[0];
+                    
+                    // Ses yüklenmemiş mi kontrol et
+                    if(!sound.state() || sound.state() === 'unloaded') {
+                        sound.load();
+                        console.log('Roket fırlatma sesi yükleniyor...');
                     }
                     
                     // Roket sesi için özel ayarlar
@@ -596,13 +718,46 @@ export default class Sounds
                     // Son çalma zamanını güncelle
                     item.lastTime = Date.now();
                     
-                    console.log('Roket sesi başarıyla çalındı!');
+                    console.log('Roket fırlatma sesi başarıyla çalındı!');
                     return; // Önemli - burada işlemi sonlandır
                 } else {
-                    console.error('Roket ses öğesi bulunamadı!');
+                    console.error('Roket fırlatma ses öğesi bulunamadı!');
                 }
             } catch(error) {
-                console.error('Roket sesi çalınırken hata:', error);
+                console.error('Roket fırlatma sesi çalınırken hata:', error);
+            }
+        }
+        
+        // Roket iniş sesine özel işlem ekle
+        if(_name === 'rocketLanding') {
+            console.log('Roket iniş sesi çalma denemesi');
+            try {
+                const item = this.items.find((_item) => _item.name === _name);
+                
+                if(item && item.sounds.length > 0) {
+                    const sound = item.sounds[0];
+                    
+                    // Ses yüklenmemiş mi kontrol et
+                    if(!sound.state() || sound.state() === 'unloaded') {
+                        sound.load();
+                        console.log('Roket iniş sesi yükleniyor...');
+                    }
+                    
+                    // Roket iniş sesi için özel ayarlar
+                    sound.volume(0.8);  // Biraz daha düşük ses
+                    sound.rate(0.8);    // Daha düşük hızda çal
+                    sound.play();
+                    
+                    // Son çalma zamanını güncelle
+                    item.lastTime = Date.now();
+                    
+                    console.log('Roket iniş sesi başarıyla çalındı!');
+                    return; // Önemli - burada işlemi sonlandır
+                } else {
+                    console.error('Roket iniş ses öğesi bulunamadı!');
+                }
+            } catch(error) {
+                console.error('Roket iniş sesi çalınırken hata:', error);
             }
         }
       
