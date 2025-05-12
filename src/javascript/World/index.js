@@ -857,8 +857,7 @@ export default class World
             rotateX: 0,   
             rotateY: 0,
             rotateZ: 0,
-            areas: this.areas,
-            materials: this.materials
+            
         });
     }
 
