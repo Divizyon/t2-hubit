@@ -49,6 +49,7 @@ import YonTabelasi1 from './YonTabelasi1.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
 import Kademe from './Kademe.js'
+import Lego from './Lego.js'
 
 export default class World
 {
@@ -129,6 +130,7 @@ export default class World
         this.setSia()
         this.set3dEkran()
         this.setKademe()
+        this.setLego()
     }
 
     setReveal()
@@ -932,9 +934,72 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX: Math.PI ,
+            rotateX: Math.PI,
             rotateY: Math.PI,
             rotateZ: Math.PI / 2 // 90 derece döndürme
         })
+    }
+    
+    // Lego modelini eklemek için metot
+    setLego()
+    {
+        // İlk lego parçası (varsayılan pozisyon kullanılacak)
+        this.lego = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: Math.PI / 2 // 90 derece döndürme
+        });
+        
+        // İkinci lego parçası (özel pozisyon)
+        this.lego2 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(32, 5, 0), // Özel pozisyon
+            rotateX: 0,
+            rotateY: Math.PI, // 180 derece farklı döndürme
+            rotateZ: Math.PI / 2 // 90 derece döndürme
+        });
+        
+        // Üçüncü lego parçası
+        this.lego3 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(32, 8, 0), // Özel pozisyon
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: 0 // Farklı bir rotasyon
+        });
+        
+        // Dördüncü lego parçası
+        this.lego4 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(28, 8, 0), // Özel pozisyon
+            rotateX: Math.PI / 2, // X ekseninde 90 derece
+            rotateY: 0,
+            rotateZ: 0
+        });
     }
 }
