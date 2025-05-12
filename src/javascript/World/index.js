@@ -850,7 +850,7 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX: 0,   
+            rotateX: Math.PI / 2,   
             rotateY: 0,
             rotateZ: 0
         });
