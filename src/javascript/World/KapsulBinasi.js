@@ -7,7 +7,21 @@ import gsap from 'gsap';
 const DEFAULT_POSITION = new THREE.Vector3(32, -14, 1.5); // Artık doğru yerde tanımlandı
 
 export default class KapsulBinasi {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas = null, materials = null }) {
+  constructor({ 
+    scene, 
+    resources, 
+    objects, 
+    physics, 
+    debug, 
+    rotateX = 0, 
+    rotateY = 0, 
+    rotateZ = 0, 
+    areas = null, 
+    materials = null,
+    // Collision mesh için özel parametreler
+    collisionPosition = null,
+    collisionSize = null
+  }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -23,6 +37,11 @@ export default class KapsulBinasi {
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
     this.buttonPosition = new THREE.Vector3(32, -21.65, 0); // Buton pozisyonu güncellendi
+    
+    // Özel collision ayarları (varsa)
+    this.collisionPosition = collisionPosition;
+    this.collisionSize = collisionSize;
+    this.collisionMesh = null; // Daha sonra referans için eklendi
 
     this._buildModel();
     this.scene.add(this.container);
@@ -67,13 +86,34 @@ export default class KapsulBinasi {
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
 
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
-    const boxShape = new CANNON.Box(halfExtents);
+    // Collision boyutları - özel boyut verilmişse kullan, yoksa otomatik hesapla
+    let halfExtents;
+    if (this.collisionSize) {
+      // Kullanıcı tarafından belirtilen boyutlar
+      halfExtents = new CANNON.Vec3(
+        this.collisionSize.x / 2, 
+        this.collisionSize.y / 2, 
+        this.collisionSize.z / 2
+      );
+    } else {
+      // Otomatik hesaplanan boyutlar
+      halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    }
+    
+    // Collision pozisyonu - Eğer `this.collisionPosition` (bir THREE.Vector3) tanımlıysa onu kullan,
+    // değilse modelin ana pozisyonu (`this.position`) kullanılır.
+    // Özel bir pozisyon belirlemek için KapsulBinasi örneği oluşturulurken
+    // `collisionPosition` parametresini bir THREE.Vector3 olarak verin.
+    // Örnek: new KapsulBinasi({ ..., collisionPosition: new THREE.Vector3(31, -16, -3) })
+    const bodyPosition = this.collisionPosition
+      ? new CANNON.Vec3(this.collisionPosition.x, this.collisionPosition.y, this.collisionPosition.z) // Özel pozisyon kullanılıyor
+      : new CANNON.Vec3(this.position.x, this.position.y, this.position.z); // Varsayılan model pozisyonu kullanılıyor
 
+    // Fizik gövdesi oluştur
+    const boxShape = new CANNON.Box(halfExtents);
     const body = new CANNON.Body({
       mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
+      position: bodyPosition,
       material: this.physics.materials.items.floor
     });
 
@@ -84,6 +124,33 @@ export default class KapsulBinasi {
 
     body.addShape(boxShape);
     this.physics.world.addBody(body);
+    
+    // Basit collision mesh'i görselleştirme
+    const collisionGeometry = new THREE.BoxGeometry(
+      halfExtents.x * 2, 
+      halfExtents.y * 2, 
+      halfExtents.z * 2
+    );
+    
+    const collisionMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      opacity: 0,
+      transparent: true,
+      visible: false
+    });
+    
+    this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
+    
+    // Collision mesh pozisyonu ve rotasyonu
+    this.collisionMesh.position.copy(this.collisionPosition || this.position);
+    this.collisionMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.scene.add(this.collisionMesh);
+    
+    console.log('Kapsül Binası collision box eklendi:', 
+      'Pozisyon:', this.collisionMesh.position,
+      'Boyut:', new THREE.Vector3(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
+    );
 
     // Obje sistemine ekle
     if (this.objects) {
@@ -99,6 +166,46 @@ export default class KapsulBinasi {
         this.container.add(objectEntry.container);
       }
     }
+  }
+  
+  // Collision mesh'in konumunu güncellemek için yeni metod
+  updateCollisionPosition(newPosition) {
+    if (!this.collisionMesh) return;
+    
+    this.collisionPosition = newPosition;
+    this.collisionMesh.position.copy(newPosition);
+    
+    console.log('Collision kutusu pozisyonu güncellendi:', newPosition);
+  }
+  
+  // Collision mesh'in boyutunu güncellemek için yeni metod
+  updateCollisionSize(newSize) {
+    if (!this.collisionMesh) return;
+    
+    this.collisionSize = newSize;
+    
+    // Eski mesh'i kaldır
+    this.scene.remove(this.collisionMesh);
+    
+    // Yeni geometri oluştur
+    const newGeometry = new THREE.BoxGeometry(
+      newSize.x,
+      newSize.y,
+      newSize.z
+    );
+    
+    // Aynı materyal ile yeni mesh oluştur
+    const material = this.collisionMesh.material;
+    this.collisionMesh = new THREE.Mesh(newGeometry, material);
+    
+    // Pozisyon ve rotasyonu ayarla
+    this.collisionMesh.position.copy(this.collisionPosition || this.position);
+    this.collisionMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    
+    // Sahneye ekle
+    this.scene.add(this.collisionMesh);
+    
+    console.log('Collision kutusu boyutu güncellendi:', newSize);
   }
 
   setupButton() {
