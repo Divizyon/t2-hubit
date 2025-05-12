@@ -207,6 +207,9 @@ export default class Resources extends EventEmitter
             
             // Yönlendirme Tabelası
             { name: 'yonTabelasi1', source: './models/yonTabelasi1/yontabelasi1.glb', },
+            
+            // Sia model
+            { name: 'sia', source: './models/sia/Sia.glb' },
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },

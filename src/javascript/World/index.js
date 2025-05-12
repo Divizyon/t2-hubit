@@ -46,6 +46,7 @@ import KelebekVadisi from './KelebekVadisi.js'
 import TrafikLambasi from './TrafikLambasi.js'
 import BasketSahasi from './BasketSahasi.js'
 import YonTabelasi1 from './YonTabelasi1.js'
+import Sia from './Sia.js'
 
 export default class World
 {
@@ -123,6 +124,7 @@ export default class World
         this.setTrafikLambasi()
         this.setBasketSahasi()
         this.setYonTabelasi1()
+        this.setSia()
     }
 
     setReveal()
@@ -793,7 +795,7 @@ export default class World
             resources: this.resources,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX: Math.PI / 2,   
+            rotateX:0,   
             rotateY: 0,
             rotateZ:0 // Y ekseninde 90 derece döndürme
         });
@@ -881,11 +883,26 @@ export default class World
             scene: this.scene,
             resources: this.resources,
             physics: this.physics,
-            position: new THREE.Vector3(16, -16, 0),
+            position: new THREE.Vector3(20, -6, 0),
             rotateX: 0,
             rotateY: 0, // Y ekseni etrafında 90 derece döndür
             rotateZ: 0,
             scale: new THREE.Vector3(1, 1, 1)
+        })
+    }
+
+    // Sia modelini eklemek için metot
+    setSia()
+    {
+        this.sia = new Sia({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: Math.PI / 2,
+            rotateY: Math.PI ,
+            rotateZ: 0
         })
     }
 

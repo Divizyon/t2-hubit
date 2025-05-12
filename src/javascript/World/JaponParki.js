@@ -33,8 +33,8 @@ export default class JaponParki {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-13, -51, 0); // Konumu Japon Parkı için ayarla
-            this.model.scale.set(0.25, 0.25, 0.25); // Ölçeği düşürüyorum
+            this.model.position.set(-17, -51, 0); // Konumu Japon Parkı için ayarla
+            this.model.scale.set(0.5, 0.5, 0.5); // Ölçeği düşürüyorum
             
             // Modeli döndür - ihtiyaca göre değiştirilebilir
             this.model.rotation.x = Math.PI / 2;

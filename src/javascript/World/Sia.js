@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(34, -53, -3.9); // Stadyum konumu
+// Model için varsayılan pozisyon - konumu ihtiyaca göre ayarlayabilirsiniz
+const DEFAULT_POSITION = new THREE.Vector3(68, -7, 0);
 
-export default class Stadyum {
+export default class Sia {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
     this.scene = scene;
     this.resources = resources;
@@ -23,9 +24,9 @@ export default class Stadyum {
   }
 
   _buildModel() {
-    const gltf = this.resources.items.stadyum;
+    const gltf = this.resources.items.sia;
     if (!gltf || !gltf.scene) {
-      console.error('Stadyum modeli bulunamadı');
+      console.error('Sia modeli bulunamadı');
       return;
     }
 
