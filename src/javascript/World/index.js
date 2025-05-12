@@ -665,7 +665,9 @@ export default class World
           debug:     this.debugFolder,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          areas:     this.areas,
+          materials: this.materials
         });
       }
     
@@ -814,6 +816,8 @@ export default class World
             scene: this.scene,
             time: this.time,
             physics: this.physics,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 
@@ -852,7 +856,9 @@ export default class World
             debug: this.debugFolder,
             rotateX: 0,   
             rotateY: 0,
-            rotateZ: 0
+            rotateZ: 0,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 
