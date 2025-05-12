@@ -48,6 +48,7 @@ import BasketSahasi from './BasketSahasi.js'
 import YonTabelasi1 from './YonTabelasi1.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
+import Kademe from './Kademe.js'
 
 export default class World
 {
@@ -127,6 +128,7 @@ export default class World
         this.setYonTabelasi1()
         this.setSia()
         this.set3dEkran()
+        this.setKademe()
     }
 
     setReveal()
@@ -916,6 +918,21 @@ export default class World
             time: this.time,
             resources: this.resources,
             physics: this.physics
+        })
+    }
+    
+    // Kademe modelini eklemek için metot
+    setKademe()
+    {
+        this.kademe = new Kademe({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: Math.PI ,
+            rotateY: Math.PI,
+            rotateZ: Math.PI / 2 // 90 derece döndürme
         })
     }
 }
