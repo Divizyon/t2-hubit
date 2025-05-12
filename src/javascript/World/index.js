@@ -47,6 +47,7 @@ import TrafikLambasi from './TrafikLambasi.js'
 import BasketSahasi from './BasketSahasi.js'
 import YonTabelasi1 from './YonTabelasi1.js'
 import Sia from './Sia.js'
+import Ekran3D from './3dEkran.js'
 
 export default class World
 {
@@ -125,6 +126,7 @@ export default class World
         this.setBasketSahasi()
         this.setYonTabelasi1()
         this.setSia()
+        this.set3dEkran()
     }
 
     setReveal()
@@ -906,4 +908,14 @@ export default class World
         })
     }
 
+    // 3D Ekran modelini eklemek için metot
+    set3dEkran()
+    {
+        this.ekran3d = new Ekran3D({
+            scene: this.scene,
+            time: this.time,
+            resources: this.resources,
+            physics: this.physics
+        })
+    }
 }

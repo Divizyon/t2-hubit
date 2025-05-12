@@ -156,8 +156,8 @@ export default class Resources extends EventEmitter
             // ÇalışanGençlikMerkezi
             { name: 'CalisanGenclikMerkezi', source: './models/CalisanGenclikMerkezi/Calisan_Genclik_Merkezi_Bina.glb'},
 
-            //konyagenckart
-            { name: 'konyagenckart', source: './models/konyagenckart.glb'},
+            
+            
             
             //BilimMerkezi
             { name: 'BilimMerkezi', source: './models/bilmer/bilim_merkezi.glb'},
@@ -210,6 +210,9 @@ export default class Resources extends EventEmitter
             
             // Sia model
             { name: 'sia', source: './models/sia/Sia.glb' },
+            
+            // 3D Ekran
+            { name: '3dEkran', source: './models/3dEkran/3D_Ekran.glb' },
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },
