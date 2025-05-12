@@ -42,20 +42,15 @@ html
 
 .threejs-journey
 {
-    display: none;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: absolute;
-    bottom: 40px;
-    right: 40px;
-    width: 420px;
-    -webkit-user-select: none;
-    user-select: none;
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 .threejs-journey.is-active
 {
-    display: flex;
+    display: none !important;
 }
 
 .threejs-journey .message
@@ -80,13 +75,7 @@ html
 
 .threejs-journey .boy
 {
-    position: absolute;
-    bottom: 100%;
-    left: 20px;
-    width: 132px;
-    height: 118px;
-    overflow: hidden;
-    pointer-events: none;
+    display: none !important;
 }
 
 .threejs-journey .boy .variant
@@ -168,11 +157,7 @@ html
 
 .threejs-journey .message .bubble
 {
-    position: relative;
-    padding: 20px 30px;
-    border: 2px solid #ffffff;
-    border-radius: 8px;
-    background: linear-gradient(#fdb572ab, #fdb5721a);
+    display: none !important;
 }
 
 .threejs-journey .message .tip

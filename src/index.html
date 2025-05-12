@@ -75,9 +75,11 @@
 
     <!-- Araç konum bilgisi Car.js içinde programatik olarak ekleniyor -->
 
-    <div class="threejs-journey is-hover-none js-threejs-journey">
+    <!-- Sistemin kendisi korunacak, ancak içerik gizlenecek -->
+    <div class="threejs-journey is-hover-none js-threejs-journey" style="display: none !important;">
         <div class="message js-message">
-            <div class="boy">
+            <!-- Kedi (boy) elementini gizle -->
+            <div class="boy" style="display: none;">
                 <div class="variant is-hi">
                     <div class="body"></div>
                     <div class="arm js-boy-arm"></div>
@@ -85,31 +87,33 @@
                 <div class="variant is-yay"></div>
                 <div class="variant is-shrugging"></div>
             </div>
-            <div class="bubble">
+            <!-- Konuşma balonunu gizle -->
+            <div class="bubble" style="display: none;">
                 <div class="text">Hey! You seem to really enjoy my portfolio.</div>
                 <div class="tip"></div>
             </div>
         </div>
         <div class="message js-message">
-            <div class="bubble">
+            <div class="bubble" style="display: none;">
                 <div class="text">Would you like to learn how to create cool websites like this?</div>
                 <div class="tip"></div>
             </div>
         </div>
         <div class="message js-message is-answers">
-            <a href="#" class="answer is-no js-no">
+            <!-- Butonları gizle -->
+            <a href="#" class="answer is-no js-no" style="display: none;">
                 <span class="background"></span>
                 <span class="hover"></span>
                 <span class="label">Nah, I'm good</span>
             </a>
-            <a href="https://threejs-journey.com?c=p1" target="_blank" rel="noopener" class="answer is-yes js-yes">
+            <a href="https://threejs-journey.com?c=p1" target="_blank" rel="noopener" class="answer is-yes js-yes" style="display: none;">
                 <span class="background"></span>
                 <span class="hover"></span>
                 <span class="label">Yes, teach me!</span>
             </a>
         </div>
         <div class="message js-message">
-            <div class="bubble">
+            <div class="bubble" style="display: none;">
                 <div class="text">Alright then.<br>Have fun and try not to break my car!</div>
                 <div class="tip"></div>
             </div>
