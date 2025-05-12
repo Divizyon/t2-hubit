@@ -4,7 +4,7 @@ import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
-const DEFAULT_POSITION = new THREE.Vector3(42, 11, -3); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(42.7, 11, -2); // Artık doğru yerde tanımlandı
 
 export default class BilimMerkezi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = Math.PI, areas = null, materials = null }) {
@@ -22,9 +22,14 @@ export default class BilimMerkezi {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
-    this.buttonPosition = new THREE.Vector3(34.36, 4.07, 0); // Buton pozisyonu güncellendi
+    this.buttonPosition = new THREE.Vector3(43, 3.5, 0); // Buton pozisyonu güncellendi
+
+    // Platform
+    this.platform = null;
+    this.modelSize = null; // Modelin boyutunu saklamak için
 
     this._buildModel();
+    this.createPlatform(); // Platform oluştur
     this.scene.add(this.container);
     
     // Buton kurulumu
@@ -36,7 +41,7 @@ export default class BilimMerkezi {
   _buildModel() {
     const gltf = this.resources.items.BilimMerkezi;
     if (!gltf || !gltf.scene) {
-      console.error('Divizyon bina modeli bulunamadı');
+      console.error('Bilim Merkezi modeli bulunamadı');
       return;
     }
 
@@ -66,39 +71,102 @@ export default class BilimMerkezi {
     model.updateMatrixWorld(true);
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
+    this.modelSize = size; // Modelin boyutunu sakla
 
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
-
-    // Obje sistemine ekle
+    // Obje sistemine ekle - fizik gövdesi olmadan
     if (this.objects) {
       const children = model.children.slice();
       const objectEntry = this.objects.add({
         base: { children },
-        collision: { children },
         offset: this.position.clone(),
         mass: 0
       });
-      objectEntry.collision = { body };
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
     }
+  }
+  
+  // Bilim merkezi modelinin altına platform ekle
+  createPlatform() {
+    if (!this.scene || !this.modelSize) {
+      console.warn('BilimMerkezi: scene parametresi verilmedi veya model boyutu hesaplanamadı, platform eklenmeyecek.');
+      return;
+    }
+    
+    // Platform boyutunu model boyutuna göre ayarla (biraz daha büyük olsun)
+    const platformSizeX = this.modelSize.x * 0.95; // X boyutu
+    const platformSizeY = this.modelSize.y * 0.95; // Y boyutu
+    
+    // Kare platform oluştur
+    const platformGeometry = new THREE.BoxGeometry(platformSizeX, platformSizeY, 1); // Modelin boyutuna göre ayarlanmış platform
+    const platformMaterial = new THREE.MeshStandardMaterial({
+      color: 0x808080, // Gri
+      metalness: 0.5,  // Daha az metalik
+      roughness: 0.5,  // Daha mat yüzey
+    });
+    
+    this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
+    this.platform.position.set(42, 13, 0); // Z değerini -3.5'ten -1'e yükselttik
+    
+    // Platformun rotasyonunu modelin rotasyonu ile aynı yap
+    this.platform.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    
+    this.platform.castShadow = true;
+    this.platform.receiveShadow = true;
+    
+    this.scene.add(this.platform);
+    
+    // Platform için fizik ekle
+    if (this.physics) {
+      // Platformun fiziksel boyutları - yarı boyutlar olarak tanımlanır
+      const halfSizeX = platformSizeX / 2; // X boyutunun yarısı
+      const halfSizeY = platformSizeY / 2; // Y boyutunun yarısı
+      const platformHeight = 1; // Platform görsel yüksekliği
+      const collisionHeight = 5; // Fizik gövdesi yüksekliği - Kelebek Vadisi'ndeki gibi
+      
+      const platformBody = new CANNON.Body({
+        mass: 0, // Statik nesne
+        position: new CANNON.Vec3(42, 13, 0), // Z değerini mesh ile aynı yaptık
+        material: this.physics.materials.items.floor
+      });
+      
+      // Platformun rotasyonunu fizik gövdesine de uygula
+      const quat = new CANNON.Quaternion();
+      quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+      platformBody.quaternion.copy(quat);
+      
+      // Platform şekli - modelin boyutlarına göre ayarlanmış
+      // Fizik gövdesi için daha yüksek collision değeri kullanılıyor
+      const platformShape = new CANNON.Box(new CANNON.Vec3(halfSizeX, halfSizeY, collisionHeight / 2));
+      
+      platformBody.addShape(platformShape);
+      
+      // Platformu fizik dünyasına ekle
+      this.physics.world.addBody(platformBody);
+      
+      console.log('BilimMerkezi platform fizik gövdesi eklendi, boyutlar:', platformSizeX, 'x', platformSizeY, 'x', collisionHeight);
+      
+      // Debug görselleştirme - fizik gövdesini görselleştir (eğer debug modu aktifse)
+      if (this.debug) {
+        const debugGeometry = new THREE.BoxGeometry(platformSizeX, platformSizeY, collisionHeight);
+        const debugMaterial = new THREE.MeshBasicMaterial({ 
+          color: 0xff0000,
+          wireframe: true,
+          opacity: 0.5,
+          transparent: true
+        });
+        
+        const debugMesh = new THREE.Mesh(debugGeometry, debugMaterial);
+        debugMesh.position.copy(this.platform.position); // Platform konumunu kopyala
+        debugMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ); // Platform rotasyonunu ayarla
+        
+        this.scene.add(debugMesh);
+        console.log('Fizik gövdesi debug mesh eklendi, konum:', this.platform.position);
+      }
+    }
+    
+    console.log('BilimMerkezi için platform eklendi, boyutlar:', platformSizeX, 'x', platformSizeY);
   }
   
   setupButton() {

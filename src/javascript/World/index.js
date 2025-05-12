@@ -970,7 +970,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(32, 5, 0), // Özel pozisyon
+            position: new THREE.Vector3(24, 5, 0), // Özel pozisyon
             rotateX: 0,
             rotateY: Math.PI, // 180 derece farklı döndürme
             rotateZ: Math.PI / 2 // 90 derece döndürme
@@ -985,7 +985,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(32, 8, 0), // Özel pozisyon
+            position: new THREE.Vector3(24, 8, 0), // Özel pozisyon
             rotateX: 0,
             rotateY: 0,
             rotateZ: 0 // Farklı bir rotasyon
@@ -1000,7 +1000,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(28, 8, 0), // Özel pozisyon
+            position: new THREE.Vector3(20, 8, 0), // Özel pozisyon
             rotateX: Math.PI / 2, // X ekseninde 90 derece
             rotateY: 0,
             rotateZ: 0

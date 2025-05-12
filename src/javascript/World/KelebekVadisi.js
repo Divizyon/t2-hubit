@@ -176,7 +176,7 @@ export default class KelebekVadisi {
         
         // Debug görselleştirme - fizik gövdesini görselleştir (eğer debug modu aktifse)
         if (this.debug) {
-                const debugGeometry = new THREE.BoxGeometry(platformSize, platformSize, collisionHeight);
+            const debugGeometry = new THREE.BoxGeometry(platformSize, platformSize, collisionHeight);
             const debugMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0xff0000,
                 wireframe: true,
