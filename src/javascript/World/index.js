@@ -844,6 +844,8 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
             rotateX: 0,   
             rotateY: 0,
             rotateZ: 0
