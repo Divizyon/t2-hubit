@@ -515,12 +515,12 @@ export default class Sounds
                         refDistance: 10,         // Daha büyük referans mesafe
                         rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
                         distanceModel: 'inverse',
-                        maxDistance: 30,         // Daha büyük maksimum mesafe
+                        maxDistance: 10,         // Daha büyük maksimum mesafe
                         coneOuterGain: 0.6,
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 2;
+                    _options.volumeMax = 0.2;
                 }
                 
                 item.howl = new Howl({
