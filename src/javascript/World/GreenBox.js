@@ -47,6 +47,14 @@ export default class GreenBox
         this.panelLight = null            // Panel ışığı
         this.enterHint = null             // ENTER ipucu
         
+        // Reset kontrolü için flag
+        this.forceResetBackground = false // Zorla reset için flag
+        this.resetAttempts = 0           // Reset deneme sayısı
+        this.carExitTime = null          // Arabanın GreenBox'tan çıkış zamanı
+        this.resetInProgress = false     // Reset işleminin devam edip etmediği
+        this._lastInsideState = false    // Son içeride olma durumu (debug için)
+        this._lastDebugOutsideState = false // Son dışarıda olma durumu (debug için)
+        
         // ENTER ipucu ve hint elementlerini temizle
         const existingHints = document.querySelectorAll('.enter-hint, .enter-key-hint');
         existingHints.forEach(hint => {
@@ -258,6 +266,16 @@ export default class GreenBox
             if (this.interactiveArea) {
                 this.interactiveArea.activate();
             }
+        }
+        
+        // Her frame'de yeni kontrol yöntemi ile araba GreenBox alanından çıktı mı kontrol et
+        this.checkCarExitStatus();
+        
+        // Zorla reset için flag kontrol et
+        if (this.forceResetBackground) {
+            console.log('!! GreenBox: forceResetBackground flag aktif, zorla sıfırlama yapılıyor !!');
+            this.resetBackground();
+            this.forceResetBackground = false; // Flag'i temizle
         }
     }
 
@@ -512,6 +530,9 @@ export default class GreenBox
             areas: !!this.areas
         });
         
+        // Arkaplan sıfırlama için zamanlayıcı referansı
+        this.resetBackgroundTimer = null;
+        
         // Etkileşimli alan oluştur (AreaFence gibi)
         if (this.areas) {
             // Etkileşimli alan ekle - Boyutu küçültüldü
@@ -546,6 +567,14 @@ export default class GreenBox
                         duration: 0.3
                     });
                 }
+                
+                // Araba tekrar alana girerse zamanlayıcıyı temizle
+                if (this.resetBackgroundTimer) {
+                    console.log('Araba tekrar alana girdi, zamanlayıcı iptal ediliyor...');
+                    clearTimeout(this.resetBackgroundTimer);
+                    this.resetBackgroundTimer = null;
+                    this.forceResetBackground = false; // Force reset'i de iptal et
+                }
             });
             
             // Buton hover çıkışı - araç dışarı çıktığında
@@ -568,20 +597,8 @@ export default class GreenBox
                     });
                 }
                 
-                // İpucunu kaldır metodu artık çalışmayacak
+                // İpucunu kaldır
                 this.hideEnterHint();
-                
-                // Araba Green Box'tan çıktığında, arka planı orijinal yeşil rengine geri döndür
-                // Eğer bir resim uygulanmışsa
-                if (this.currentAppliedImage) {
-                    console.log('Araba Green Box\'tan çıktı, orijinal yeşil renge dönülüyor...');
-                    
-                    // Orijinal arka plan rengine geri dönme animasyonu
-                    this.resetBackground();
-                    
-                    // Uygulanan resmi sıfırla
-                    this.currentAppliedImage = null;
-                }
             });
         } else {
             console.warn('GreenBox: Areas bulunamadı, interactiveArea oluşturulamıyor');
@@ -648,6 +665,8 @@ export default class GreenBox
         
         // Bej renk tonu ve aksan rengi
         const bejRenk = 'rgba(165, 145, 105, 0.8)';
+        // Seçili rengi - daha belirgin bir mavi ton
+        const seciliRenk = 'rgba(41, 128, 185, 0.9)';
         
         // Tüm resim elementlerini tutan dizi
         const allImageElements = [];
@@ -668,6 +687,13 @@ export default class GreenBox
             card.className = 'manzara-item';
             card.dataset.id = background.id;
             card.dataset.index = index;
+            
+            // Eğer bu arkaplan şu anda uygulanmış olan ise, farklı bir çerçeve rengi kullan
+            let borderColor = index === 0 ? 'rgba(230, 219, 197, 0.95)' : bejRenk;
+            if (this.currentAppliedImage && this.currentAppliedImage.id === background.id) {
+                borderColor = seciliRenk;
+            }
+            
             card.style.cssText = `
                 position: relative;
                 width: 220px;
@@ -678,21 +704,26 @@ export default class GreenBox
                 cursor: pointer;
                 transition: all 0.2s ease;
                 transform: scale(1);
-                border: 3px solid ${index === 0 ? 'rgba(230, 219, 197, 0.95)' : bejRenk};
+                border: 3px solid ${borderColor};
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             `;
             
             // Hover efekti
             card.addEventListener('mouseover', () => {
                 card.style.transform = 'scale(1.02)';
-                card.style.border = `3px solid ${bejRenk}`;
+                // Seçiliyse rengi değişmesin
+                if (!(this.currentAppliedImage && this.currentAppliedImage.id === background.id)) {
+                    card.style.border = `3px solid ${bejRenk}`;
+                }
                 card.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.3)';
             });
             
             card.addEventListener('mouseout', () => {
                 card.style.transform = 'scale(1)';
-                if (this.popup.currentIndex !== index) {
+                if (this.popup.currentIndex !== index && !(this.currentAppliedImage && this.currentAppliedImage.id === background.id)) {
                     card.style.border = '3px solid rgba(255, 255, 240, 0.4)';
+                } else if (this.currentAppliedImage && this.currentAppliedImage.id === background.id) {
+                    card.style.border = `3px solid ${seciliRenk}`;
                 } else {
                     card.style.border = `3px solid ${bejRenk}`;
                 }
@@ -707,54 +738,11 @@ export default class GreenBox
                 });
                 
                 // Bu kartı seç
-                card.style.border = `3px solid ${bejRenk}`;
+                card.style.border = `3px solid ${seciliRenk}`;
                 this.popup.currentIndex = index;
                 
                 // Seçilen manzarayı direkt uygula
                 this.popup.selectedImage = background;
-                
-                // Onay animasyonu - checkmark göster
-                const successOverlay = document.createElement('div');
-                successOverlay.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-color: rgba(165, 145, 105, 0.4);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                    z-index: 2;
-                `;
-                
-                const checkmark = document.createElement('div');
-                checkmark.style.cssText = `
-                    width: 40px;
-                    height: 40px;
-                    background-color: rgba(165, 145, 105, 1);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: bold;
-                    font-size: 24px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                    transform: scale(0);
-                    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                `;
-                checkmark.innerHTML = '✓';
-                successOverlay.appendChild(checkmark);
-                card.appendChild(successOverlay);
-                
-                // Göster ve sonra kaybol
-                setTimeout(() => {
-                    successOverlay.style.opacity = '1';
-                    checkmark.style.transform = 'scale(1)';
-                }, 10);
                 
                 // Seçilen manzarayı uygula
                 const selectedBackground = this.backgrounds[index];
@@ -766,12 +754,12 @@ export default class GreenBox
                 // Arabayı ışınla
                 setTimeout(() => {
                     this.teleportCarToGreenBox();
-                }, 400);
+                }, 300);
                 
                 // Popup'ı kapat
                 setTimeout(() => {
                     this.hidePopup();
-                }, 600);
+                }, 500);
             });
             
             // Resim - Daha büyük ve kare şeklinde, direk kart içine
@@ -838,6 +826,11 @@ export default class GreenBox
             else if (event.key === 'Escape' && this.popup.visible) {
                 this.hidePopup();
             }
+            // R tuşu ile manuel reset
+            else if (event.key === 'r' || event.key === 'R') {
+                console.log('!! R tuşuna basıldı, manuel reset yapılıyor !!');
+                this.manualResetBackground();
+            }
             // Ok tuşlarıyla navigasyon
             else if (this.popup.visible) {
                 if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
@@ -864,6 +857,9 @@ export default class GreenBox
         // En üstteki resim (index 0)
         const currentIndex = this.popup.currentIndex || 0;
         
+        // Seçili rengi - daha belirgin bir mavi ton
+        const seciliRenk = 'rgba(41, 128, 185, 0.9)';
+        
         // Tüm seçimleri temizle
         this.popup.imageElements.forEach(elem => {
             elem.style.border = '3px solid rgba(255, 255, 240, 0.4)';
@@ -872,51 +868,8 @@ export default class GreenBox
         // İlk kartı seç
         if (this.popup.imageElements[currentIndex]) {
             const card = this.popup.imageElements[currentIndex];
-            card.style.border = '3px solid rgba(165, 145, 105, 0.8)';
+            card.style.border = `3px solid ${seciliRenk}`;
             this.popup.currentIndex = currentIndex;
-            
-            // Onay animasyonu - checkmark göster
-            const successOverlay = document.createElement('div');
-            successOverlay.style.cssText = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(165, 145, 105, 0.4);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                transition: opacity 0.3s;
-                z-index: 2;
-            `;
-            
-            const checkmark = document.createElement('div');
-            checkmark.style.cssText = `
-                width: 40px;
-                height: 40px;
-                background-color: rgba(165, 145, 105, 1);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                font-size: 24px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                transform: scale(0);
-                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            `;
-            checkmark.innerHTML = '✓';
-            successOverlay.appendChild(checkmark);
-            card.appendChild(successOverlay);
-            
-            // Göster ve sonra kaybol
-            setTimeout(() => {
-                successOverlay.style.opacity = '1';
-                checkmark.style.transform = 'scale(1)';
-            }, 10);
             
             // Seçilen manzarayı uygula
             const selectedBackground = this.backgrounds[currentIndex];
@@ -928,12 +881,12 @@ export default class GreenBox
             // Arabayı ışınla
             setTimeout(() => {
                 this.teleportCarToGreenBox();
-            }, 400);
+            }, 300);
             
             // Popup'ı kapat
             setTimeout(() => {
                 this.hidePopup();
-            }, 600);
+            }, 500);
             
             return true;
         } else {
@@ -962,6 +915,53 @@ export default class GreenBox
         
         // Araç çerçeve içinde mi?
         return distance < interactionRadius;
+    }
+
+    // Yeni metod: Arabanın Green Box alanı içinde olup olmadığını kontrol et
+    // Z yüksekliğini de hesaba katar (taban + 5 birim yukarısına kadar)
+    isCarInsideGreenBox() {
+        if (!this.car || !this.car.chassis || !this.car.chassis.object) {
+            console.log('GreenBox: isCarInsideGreenBox - car nesnesi eksik');
+            return false;
+        }
+        
+        // Araç pozisyonu
+        const carPosition = this.car.chassis.object.position;
+        
+        // Green Box merkezi
+        const boxCenter = this.position;
+        
+        // Box boyutları (koordinat sistemi değerlerine göre)
+        // BOX BOYUTLARINI ARTIRALIM - daha geniş bir alan için
+        const boxWidth = 8; // 4.6 yerine
+        const boxLength = 5; // 2 yerine
+        
+        // X ve Y sınırları
+        const minX = boxCenter.x - boxWidth/2;
+        const maxX = boxCenter.x + boxWidth/2;
+        const minY = boxCenter.y - boxLength/2;
+        const maxY = boxCenter.y + boxLength/2;
+        
+        // Green Box alanında mı kontrol et (SADECE x ve y koordinatları)
+        const isInside = 
+            carPosition.x >= minX && 
+            carPosition.x <= maxX &&
+            carPosition.y >= minY && 
+            carPosition.y <= maxY;
+        
+        // Debug bilgisi (çok sık yazmasın diye sadece değişiklik olduğunda yazdır)
+        if (this._lastInsideState !== isInside) {
+            console.log(`GreenBox: Araba ${isInside ? 'içeride' : 'dışarıda'}`, {
+                carPos: {x: carPosition.x.toFixed(1), y: carPosition.y.toFixed(1), z: carPosition.z.toFixed(1)},
+                boxLimits: {
+                    x: [minX.toFixed(1), maxX.toFixed(1)], 
+                    y: [minY.toFixed(1), maxY.toFixed(1)],
+                }
+            });
+            this._lastInsideState = isInside;
+        }
+        
+        return isInside;
     }
 
     togglePopup() {
@@ -1223,7 +1223,16 @@ export default class GreenBox
                 this.car.camera.shake(0.5, 300); // Efekti de biraz azalttık (0.8 -> 0.5)
             }
             
-            console.log('Teleport işlemi tamamlandı');
+            // Teleport sonrası tüm zamanlayıcıları ve takip değişkenlerini temizle
+            if (this.resetBackgroundTimer) {
+                clearTimeout(this.resetBackgroundTimer);
+                this.resetBackgroundTimer = null;
+            }
+            this.carExitTime = null;
+            this.resetInProgress = false;
+            this.forceResetBackground = false;
+            
+            console.log('Teleport işlemi tamamlandı ve tüm takip değişkenleri temizlendi');
             
             // İşlem başarılı
             return true;
@@ -1694,17 +1703,21 @@ export default class GreenBox
             
             // Bulunan parçanın orijinal materyalini sakla
             if(this.greenPart && this.greenPart.material) {
-                this.originalGreenMaterial = this.greenPart.material.clone();
-                console.log('GreenBox: Orijinal materyal kaydedildi');
+                // Direkt parlak yeşil materyal oluştur
+                this.originalGreenMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(0, 1, 0), // Parlak yeşil
+                    transparent: false,
+                    side: THREE.DoubleSide
+                });
+                
+                console.log('GreenBox: Orijinal yeşil materyal oluşturuldu');
                 
                 // Parçanın bilgilerini yazdır
                 console.log('Seçilen parça bilgileri:');
                 console.log(`- Adı: ${this.greenPart.name}`);
                 console.log(`- Materyal türü: ${this.greenPart.material.type}`);
-                if(this.greenPart.material.color) {
-                    console.log(`- Renk: R=${this.greenPart.material.color.r.toFixed(2)}, G=${this.greenPart.material.color.g.toFixed(2)}, B=${this.greenPart.material.color.b.toFixed(2)}`);
-                }
                 
+                // Orijinal yeşil materyal testi
                 // Geçici olarak renk değiştirerek test et
                 const testMaterial = new THREE.MeshBasicMaterial({
                     color: new THREE.Color(1, 0, 0), // Parlak kırmızı - daha kolay görünür
@@ -1719,8 +1732,10 @@ export default class GreenBox
                 
                 // 1.5 saniye sonra geri al
                 setTimeout(() => {
-                    this.greenPart.material = oldMaterial;
-                    console.log('GreenBox: Test materyali kaldırıldı, orijinal materyal geri yüklendi');
+                    // Yeşil materyal uygula
+                    this.greenPart.material = this.originalGreenMaterial;
+                    this.greenPart.material.needsUpdate = true;
+                    console.log('GreenBox: Test materyali kaldırıldı, orijinal YEŞİL materyal uygulandı');
                 }, 1500);
                 
                 return true;
@@ -1811,16 +1826,62 @@ export default class GreenBox
         });
     }
     
-    // Orijinal yeşil materyale geri dön
+    // Orijinal yeşil materyale geri dön - tamamen yeniden yapılandırıldı
     resetBackground() {
-        if(!this.greenPart || !this.originalGreenMaterial) return;
+        console.log('!! GreenBox: resetBackground çağrıldı - Arkaplan sıfırlama girişimi !!')
         
-        // Animasyonlu geçiş
-        this.applyMaterialWithTransition(this.originalGreenMaterial.clone());
-        console.log('GreenBox: Arkaplan orijinal rengine döndürüldü');
+        // GÜVENLİK KONTROLÜ: Araba hala GreenBox içindeyse sıfırlama yapma
+        // Bu kontrol, hatalı sıfırlamaları önler
+        if (this.isCarInsideGreenBox()) {
+            console.log('!! GreenBox: Araba hala GreenBox içinde, sıfırlama iptal edildi !!');
+            return false;
+        }
+
+        // Eğer carExitTime yoksa veya yeteri kadar zaman geçmediyse sıfırlama yapma
+        if (this.carExitTime) {
+            const timeOutside = Date.now() - this.carExitTime;
+            if (timeOutside < 1500) {
+                console.log(`!! GreenBox: Araba sadece ${(timeOutside/1000).toFixed(1)} saniye dışarıda, 1.5 saniye dolmadı, sıfırlama iptal !!`);
+                return false;
+            }
+        }
         
-        // Uygulanan resmi sıfırla
-        this.currentAppliedImage = null;
+        // Temel kontroller
+        if(!this.greenPart) {
+            console.error('!! GreenBox: resetBackground - greenPart bulunamadı! !!');
+            return false;
+        }
+        
+        // Tamamen yeni ve basit bir yaklaşım - Hardcoded yeşil materyal
+        try {
+            // Doğrudan parlak yeşil materyal
+            const greenMaterial = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(0, 1, 0), // Parlak yeşil
+                transparent: false,
+                side: THREE.DoubleSide
+            });
+            
+            // Direkt materyal ataması
+            this.greenPart.material = greenMaterial;
+            this.greenPart.material.needsUpdate = true;
+            
+            // Force üç boyutlu sahneyi güncelleme
+            this.greenPart.updateMatrix();
+            this.greenPart.updateMatrixWorld(true);
+            
+            console.log('!! GreenBox: Arkaplan parlak yeşil renge döndürüldü !!');
+            
+            // Uygulanan resmi sıfırla
+            this.currentAppliedImage = null;
+            this.forceResetBackground = false;
+            this.resetAttempts = 0;
+            
+            // Başarı durumunu döndür
+            return true;
+        } catch (error) {
+            console.error('!! GreenBox: Arkaplan sıfırlama hatası:', error, ' !!');
+            return false;
+        }
     }
     
     // Arkaplan texture'ı yükleme yardımcısı
@@ -1845,5 +1906,98 @@ export default class GreenBox
                 }
             );
         });
+    }
+
+    // YENİ: Araba çıkışı kontrolü için özel metod
+    checkCarExitStatus() {
+        // Araba pozisyonu al
+        if (!this.car || !this.car.chassis || !this.car.chassis.object) {
+            return;
+        }
+        
+        const carPosition = this.car.chassis.object.position;
+        
+        // GreenBox merkezi
+        const boxCenter = this.position;
+        
+        // Box sınırları - isCarInsideGreenBox ile tutarlı olması için değerleri büyüttük
+        const boxWidth = 8; // 4.6 yerine
+        const boxLength = 5; // 2 yerine
+        const boxMinX = boxCenter.x - boxWidth/2;
+        const boxMaxX = boxCenter.x + boxWidth/2;
+        const boxMinY = boxCenter.y - boxLength/2;
+        const boxMaxY = boxCenter.y + boxLength/2;
+        
+        // Arabanın kutu dışında olup olmadığını kontrol et (SADECE X ve Y koordinatları)
+        const isOutsideBox = 
+            carPosition.x < boxMinX || 
+            carPosition.x > boxMaxX ||
+            carPosition.y < boxMinY || 
+            carPosition.y > boxMaxY;
+        
+        // Debug çıktısı - durumu izlemek için
+        if (isOutsideBox && this.currentAppliedImage && !this._lastDebugOutsideState) {
+            console.log('GreenBox-Debug: Araba dışarıda, pozisyon:', 
+                {x: carPosition.x.toFixed(1), y: carPosition.y.toFixed(1), z: carPosition.z.toFixed(1)});
+            this._lastDebugOutsideState = true;
+        } else if (!isOutsideBox && this._lastDebugOutsideState) {
+            console.log('GreenBox-Debug: Araba içeride, pozisyon:', 
+                {x: carPosition.x.toFixed(1), y: carPosition.y.toFixed(1), z: carPosition.z.toFixed(1)});
+            this._lastDebugOutsideState = false;
+        }
+        
+        // ÖNEMLİ: İki farklı kontrol yöntemi kullanıyoruz
+        // 1. isOutsideBox - checkCarExitStatus metodundaki kutu dışı kontrolü
+        // 2. isCarInsideGreenBox() - diğer metod
+        const isInsideByOtherMethod = this.isCarInsideGreenBox();
+        
+        // Araba iki metodun da dışında ise, gerçekten dışarıda kabul edelim
+        const isReallyOutside = isOutsideBox && !isInsideByOtherMethod;
+        
+        // Araba dışarıda ve bir arkaplan uygulanmışsa
+        if (isReallyOutside && this.currentAppliedImage) {
+            // Daha önce dışarı çıkış zamanı kaydedilmemişse
+            if (!this.carExitTime) {
+                this.carExitTime = Date.now();
+                console.log('!! Araba GreenBox dışına çıktı, 1.5 saniye sayılıyor... !!');
+            }
+            // Dışarıda geçen süreyi kontrol et
+            else {
+                const timeOutside = Date.now() - this.carExitTime;
+                
+                // Belirli aralıklarla debug bilgisi ver
+                if (timeOutside % 500 < 50) { // Her 500ms'de bir 
+                    console.log(`GreenBox-Debug: Araba ${(timeOutside/1000).toFixed(1)} saniyedir dışarıda`);
+                }
+                
+                // 1.5 saniye geçti mi?
+                if (timeOutside >= 1500 && !this.resetInProgress) {
+                    console.log(`!! Araba ${(timeOutside/1000).toFixed(1)} saniye dışarıda kaldı, orijinal renge dönülüyor !!`);
+                    this.resetInProgress = true;
+                    
+                    // Reset işlemi yap
+                    const success = this.resetBackground();
+                    
+                    // Reset tamamlandı
+                    this.resetInProgress = false;
+                    this.carExitTime = null;
+                }
+            }
+        } 
+        // Araba içeride veya arkaplan yoksa
+        else {
+            // Zamanlayıcıyı sıfırla
+            if (this.carExitTime) {
+                console.log('!! Araba tekrar GreenBox içinde veya arkaplan yok, zamanlayıcı sıfırlandı !!');
+                this.carExitTime = null;
+                this.resetInProgress = false; // Reset işlemini de iptal et
+            }
+        }
+    }
+
+    // YENİ: Manuel reset fonksiyonu - çağrıldığında anında reset yapar
+    manualResetBackground() {
+        console.log('!! Manuel reset çağrıldı !!');
+        this.resetBackground();
     }
 }
