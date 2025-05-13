@@ -138,7 +138,7 @@ export default class SesOdasi {
     
     // Alan çerçevesi
     if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
-      const floorBorderGeometry = new THREE.CircleGeometry(1.2, 32);
+      const floorBorderGeometry = new THREE.CircleGeometry(1.5, 32);
       this.button.floorBorder = new THREE.Mesh(
         floorBorderGeometry,
         this.materials.items.areaFloorBorder.clone()
@@ -154,7 +154,7 @@ export default class SesOdasi {
     if (this.areas) {
       this.interactiveArea = this.areas.add({
         position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-        halfExtents: new THREE.Vector2(1.2, 1.2),
+        halfExtents: new THREE.Vector2(1.5, 1.5),
         floorShadowType: 'primary',
         debug: false
       });

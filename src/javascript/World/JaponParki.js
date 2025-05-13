@@ -18,8 +18,8 @@ export default class JaponParki {
         this.collisionMesh = null; // Çarpışma kutusunu görselleştirmek için mesh
         
         // Çarpışma kutusu pozisyonu ve boyutu
-        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-6, -31, 1);
-        this.collisionSize = _options.collisionSize || new THREE.Vector3(5, 18, 27); // Boyutu 5x18x27 olarak değiştirildi
+        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-6, -32, 1);
+        this.collisionSize = _options.collisionSize || new THREE.Vector3(5, 16, 27); // Y boyutunu 18'den 16'ya düşürdüm
         
         // Buton konumu
         this.buttonPosition = new THREE.Vector3(5, -18, 0);
@@ -95,9 +95,9 @@ export default class JaponParki {
                 const collisionMaterial = new THREE.MeshBasicMaterial({
                     color: 0xff0000,
                     wireframe: true,
-                    opacity: 0.7,
+                    opacity: 0,
                     transparent: true,
-                    visible: true // Görünür olarak başlat
+                    visible: false // Görünürlük kapatıldı
                 });
                 
                 this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
