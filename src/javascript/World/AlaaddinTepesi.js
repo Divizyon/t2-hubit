@@ -23,8 +23,7 @@ export default class AlaaddinTepesi {
      
         this.setModel();
         this.createPlatform();
-        this.buttonPosition = new THREE.Vector3(22, -42, 0); // Button pozisyonu güncellendi
-        this.setModel();
+        this.buttonPosition = new THREE.Vector3(21, -32, 0); // Buton pozisyonu güncellendi (22,-42,0 -> 26,-37,0)
         this.setupButton();
         
         if (this.time) {
@@ -48,7 +47,7 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(6, -40, 1.5); // Z pozisyonunu 5 birim yükselttim
+            this.model.position.set(8.5, -33.6, 1.5); // Sağa ve yukarı taşındı (x: 6→10, y: -40→-35)
             this.model.scale.set(1, 1, 1);
             
             // Modeli döndür
@@ -60,11 +59,10 @@ export default class AlaaddinTepesi {
             // if (this.physics) {
             //     this.collisionBody = new CANNON.Body({
             //         mass: 0,
-            //         position: new CANNON.Vec3(1, -30, .7),
+            //         position: new CANNON.Vec3(5, -25, .7), // Sağa ve yukarı taşındı
             //         material: this.physics.materials.items.floor
             //     });
 
-              
             //     const radius = 2.5;
             //     const sphereShape = new CANNON.Sphere(radius);
             //     this.collisionBody.addShape(sphereShape);
@@ -131,7 +129,7 @@ export default class AlaaddinTepesi {
         }
         
         // Kare platform oluştur
-        const platformSize = 26; // Kare platformun bir kenar uzunluğu (14*2)
+        const platformSize = 24; // Kare platformun bir kenar uzunluğu küçültüldü (26 -> 22)
         const platformGeometry = new THREE.BoxGeometry(platformSize, platformSize, 1); // Kare platform
         const platformMaterial = new THREE.MeshStandardMaterial({
             color: 0x808080, // Gri
@@ -140,7 +138,7 @@ export default class AlaaddinTepesi {
         });
         
         this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
-        this.platform.position.set(4.5, -38, 0); // Modelin altında
+        this.platform.position.set(8.5, -33, 0); // Sağa ve yukarı taşındı (x: 4.5→8.5, y: -38→-33)
         this.platform.rotation.x = Math.PI; // Yatay duruma getir
         this.platform.castShadow = true;
         this.platform.receiveShadow = true;
@@ -155,7 +153,7 @@ export default class AlaaddinTepesi {
             
             const platformBody = new CANNON.Body({
                 mass: 0, // Statik nesne
-                position: new CANNON.Vec3(4.5, -38, 0), // Platform ile aynı pozisyon (güncellendi)
+                position: new CANNON.Vec3(8.5, -33, 0), // Sağa ve yukarı taşındı (x: 4.5→8.5, y: -38→-33)
                 material: this.physics.materials.items.floor
             });
             
@@ -202,8 +200,9 @@ export default class AlaaddinTepesi {
 
         // Container
         this.button.container = new THREE.Object3D()
-        this.button.container.position.x = this.buttonPosition.x
+        this.button.container.position.x = this.buttonPosition.x // buttonPosition değişkenini kullan
         this.button.container.position.y = this.buttonPosition.y
+        this.button.container.position.z = this.buttonPosition.z || 0
         this.button.container.matrixAutoUpdate = false
         this.button.container.updateMatrix()
         this.scene.add(this.button.container)
@@ -373,7 +372,7 @@ export default class AlaaddinTepesi {
         })
 
         this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
-        this.button.label.position.z = 0.2
+        this.button.label.position.z = 0.3 // Yüksekliği biraz arttırdım
         this.button.container.add(this.button.label)
     }
     
