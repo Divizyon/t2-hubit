@@ -369,6 +369,14 @@ export default class World
                     if(this.sounds && this.sounds.updateSpatialPosition) {
                         this.sounds.updateSpatialPosition('spatialSound4', -17, -51, 0)
                     }
+                    //konser alani icin uzamsal ses pozisyonu
+                    if(this.sounds && this.sounds.updateSpatialPosition) {
+                        this.sounds.updateSpatialPosition('spatialSound5', -50, -10, 0)
+                    }
+                    //newton salıncagı icin uzamsal ses pozisyonu
+                    if(this.sounds && this.sounds.updateSpatialPosition) {
+                        this.sounds.updateSpatialPosition('spatialSound6', 30, 8, 0)
+                    }
                 }
             }
         })
