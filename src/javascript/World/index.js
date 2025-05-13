@@ -386,12 +386,14 @@ export default class World
           resources: this.resources,
           physics:   this.physics,
           debug:     this.debugFolder,
+          areas:     this.areas,
+          materials: this.materials,
           rotateX:   0,   // 
-          rotateY:  Math.PI ,
+          rotateY:  Math.PI , 
           rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
         });
       }
-      
+        
    
     setRender_odasi() {
         this.Render_odasi = new Render_odasi({
@@ -934,7 +936,9 @@ export default class World
             scene: this.scene,
             time: this.time,
             resources: this.resources,
-            physics: this.physics
+            physics: this.physics,
+            areas: this.areas,
+            materials: this.materials
         })
     }
     
