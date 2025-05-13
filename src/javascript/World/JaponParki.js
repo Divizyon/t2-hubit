@@ -15,9 +15,14 @@ export default class JaponParki {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
+        this.collisionMesh = null; // Çarpışma kutusunu görselleştirmek için mesh
+        
+        // Çarpışma kutusu pozisyonu ve boyutu
+        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-6, -31, 1);
+        this.collisionSize = _options.collisionSize || new THREE.Vector3(5, 18, 27); // Boyutu 5x18x27 olarak değiştirildi
         
         // Buton konumu
-        this.buttonPosition = new THREE.Vector3(3, -18, 0);
+        this.buttonPosition = new THREE.Vector3(5, -18, 0);
         
         this.setModel();
         
@@ -47,7 +52,7 @@ export default class JaponParki {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-7, -34, 0); // Konumu Japon Parkı için ayarla
+            this.model.position.set(-7, -34, 1); // Konumu Japon Parkı için ayarla
             this.model.scale.set(0.5, 0.5, 0.5); // Ölçeği düşürüyorum
             
             // Modeli döndür - ihtiyaca göre değiştirilebilir
@@ -57,23 +62,52 @@ export default class JaponParki {
 
             // Fizik gövdesi oluştur
             if (this.physics) {
-                // Model için bir bounding box hesapla
-                const boundingBox = new THREE.Box3().setFromObject(this.model);
-                const size = boundingBox.getSize(new THREE.Vector3());
+                // Fizik gövdesi oluştur - boyutları özel olarak belirledik
+                const halfExtents = new CANNON.Vec3(
+                    this.collisionSize.x / 2,
+                    this.collisionSize.y / 2, 
+                    this.collisionSize.z / 2
+                );
                 
-                // Fizik gövdesi oluştur
                 this.collisionBody = new CANNON.Body({
                     mass: 0, // Statik nesne
-                    position: new CANNON.Vec3(25, 60, 0), // Modelin konumuyla aynı
+                    position: new CANNON.Vec3(
+                        this.collisionPosition.x,
+                        this.collisionPosition.y,
+                        this.collisionPosition.z
+                    ),
                     material: this.physics.materials.items.floor
                 });
                 
                 // Box şekli ekle
-                const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
                 const boxShape = new CANNON.Box(halfExtents);
                 this.collisionBody.addShape(boxShape);
                 
                 this.physics.world.addBody(this.collisionBody);
+                
+                // Görünür çarpışma kutusu oluştur
+                const collisionGeometry = new THREE.BoxGeometry(
+                    this.collisionSize.x,
+                    this.collisionSize.y,
+                    this.collisionSize.z
+                );
+                
+                const collisionMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff0000,
+                    wireframe: true,
+                    opacity: 0.7,
+                    transparent: true,
+                    visible: true // Görünür olarak başlat
+                });
+                
+                this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
+                this.collisionMesh.position.copy(this.collisionPosition);
+                this.scene.add(this.collisionMesh);
+                
+                console.log('Japon Parkı çarpışma kutusu eklendi:', 
+                    'Pozisyon:', this.collisionPosition, 
+                    'Boyut:', this.collisionSize
+                );
             }
 
             // Materyal ve mesh kontrolü
@@ -115,6 +149,57 @@ export default class JaponParki {
                 console.log('Japon Parkı modelinde animasyon yok.');
             }
         });
+    }
+
+    // Çarpışma kutusunun görünürlüğünü değiştiren metod
+    setCollisionVisibility(visible) {
+        if (this.collisionMesh) {
+            this.collisionMesh.visible = visible;
+        }
+    }
+    
+    // Çarpışma kutusu pozisyonunu güncelleme metodu
+    updateCollisionPosition(newPosition) {
+        if (!this.collisionMesh) return;
+        
+        this.collisionPosition.copy(newPosition);
+        this.collisionMesh.position.copy(newPosition);
+        
+        // Fizik gövdesini de güncelle
+        if (this.collisionBody) {
+            this.collisionBody.position.set(newPosition.x, newPosition.y, newPosition.z);
+        }
+        
+        console.log('Japon Parkı çarpışma kutusu pozisyonu güncellendi:', newPosition);
+    }
+    
+    // Çarpışma kutusu boyutunu güncelleme metodu
+    updateCollisionSize(newSize) {
+        if (!this.collisionMesh) return;
+        
+        this.collisionSize.copy(newSize);
+        
+        // Eski mesh'i kaldır
+        this.scene.remove(this.collisionMesh);
+        
+        // Yeni geometri oluştur
+        const newGeometry = new THREE.BoxGeometry(
+            newSize.x,
+            newSize.y,
+            newSize.z
+        );
+        
+        // Aynı materyal ile yeni mesh oluştur
+        const material = this.collisionMesh.material;
+        this.collisionMesh = new THREE.Mesh(newGeometry, material);
+        
+        // Pozisyonu ayarla
+        this.collisionMesh.position.copy(this.collisionPosition);
+        
+        // Sahneye ekle
+        this.scene.add(this.collisionMesh);
+        
+        console.log('Japon Parkı çarpışma kutusu boyutu güncellendi:', newSize);
     }
 
     tick(delta) {
