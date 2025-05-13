@@ -187,7 +187,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [9, -40, 0] 
+                defaultPosition: [21, -65, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound4',
@@ -200,7 +200,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-17, -71, 0] 
+                defaultPosition: [-7, -34, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound5',
@@ -226,7 +226,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [30, 8, 0] 
+                defaultPosition: [22, 5, 0] 
             },
             {
                 name: 'rocketPrepare',
@@ -499,15 +499,15 @@ export default class Sounds
                 if (_options.name === 'spatialSound5') {
                     customPannerAttr = {
                         panningModel: 'HRTF',
-                        refDistance: 10,         // Daha büyük referans mesafe
+                        refDistance: 5,         // Daha büyük referans mesafe
                         rolloffFactor: 0.8,      // Daha düşük azalma faktörü  
                         distanceModel: 'inverse',
-                        maxDistance: 30,         // Daha büyük maksimum mesafe
+                        maxDistance: 10,         // Daha büyük maksimum mesafe
                         coneOuterGain: 0.6,
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 6;
+                    _options.volumeMax = 2;
                 }
                 if (_options.name === 'spatialSound6') {
                     customPannerAttr = {
