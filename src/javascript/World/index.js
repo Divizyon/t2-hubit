@@ -366,11 +366,11 @@ export default class World
                     }
                     //alaaddin tepesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound3', 9, -40, 0)
+                        this.sounds.updateSpatialPosition('spatialSound3', 21, -65, 0)
                     }
                     //japon parki icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound4', -17, -51, 0)
+                        this.sounds.updateSpatialPosition('spatialSound4', -7, -34, 0)
                     }
                     //konser alani icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
@@ -378,7 +378,7 @@ export default class World
                     }
                     //newton salıncagı icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound6', 30, 8, 0)
+                        this.sounds.updateSpatialPosition('spatialSound6', 22, 5, 0)
                     }
                 }
             }
