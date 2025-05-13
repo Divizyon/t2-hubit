@@ -812,9 +812,11 @@ export default class World
             resources: this.resources,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX:0,   
+            rotateX: 0,   
             rotateY: 0,
-            rotateZ:0 // Y ekseninde 90 derece döndürme
+            rotateZ: 0,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 
