@@ -49,14 +49,18 @@ export default class Ekran3D {
                 const boundingBox = new THREE.Box3().setFromObject(this.model);
                 const size = boundingBox.getSize(new THREE.Vector3());
                 
+                // Collision için özel pozisyon kullanılıyor
+                const collisionPosition = new THREE.Vector3(37, -36, 2);
+                
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(this.model.position.x, this.model.position.y, this.model.position.z),
+                    position: new CANNON.Vec3(collisionPosition.x, collisionPosition.y, collisionPosition.z),
                     material: this.physics.materials.items.floor
                 });
 
-                // Fizik boyutunun boyutunu ayarla
-                const boxShape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
+                // Fizik boyutunun boyutunu ayarla - daha büyük boyutlar
+                const collisionSize = new THREE.Vector3(2.7, 7, 4); // Sabit boyut değerleri
+                const boxShape = new CANNON.Box(new CANNON.Vec3(collisionSize.x / 2, collisionSize.y / 2, collisionSize.z / 2));
                 this.collisionBody.addShape(boxShape);
                 
                 // Rotasyonu fizik modeline de uygula
@@ -65,6 +69,31 @@ export default class Ekran3D {
                 this.collisionBody.quaternion.copy(quaternion);
                 
                 this.physics.world.addBody(this.collisionBody);
+                
+                // Görünür collision mesh ekle - aynı boyutları kullan
+                const collisionGeometry = new THREE.BoxGeometry(
+                    collisionSize.x,
+                    collisionSize.y,
+                    collisionSize.z
+                );
+                
+                const collisionMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff0000,
+                    wireframe: true,
+                    opacity: 0, // Tamamen saydam
+                    transparent: true,
+                    visible: false // Görünürlüğü tamamen kapat
+                });
+                
+                this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
+                this.collisionMesh.position.copy(collisionPosition);
+                this.collisionMesh.rotation.set(this.model.rotation.x, this.model.rotation.y, this.model.rotation.z);
+                this.scene.add(this.collisionMesh);
+                
+                console.log('3D Ekran için görünür collision mesh eklendi:', 
+                    'Pozisyon:', collisionPosition, 
+                    'Boyut:', collisionSize
+                );
             }
 
             // Materyal ve mesh kontrolü

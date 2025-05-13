@@ -438,7 +438,8 @@ export default class World
           materials: this.materials,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          collisionPosition: new THREE.Vector3(32, -15, 0) // Collision kutusu için özel konum
         });
       }
    
@@ -919,7 +920,10 @@ export default class World
             rotateY: Math.PI,
             rotateZ: 0,
             areas: this.areas,
-            materials: this.materials
+            materials: this.materials,
+            // Özel collision ayarları
+            collisionPosition: new THREE.Vector3(68, -5, 2), // Güncellenen collision konumu
+            collisionSize: new THREE.Vector3(3, 5, 6) // Güncellenen collision boyutu
         })
     }
 
