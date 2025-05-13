@@ -38,25 +38,6 @@ export default class EasterEggs
         this.konamiCode.latestKeys = []
         this.konamiCode.count = 0
 
-        // Label
-        if(this.config.touch)
-        {
-            this.konamiCode.labelTexture = this.resources.items.konamiLabelTouchTexture
-        }
-        else
-        {
-            this.konamiCode.labelTexture = this.resources.items.konamiLabelTexture
-        }
-
-        this.konamiCode.labelTexture.magFilter = THREE.NearestFilter
-        this.konamiCode.labelTexture.minFilter = THREE.LinearFilter
-        this.konamiCode.label = new THREE.Mesh(new THREE.PlaneGeometry(8, 8 / 16), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.konamiCode.labelTexture }))
-        this.konamiCode.label.position.x = this.konamiCode.x + 5
-        this.konamiCode.label.position.y = this.konamiCode.y
-        this.konamiCode.label.matrixAutoUpdate = false
-        this.konamiCode.label.updateMatrix()
-        this.container.add(this.konamiCode.label)
-
         // Lemon option
         this.konamiCode.lemonOption = {
             base: this.resources.items.lemonBase.scene,
@@ -69,12 +50,6 @@ export default class EasterEggs
             sleep: true,
             soundName: 'woodHit'
         }
-
-        // First lemon
-        this.objects.add({
-            ...this.konamiCode.lemonOption,
-            offset: new THREE.Vector3(this.konamiCode.x, this.konamiCode.y, 0.4)
-        })
 
         this.konamiCode.testInput = (_input) =>
         {

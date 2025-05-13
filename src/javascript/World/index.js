@@ -367,7 +367,7 @@ export default class World
                     }
                     //japon parki icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound4', -17, -71, 0)
+                        this.sounds.updateSpatialPosition('spatialSound4', -17, -51, 0)
                     }
                 }
             }
@@ -706,10 +706,10 @@ export default class World
         
         // Roket fırlatma alanı oluştur
         this.rocketLaunchArea = this.areas.add({
-            position: new THREE.Vector2(58, 14), // X, Y koordinatlarını 16, 28 olarak değiştirdik
-            halfExtents: new THREE.Vector2(3, 3),
+            position: new THREE.Vector2(57.2, 10.6), // X, Y koordinatlarını 16, 28 olarak değiştirdik
+            halfExtents: new THREE.Vector2(1.5, 1.5),
             debug: true,
-            hasKey: false
+            hasKey: true
         })
         
         // Fırlatma alanına etkileşim ekle
@@ -725,11 +725,11 @@ export default class World
         // Bilgi paneli ekle
         const rocketInfo = document.createElement('div')
         rocketInfo.style.position = 'absolute'
-        rocketInfo.style.bottom = '20px'
-        rocketInfo.style.right = '20px'
+        rocketInfo.style.bottom = '5px'
+        rocketInfo.style.right = '5px'
         rocketInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
         rocketInfo.style.color = 'white'
-        rocketInfo.style.padding = '10px'
+        rocketInfo.style.padding = '5px'
         rocketInfo.style.borderRadius = '5px'
         rocketInfo.style.fontFamily = 'Arial, sans-serif'
         rocketInfo.style.zIndex = '1000'

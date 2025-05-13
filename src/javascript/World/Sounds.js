@@ -191,7 +191,7 @@ export default class Sounds
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound4',
-                sounds: ['./sounds/japon_parki/blob.wav'],
+                sounds: ['./sounds/japon_parki/su_sesi.mp3'],
                 minDelta: 0,
                 velocityMin: 0,
                 velocityMultiplier: 0.8,

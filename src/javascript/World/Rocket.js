@@ -116,7 +116,7 @@ export class Rocket {
             canvas.width / 2
         )
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1)')
-        gradient.addColorStop(0.5, 'rgba(240, 240, 240, 0.5)')
+        gradient.addColorStop(0.5, 'rgba(235, 241, 249, 0.5)')
         gradient.addColorStop(1, 'rgba(220, 220, 220, 0)')
         
         context.fillStyle = gradient
@@ -140,7 +140,7 @@ export class Rocket {
                 (Math.random() - 0.5) * 0.3,
                 -0.2 - Math.random() * 0.5
             )
-            smokeSprite.visible = false
+            smokeSprite.visible = true
             this.smoke.add(smokeSprite)
         }
         
@@ -411,10 +411,10 @@ export class Rocket {
                 this.platform.mesh = this.resources.items.rocketPlatformModel.scene.clone()
                 
                 // Platformu konumlandır (zemin seviyesinde)
-                this.platform.mesh.position.set(-5, 0, -0.1)
+                this.platform.mesh.position.set(-10, -2, 0)
                 
                 // Ölçeği ayarla
-                this.platform.mesh.scale.set(1.0, 1.0, 1.0)
+                this.platform.mesh.scale.set(1.3, 1.3 ,1.3)
                 
                 // Rotasyonu ayarla
                 this.platform.mesh.rotation.x = 0
@@ -422,8 +422,8 @@ export class Rocket {
                 this.platform.mesh.rotation.z = 0
                 
                 // Platformu konumlandır
-                this.platform.mesh.position.x = this.container.position.x
-                this.platform.mesh.position.y = this.container.position.y
+                this.platform.mesh.position.x = this.container.position.x - 0.8
+                this.platform.mesh.position.y = this.container.position.y +1.3
                 this.platform.mesh.position.z = this.container.position.z - 0.1
                 
                 // Platformu sabit tutmak için container'a değil ana scene'e ekliyoruz
@@ -532,8 +532,8 @@ export class Rocket {
         
         // Duman parçacıklarını daha görünür yap
         this.smoke.children.forEach(smokeParticle => {
-            smokeParticle.material.opacity = 0.9 // Dumanı daha opak yap
-            smokeParticle.scale.set(0.2, 0.2, 0.2) // Duman parçacıklarını büyüt
+            smokeParticle.material.opacity = 1 // Dumanı daha opak yap
+            smokeParticle.scale.set(0.3, 0.3, 0.3) // Duman parçacıklarını büyüt
         })
         
         // Sese efekti güçlendir
