@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-8, -18, 0); // Trafik Lambası konumu
+const DEFAULT_POSITION = new THREE.Vector3(-11, -8, 0); // Trafik Lambası konumu
 
 export default class TrafikLambasi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {

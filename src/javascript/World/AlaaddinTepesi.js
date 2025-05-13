@@ -23,7 +23,7 @@ export default class AlaaddinTepesi {
      
         this.setModel();
         this.createPlatform();
-        this.buttonPosition = new THREE.Vector3(21, -32, 0); // Buton pozisyonu güncellendi (22,-42,0 -> 26,-37,0)
+        this.buttonPosition = new THREE.Vector3(21, -65, 0); // X pozisyonunu 3 birim sağa kaydırdım (18 -> 21)
         this.setupButton();
         
         if (this.time) {
@@ -47,7 +47,7 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(8.5, -33.6, 1.5); // Sağa ve yukarı taşındı (x: 6→10, y: -40→-35)
+            this.model.position.set(5.5, -66.6, 1.5); // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
             this.model.scale.set(1, 1, 1);
             
             // Modeli döndür
@@ -138,7 +138,7 @@ export default class AlaaddinTepesi {
         });
         
         this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
-        this.platform.position.set(8.5, -33, 0); // Sağa ve yukarı taşındı (x: 4.5→8.5, y: -38→-33)
+        this.platform.position.set(5.5, -66, 0); // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
         this.platform.rotation.x = Math.PI; // Yatay duruma getir
         this.platform.castShadow = true;
         this.platform.receiveShadow = true;
@@ -153,7 +153,7 @@ export default class AlaaddinTepesi {
             
             const platformBody = new CANNON.Body({
                 mass: 0, // Statik nesne
-                position: new CANNON.Vec3(8.5, -33, 0), // Sağa ve yukarı taşındı (x: 4.5→8.5, y: -38→-33)
+                position: new CANNON.Vec3(5.5, -66, 0), // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
                 material: this.physics.materials.items.floor
             });
             

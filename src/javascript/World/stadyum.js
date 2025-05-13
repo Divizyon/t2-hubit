@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(34, -53, -2.5); // Stadyum konumu
+const DEFAULT_POSITION = new THREE.Vector3(14, -32, -2.5); // Stadyum konumu
+const SCALE_FACTOR = 1.15; // Ölçek faktörü - %15 büyütme
 
 export default class Stadyum {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -32,6 +33,10 @@ export default class Stadyum {
 
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
+    
+    // Modeli büyüt - scale faktörünü uygula
+    model.scale.set(SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR);
+    
     model.traverse(child => {
       if (child.isMesh) {
         const origMat = child.material;
@@ -52,12 +57,12 @@ export default class Stadyum {
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 
-    // Bounding box hesapla
+    // Bounding box hesapla - ölçeklendirilmiş halde
     model.updateMatrixWorld(true);
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
 
-    // Fizik gövdesi oluştur
+    // Fizik gövdesi oluştur - ölçekli boyut değerlerini kullan
     const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
     const boxShape = new CANNON.Box(halfExtents);
 
@@ -105,20 +110,21 @@ export default class Stadyum {
       return;
     }
     
-    // Stadyumun bounding box'ını hesapla
+    // Stadyumun bounding box'ını hesapla - scale faktörünü dikkate alarak
     const tempModel = gltf.scene.clone();
+    tempModel.scale.set(SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR); // Aynı scale faktörünü uygula
     tempModel.updateMatrixWorld(true);
     const bbox = new THREE.Box3().setFromObject(tempModel);
     const size = bbox.getSize(new THREE.Vector3());
     
     // Platform boyutlarını stadyumun boyutlarına göre ayarla
-    const platformSize = Math.max(size.x, size.y) * 0.9; // Stadyumun en geniş kenarının %80'i (daha küçük kare platform)
-    const platformHeight = 1; // Kelebek vadisindeki gibi 1 birim yükseklik
+    const platformSize = Math.max(size.x, size.y) * 0.9; // Stadyumun en geniş kenarının %90'i
+    const platformHeight = 1; // Platform yüksekliği
     
-    // Platform geometrisi oluştur (kare platform - Kelebek Vadisi'ndeki gibi)
+    // Platform geometrisi oluştur (kare platform)
     const platformGeometry = new THREE.BoxGeometry(platformSize, platformSize, platformHeight);
     const platformMaterial = new THREE.MeshStandardMaterial({
-      color: 0x808080, // Gri (Kelebek Vadisi'ndeki gibi)
+      color: 0x808080, // Gri
       metalness: 0.5,  // Metalik değeri
       roughness: 0.5,  // Pürüzlülük değeri
     });
@@ -132,7 +138,7 @@ export default class Stadyum {
       this.position.z + 2.5  // Z pozisyonu stadyumla aynı (düzeltilmiş konum)
     );
     
-    // Kelebek Vadisi'ndeki gibi rotasyonu sıfırla
+    // Rotasyonu sıfırla
     this.platform.rotation.x = 0;
     
     this.platform.castShadow = true;
@@ -144,7 +150,7 @@ export default class Stadyum {
     if (this.physics) {
       // Platformun fiziksel boyutları - yarı boyutlar olarak tanımlanır
       const halfSize = platformSize / 2; // Kenar uzunluğunun yarısı
-      const collisionHeight = 5; // Kelebek Vadisi'ndeki gibi 5 birim yükseklik (fizik çarpışması için)
+      const collisionHeight = 5; // Fizik çarpışması için yükseklik
       
       const platformBody = new CANNON.Body({
         mass: 0, // Statik nesne
@@ -156,7 +162,7 @@ export default class Stadyum {
         material: this.physics.materials.items.floor
       });
       
-      // Kare platform şekli - Kelebek Vadisi'ndeki gibi BoxShape kullanılıyor
+      // Kare platform şekli
       const platformShape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, collisionHeight / 2));
       platformBody.addShape(platformShape);
       
@@ -184,6 +190,6 @@ export default class Stadyum {
       }
     }
     
-    console.log('Stadyum için platform eklendi, boyut:', platformSize, 'fizik yükseklik:', 5);
+    console.log('Stadyum için platform eklendi, boyut:', platformSize, 'fizik yükseklik:', 5, 'ölçek faktörü:', SCALE_FACTOR);
   }
 } 

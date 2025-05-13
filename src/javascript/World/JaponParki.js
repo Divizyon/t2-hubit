@@ -17,7 +17,7 @@ export default class JaponParki {
         this.collisionBody = null;
         
         // Buton konumu
-        this.buttonPosition = new THREE.Vector3(-15.90, -65, 0);
+        this.buttonPosition = new THREE.Vector3(3, -18, 0);
         
         this.setModel();
         
@@ -47,7 +47,7 @@ export default class JaponParki {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-17, -51, 0); // Konumu Japon Parkı için ayarla
+            this.model.position.set(-7, -34, 0); // Konumu Japon Parkı için ayarla
             this.model.scale.set(0.5, 0.5, 0.5); // Ölçeği düşürüyorum
             
             // Modeli döndür - ihtiyaca göre değiştirilebilir
