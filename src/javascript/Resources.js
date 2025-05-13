@@ -213,6 +213,12 @@ export default class Resources extends EventEmitter
             
             // 3D Ekran
             { name: '3dEkran', source: './models/3dEkran/3D_Ekran.glb' },
+            
+            // Kademe
+            { name: 'kademe', source: './models/kademe/Kademe.glb' },
+            
+            // Lego
+            { name: 'lego', source: './models/lego/lego_parca.glb' },
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },

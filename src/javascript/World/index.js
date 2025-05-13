@@ -48,6 +48,8 @@ import BasketSahasi from './BasketSahasi.js'
 import YonTabelasi1 from './YonTabelasi1.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
+import Kademe from './Kademe.js'
+import Lego from './Lego.js'
 
 export default class World
 {
@@ -127,6 +129,8 @@ export default class World
         this.setYonTabelasi1()
         this.setSia()
         this.set3dEkran()
+        this.setKademe()
+        this.setLego()
     }
 
     setReveal()
@@ -420,7 +424,9 @@ export default class World
           debug:     this.debugFolder,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          areas:     this.areas,
+          materials: this.materials
         });
       }
     
@@ -430,9 +436,12 @@ export default class World
           resources: this.resources,
           physics:   this.physics,
           debug:     this.debugFolder,
+          areas:     this.areas,
+          materials: this.materials,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          collisionPosition: new THREE.Vector3(32, -15, 0) // Collision kutusu için özel konum
         });
       }
    
@@ -661,7 +670,9 @@ export default class World
           debug:     this.debugFolder,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          areas:     this.areas,
+          materials: this.materials
         });
       }
     
@@ -810,6 +821,8 @@ export default class World
             scene: this.scene,
             time: this.time,
             physics: this.physics,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 
@@ -846,9 +859,10 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX: 0,   
+            rotateX: Math.PI / 2,   
             rotateY: 0,
-            rotateZ: 0
+            rotateZ: 0,
+            
         });
     }
 
@@ -905,8 +919,13 @@ export default class World
             physics: this.physics,
             debug: this.debugFolder,
             rotateX: Math.PI / 2,
-            rotateY: Math.PI ,
-            rotateZ: 0
+            rotateY: Math.PI,
+            rotateZ: 0,
+            areas: this.areas,
+            materials: this.materials,
+            // Özel collision ayarları
+            collisionPosition: new THREE.Vector3(68, -5, 2), // Güncellenen collision konumu
+            collisionSize: new THREE.Vector3(3, 5, 6) // Güncellenen collision boyutu
         })
     }
 
@@ -921,5 +940,83 @@ export default class World
             areas: this.areas,
             materials: this.materials
         })
+    }
+    
+    // Kademe modelini eklemek için metot
+    setKademe()
+    {
+        this.kademe = new Kademe({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: Math.PI,
+            rotateY: Math.PI,
+            rotateZ: Math.PI / 2 // 90 derece döndürme
+        })
+    }
+    
+    // Lego modelini eklemek için metot
+    setLego()
+    {
+        // İlk lego parçası (varsayılan pozisyon kullanılacak)
+        this.lego = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: Math.PI / 2 // 90 derece döndürme
+        });
+        
+        // İkinci lego parçası (özel pozisyon)
+        this.lego2 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(24, 5, 0), // Özel pozisyon
+            rotateX: 0,
+            rotateY: Math.PI, // 180 derece farklı döndürme
+            rotateZ: Math.PI / 2 // 90 derece döndürme
+        });
+        
+        // Üçüncü lego parçası
+        this.lego3 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(24, 8, 0), // Özel pozisyon
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: 0 // Farklı bir rotasyon
+        });
+        
+        // Dördüncü lego parçası
+        this.lego4 = new Lego({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(20, 8, 0), // Özel pozisyon
+            rotateX: Math.PI / 2, // X ekseninde 90 derece
+            rotateY: 0,
+            rotateZ: 0
+        });
     }
 }
