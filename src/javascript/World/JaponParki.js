@@ -371,24 +371,11 @@ export default class JaponParki {
         canvas.width = 1024
         canvas.height = 256
         
-        const gradient = ctx.createRadialGradient(
-            canvas.width/2, canvas.height/2, 0,
-            canvas.width/2, canvas.height/2, canvas.width/2
-        )
-        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
-        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
-        
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        ctx.fillStyle = 'white'
-        ctx.font = 'bold 96px Arial'
+        // Yazı ayarları - resmin üzerine yazdır
+        ctx.fillStyle = 'black'
+        ctx.font = 'bold 80px Arial' // Font boyutu 88'den 80'e küçültüldü
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-        
-        ctx.shadowColor = '#4285f4'
-        ctx.shadowBlur = 25
         ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
 
         const texture = new THREE.CanvasTexture(canvas)
@@ -403,8 +390,34 @@ export default class JaponParki {
             side: THREE.DoubleSide
         })
 
-        this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+        // info_BG.png dosyasını arka plan olarak yükle
+        const backgroundTexture = new THREE.TextureLoader().load('images/info_BG.png')
+        
+        // Arka plan için malzeme
+        const backgroundMaterial = new THREE.MeshBasicMaterial({
+            map: backgroundTexture,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        })
+        
+        // Arka plan mesh'i oluştur
+        const backgroundGeometry = new THREE.PlaneGeometry(3, 0.8)
+        const background = new THREE.Mesh(backgroundGeometry, backgroundMaterial)
+        
+        // Yazı meshin oluştur
+        this.button.label = new THREE.Group()
+        const textMesh = new THREE.Mesh(labelGeometry, labelMaterial)
+        
+        // Arka planı ekle
+        this.button.label.add(background)
+        // Yazıyı ekle (hafif öne çıkararak)
+        textMesh.position.z = 0.01
+        this.button.label.add(textMesh)
+        
+        // Grubun z-pozisyonu
         this.button.label.position.z = 0.2
+        
         this.button.container.add(this.button.label)
     }
     

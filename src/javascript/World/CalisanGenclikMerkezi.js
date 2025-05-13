@@ -182,7 +182,7 @@ export default class GenclikMerkezi {
     this.button.container.updateMatrix()
     this.scene.add(this.button.container)
 
-    // Alan çerçevesi
+    // Alan çerçevesi - boyutu küçültüldü (4, 4) -> (3, 3)
     if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
       const floorBorderGeometry = new AreaFloorBorderGeometry(2, 2, 0.3)
       this.button.floorBorder = new THREE.Mesh(
@@ -194,7 +194,7 @@ export default class GenclikMerkezi {
       this.button.container.add(this.button.floorBorder)
     }
     
-    // Alan duvarları
+    // Alan duvarları - boyutu küçültüldü (4, 4) -> (3, 3)
     if (this.materials && this.materials.items && this.materials.items.areaGradientTexture) {
       const fenceGeometry = new AreaFenceGeometry(2, 2, 0.3)
       
@@ -221,11 +221,11 @@ export default class GenclikMerkezi {
     // Buton animasyonu
     this.animateButton()
 
-    // Etkileşimli alan ekle
+    // Etkileşimli alan ekle - boyutu küçültüldü
     if (this.areas) {
       this.interactiveArea = this.areas.add({
         position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-        halfExtents: new THREE.Vector2(1, 1),
+        halfExtents: new THREE.Vector2(1.5, 1.5), // (2, 2) -> (1.5, 1.5) olarak küçültüldü
         floorShadowType: 'primary',
         debug: false
       });
@@ -295,40 +295,43 @@ export default class GenclikMerkezi {
     canvas.width = 1024
     canvas.height = 256
     
-    const gradient = ctx.createRadialGradient(
-      canvas.width/2, canvas.height/2, 0,
-      canvas.width/2, canvas.height/2, canvas.width/2
-    )
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
-    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
+    // info_BG.png dosyasını önce canvas'a arka plan olarak çizelim
+    const buttonBg = new Image()
+    buttonBg.onload = () => {
+        // Resmi canvas'a çiz
+        ctx.drawImage(buttonBg, 0, 0, canvas.width, canvas.height)
+        
+        // Yazı ayarları - resmin üzerine yazdır
+        ctx.fillStyle = 'black'
+        ctx.font = 'bold 80px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+        
+        // Canvas değiştiğinde texture'ı güncelle
+        texture.needsUpdate = true
+    }
+    buttonBg.src = 'images/info_BG.png'
     
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    ctx.fillStyle = 'white'
-    ctx.font = 'bold 96px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-    
-    ctx.shadowColor = '#4285f4'
-    ctx.shadowBlur = 25
-    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-
     const texture = new THREE.CanvasTexture(canvas)
     texture.magFilter = THREE.LinearFilter
     texture.minFilter = THREE.LinearFilter
 
-    const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
+    // Tek bir geometri ve material kullan
+    const labelGeometry = new THREE.PlaneGeometry(3, 1.2)
     const labelMaterial = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide
     })
-
+    
+    // Mesh oluştur
     this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+    
+    // Grubun z-pozisyonu
     this.button.label.position.z = 0.2
+    
     this.button.container.add(this.button.label)
   }
   
