@@ -824,7 +824,10 @@ export default class World
             time: this.time,
             physics: this.physics,
             areas: this.areas,
-            materials: this.materials
+            materials: this.materials,
+            // Özel collision ayarları
+            collisionPosition: new THREE.Vector3(-6.5, -31, 0), // Özel konum
+            collisionSize: new THREE.Vector3(18, 27, 5) // Boyutu 5x18x27 olarak güncellendi
         });
     }
 
