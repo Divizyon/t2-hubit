@@ -4,7 +4,7 @@ import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
-const DEFAULT_POSITION = new THREE.Vector3(42.7, 11, -2); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(42.7, 11, -1.4); // Artık doğru yerde tanımlandı
 
 export default class BilimMerkezi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = Math.PI, areas = null, materials = null }) {

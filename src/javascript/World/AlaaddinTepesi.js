@@ -108,7 +108,7 @@ export default class AlaaddinTepesi {
                     console.log(`Animasyon ${index} yükleniyor:`, clip.name);
                     // Animasyon süresini 8 saniye olarak ayarla
                     const originalDuration = clip.duration;
-                    const targetDuration = 9; // 8 saniye
+                    const targetDuration = 8; // 8 saniye
                     const timeScale = originalDuration / targetDuration;
                     const action = this.mixer.clipAction(clip);
                     action.reset().play();
