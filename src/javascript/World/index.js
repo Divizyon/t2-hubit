@@ -149,8 +149,8 @@ export default class World
         {
            
 
-            gsap.fromTo(this.reveal, { matcapsProgress: 0 }, { matcapsProgress: 1, duration: 3 })
-            gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 3, delay: 0.5 })
+            gsap.fromTo(this.reveal, { matcapsProgress: 0 }, { matcapsProgress: 1, duration: 1 })
+            gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 1, delay: 0.5 })
             gsap.fromTo(this.shadows, { alpha: 0 }, { alpha: 0.5, duration: 3, delay: 0.5 })
 
             if(this.sections.intro)
@@ -164,7 +164,7 @@ export default class World
 
             // Car
             this.physics.car.chassis.body.sleep()
-            this.physics.car.chassis.body.position.set(12, -12, 12)
+            this.physics.car.chassis.body.position.set(12, -11, 12)
 
             window.setTimeout(() =>
             {

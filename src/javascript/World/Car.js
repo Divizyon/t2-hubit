@@ -266,7 +266,7 @@ export default class Car
         
         // Togg modeli için özel offset değeri (aşağı indir)
         if(this.config.togg) {
-            this.chassis.offset = new THREE.Vector3(0, 0, -0.4)
+            this.chassis.offset = new THREE.Vector3(0.055, -0.09, -0.2)
             // Togg modelini sağa-sola merkezle
             this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children)
             
