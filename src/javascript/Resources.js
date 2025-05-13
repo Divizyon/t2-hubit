@@ -196,8 +196,6 @@ export default class Resources extends EventEmitter
             // Rocket platform
             { name: 'rocketPlatformModel', source: './models/rocket/roketplatformglb.glb' },
              
-            //sesOdasi
-            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb',},
               
             // Yol Modeli
             { name: 'roadModel', source: './models/road/atmosfer_yol.glb' },
@@ -229,6 +227,12 @@ export default class Resources extends EventEmitter
 
             // Yön Tabelası 2
             { name: 'yonTabelasi2', source: './models/yonTabelasi2/yontabelası2.glb' },
+
+            // Newton Salıncağı
+            { name: 'newtonSalincagi', source: './models/newton_salincagi/newton.glb' },
+
+            // Ses Odası
+            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },

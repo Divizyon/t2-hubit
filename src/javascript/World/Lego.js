@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(22, 5, 0); // İstediğiniz pozisyonu ayarlayabilirsiniz
+const DEFAULT_POSITION = new THREE.Vector3(40, -6, 0); // Newton Salıncağı'nın eski konumu
 
 export default class Lego {
   constructor({ scene, resources, objects, physics, debug, areas, materials, position, rotateX = 0, rotateY = 0, rotateZ = 0 }) {

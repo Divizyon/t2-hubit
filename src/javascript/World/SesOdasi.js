@@ -1,160 +1,207 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
+import CANNON from 'cannon';
 
-export default class SesOdasi
-{
-    constructor(_options)
-    {
-        // Debug kontrolü
-        console.log('SesOdasi constructor çalıştı, debug durumu:', _options.debug);
-        
-        // Gerekli parametreler
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.debug = _options.debug
-        this.materials = _options.materials
-        this.x = -84 // X pozisyonu
-        this.y = -35 // Y pozisyonu
-        this.z = 0  // Z pozisyonu
-        
-        // Container oluştur
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
-        this.container.updateMatrix()
-
-        // Debug
-        if(this.debug)
-        {
-            console.log('Debug modunda SesOdasi paneli oluşturuluyor');
-            this.debugFolder = this.debug.addFolder('sesOdasi')
-            this.debugFolder.open()
-            
-            // Position debug
-            const positionFolder = this.debugFolder.addFolder('position')
-            positionFolder.add(this, 'x').name('X').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            positionFolder.add(this, 'y').name('Y').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            positionFolder.add(this, 'z').name('Z').min(-100).max(100).step(0.1).onChange(() => this.updatePosition())
-            
-            // Scale debug
-            this.debugObject = {
-                scaleX: 1.0,
-                scaleY: 1.0,
-                scaleZ: 1.0,
-                rotationX: -90,
-                rotationY: -180,
-                rotationZ: 0
-            }
-            
-            const scaleFolder = this.debugFolder.addFolder('scale')
-            scaleFolder.add(this.debugObject, 'scaleX').name('Scale X').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            scaleFolder.add(this.debugObject, 'scaleY').name('Scale Y').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            scaleFolder.add(this.debugObject, 'scaleZ').name('Scale Z').min(0.1).max(5).step(0.1).onChange(() => this.updateScale())
-            
-            // Rotation debug
-            const rotationFolder = this.debugFolder.addFolder('rotation')
-            rotationFolder.add(this.debugObject, 'rotationX').name('Rotation X').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-            rotationFolder.add(this.debugObject, 'rotationY').name('Rotation Y').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-            rotationFolder.add(this.debugObject, 'rotationZ').name('Rotation Z').min(-180).max(180).step(1).onChange(() => this.updateRotation())
-        }
-        else
-        {
-            console.log('Debug modu aktif değil');
-        }
-
-        // SesOdasi modeli ayarla
-        this.setSesOdasi()
+export default class SesOdasi {
+  constructor({ scene, resources, objects, physics, debug, areas, materials, rotateX = 0, rotateY = 0, rotateZ = 0, position = null }) {
+    // Özellikleri kaydet
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
+    this.areas = areas;
+    this.materials = materials;
+    
+    // Döndürme değerlerini (radyan) ayarla
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+    
+    // Pozisyon değeri, eğer verilmediyse varsayılan olarak -65, -40, 0 kullan
+    this.position = position || new THREE.Vector3(-65, -40, 0);
+    
+    // Ana konteyner oluştur
+    this.container = new THREE.Object3D();
+    this.container.matrixAutoUpdate = false;
+    this.container.updateMatrix();
+    this.scene.add(this.container);
+    
+    // Model oluştur
+    this._buildModel();
+    
+    // Etkileşimli buton ekle
+    if (this.areas && this.materials) {
+      this.setupButton();
     }
-
-    setSesOdasi()
-    {
-        this.sesOdasi = {}
-        
-        // SesOdasi modelini yükle
-        this.sesOdasi.resource = this.resources.items.sesOdasi
-        
-        console.log('SesOdasi resource kontrolü:', this.sesOdasi.resource);
-        
-        if(!this.sesOdasi.resource) {
-            console.error('Hata: SesOdasi modeli yüklenemedi veya bulunamadı!');
-            return;
-        }
-        
-        if(!this.sesOdasi.resource.scene) {
-            console.error('Hata: SesOdasi modelinin scene özelliği bulunamadı!', this.sesOdasi.resource);
-            return;
-        }
-        
-        console.log('SesOdasi modeli yüklendi:', this.sesOdasi.resource);
-        
-        // Mesh'i oluştur 
-        try {
-            // Dereceyi radyana çeviren yardımcı fonksiyon
-            const degToRad = (degrees) => {
-                return degrees * (Math.PI / 180);
-            };
-            
-            // Eğim değerleri (derece cinsinden)
-            const xRotation = this.debug ? this.debugObject.rotationX : 0;
-            const yRotation = this.debug ? this.debugObject.rotationY : 0; 
-            const zRotation = this.debug ? this.debugObject.rotationZ : -8;  
-            
-            // Pozisyon ayarla
-            this.position = new THREE.Vector3(this.x, this.y, this.z)
-            
-            // Rotasyon ayarla
-            this.rotation = new THREE.Euler(
-                degToRad(xRotation),
-                degToRad(yRotation),
-                degToRad(zRotation)
-            )
-            
-            // Ölçek ayarla
-            const scaleX = this.debug ? this.debugObject.scaleX : 1; // ses odası boyutu
-            const scaleY = this.debug ? this.debugObject.scaleY : 1; // ses odası boyutu
-            const scaleZ = this.debug ? this.debugObject.scaleZ : 1; // ses odası boyutu
-            this.scale = new THREE.Vector3(scaleX, scaleY, scaleZ)
-            
-            // Mesh oluştur
-            this.sesOdasi.mesh = this.objects.getConvertedMesh(this.sesOdasi.resource.scene.children)
-            this.sesOdasi.mesh.position.copy(this.position)
-            this.sesOdasi.mesh.rotation.copy(this.rotation)
-            this.sesOdasi.mesh.scale.copy(this.scale)
-            
-            // Konteynere ekle
-            this.container.add(this.sesOdasi.mesh)
-            
-            console.log('SesOdasi modeli başarıyla yüklendi')
-        } catch(error) {
-            console.error('SesOdasi modelini yüklerken hata oluştu:', error)
-        }
-    }
-
-    // Debug için yardımcı metodlar
-    updatePosition() {
-        if (this.sesOdasi && this.sesOdasi.mesh) {
-            this.position.set(this.x, this.y, this.z)
-            this.sesOdasi.mesh.position.copy(this.position)
-        }
+  }
+  
+  _buildModel() {
+    const gltf = this.resources.items.sesOdasi;
+    if (!gltf || !gltf.scene) {
+      console.error('Ses Odası modeli bulunamadı');
+      return;
     }
     
-    updateScale() {
-        if (this.sesOdasi && this.sesOdasi.mesh) {
-            this.scale.set(this.debugObject.scaleX, this.debugObject.scaleY, this.debugObject.scaleZ)
-            this.sesOdasi.mesh.scale.copy(this.scale)
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    
+    // Model boyutunu ayarla - eğer gerekirse ölçeklendir
+    model.scale.set(0.6, 0.6, 0.6);
+    
+    // Modelin materyallerini işle ve beyaz objeleri araştır
+    model.traverse(child => {
+      if (child.isMesh) {
+        console.log('Mesh bulundu:', child.name);
+        const origMat = child.material;
+        const mat = origMat.clone();
+        
+        // Eğer beyaz bir materyal ise logla ve gizle
+        if (origMat.color && (origMat.color.r > 0.8 && origMat.color.g > 0.8 && origMat.color.b > 0.8)) {
+          console.log('Beyaz materyal bulundu ve gizleniyor:', child.name);
+          child.visible = false; // Beyaz objeyi gizle
         }
+        
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
+    
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
+    
+    // Fizik gövdesi oluştur
+    if (this.physics) {
+      const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+      const boxShape = new CANNON.Box(halfExtents);
+      
+      const body = new CANNON.Body({
+        mass: 0, // Statik nesne
+        position: new CANNON.Vec3(...this.position.toArray()),
+        material: this.physics.materials.items.floor
+      });
+      
+      // Dönüşü quaternion olarak ayarla
+      const quat = new CANNON.Quaternion();
+      quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+      body.quaternion.copy(quat);
+      
+      body.addShape(boxShape);
+      this.physics.world.addBody(body);
     }
     
-    updateRotation() {
-        if (this.sesOdasi && this.sesOdasi.mesh) {
-            const degToRad = (degrees) => {
-                return degrees * (Math.PI / 180);
-            };
-            
-            this.rotation.set(
-                degToRad(this.debugObject.rotationX),
-                degToRad(this.debugObject.rotationY),
-                degToRad(this.debugObject.rotationZ)
-            )
-            this.sesOdasi.mesh.rotation.copy(this.rotation)
-        }
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
     }
+    
+    console.log('Ses Odası eklendi, konum:', this.position);
+  }
+  
+  setupButton() {
+    // Buton konumu - modelin yanına taşı
+    this.buttonPosition = new THREE.Vector3(
+      this.position.x - 3, // Modelin 3 birim soluna
+      this.position.y,     // Aynı y konumu
+      this.position.z      // Aynı z konumu
+    );
+    
+    this.button = {};
+    
+    // Container
+    this.button.container = new THREE.Object3D();
+    this.button.container.position.copy(this.buttonPosition);
+    this.button.container.matrixAutoUpdate = false;
+    this.button.container.updateMatrix();
+    this.scene.add(this.button.container);
+    
+    // Alan çerçevesi
+    if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
+      const floorBorderGeometry = new THREE.CircleGeometry(1.2, 32);
+      this.button.floorBorder = new THREE.Mesh(
+        floorBorderGeometry,
+        this.materials.items.areaFloorBorder.clone()
+      );
+      this.button.floorBorder.rotation.x = -Math.PI / 2;
+      this.button.floorBorder.position.z = 0.1;
+      this.button.floorBorder.matrixAutoUpdate = false;
+      this.button.floorBorder.updateMatrix();
+      this.button.container.add(this.button.floorBorder);
+    }
+    
+    // Etkileşimli alan
+    if (this.areas) {
+      this.interactiveArea = this.areas.add({
+        position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
+        halfExtents: new THREE.Vector2(1.2, 1.2),
+        floorShadowType: 'primary',
+        debug: false
+      });
+      
+      // Bilgi paneli oluştur
+      this.infoPanel = document.createElement('div');
+      this.infoPanel.style.position = 'absolute';
+      this.infoPanel.style.bottom = '20px';
+      this.infoPanel.style.left = '50%';
+      this.infoPanel.style.transform = 'translateX(-50%)';
+      this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      this.infoPanel.style.color = 'white';
+      this.infoPanel.style.padding = '15px';
+      this.infoPanel.style.borderRadius = '10px';
+      this.infoPanel.style.fontFamily = 'Arial, sans-serif';
+      this.infoPanel.style.zIndex = '1000';
+      this.infoPanel.style.display = 'none';
+      this.infoPanel.style.transition = 'opacity 0.3s ease-in-out';
+      this.infoPanel.style.textAlign = 'center';
+      this.infoPanel.style.maxWidth = '400px';
+      
+      // Bilgi paneli içeriği
+      this.infoPanel.innerHTML = `
+        <h3 style="margin: 0 0 10px 0; color: #4285f4;">Ses Odası</h3>
+        <p style="margin: 0 0 10px 0;">Ses Odası, müzik prodüksiyonu ve kayıt için tasarlanmış özel bir stüdyodur.</p>
+        <p style="margin: 0 0 10px 0;">Akustik özellikleri ve ses yalıtımı ile profesyonel kayıt imkanı sunar.</p>
+      `;
+      
+      document.body.appendChild(this.infoPanel);
+      
+      // Etkileşimli alan olayları
+      this.interactiveArea.on('in', () => {
+        // Bilgi panelini göster
+        this.infoPanel.style.display = 'block';
+        this.infoPanel.style.opacity = '0';
+        setTimeout(() => {
+          this.infoPanel.style.opacity = '1';
+        }, 10);
+      });
+      
+      this.interactiveArea.on('out', () => {
+        // Bilgi panelini gizle
+        this.infoPanel.style.opacity = '0';
+        setTimeout(() => {
+          this.infoPanel.style.display = 'none';
+        }, 300);
+      });
+    }
+  }
 } 

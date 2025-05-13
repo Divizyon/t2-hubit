@@ -15,7 +15,9 @@ export default class KelebekVadisi {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
-
+        
+        // Web site URL'si
+        this.websiteUrl = 'https://konyatropikalkelebekbahcesi.com/tr';
 
     
     // Platform
@@ -23,9 +25,13 @@ export default class KelebekVadisi {
 
         this.setModel();
         this.createPlatform();
-        this.buttonPosition = new THREE.Vector3(55, -5, 0); // Button pozisyonu güncellendi
+        this.buttonPosition = new THREE.Vector3(55, -15, 0); // İstenen buton konumu
         this.setModel();
-        this.setupButton();
+        
+        // Etkileşimli buton ekle
+        if (this.areas && this.materials) {
+            this.setupButton();
+        }
         
         if (this.time) {
             this.time.on('tick', () => {
@@ -252,89 +258,70 @@ export default class KelebekVadisi {
         // Buton animasyonu
         this.animateButton()
 
-        // Bilgi paneli oluştur
-        this.infoPanel = document.createElement('div')
-        this.infoPanel.style.position = 'absolute'
-        this.infoPanel.style.bottom = '20px'
-        this.infoPanel.style.left = '50%'
-        this.infoPanel.style.transform = 'translateX(-50%)'
-        this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
-        this.infoPanel.style.color = 'white'
-        this.infoPanel.style.padding = '15px'
-        this.infoPanel.style.borderRadius = '10px'
-        this.infoPanel.style.fontFamily = 'Arial, sans-serif'
-        this.infoPanel.style.zIndex = '1000'
-        this.infoPanel.style.display = 'none'
-        this.infoPanel.style.transition = 'opacity 0.3s ease-in-out'
-        this.infoPanel.style.textAlign = 'center'
-        this.infoPanel.style.maxWidth = '400px'
-        
-        // Bilgi paneli içeriği
-        this.infoPanel.innerHTML = `
-            <h3 style="margin: 0 0 10px 0; color: #4285f4;">Alaaddin Tepesi</h3>
-            <p style="margin: 0 0 10px 0;">Konya'nın en yüksek noktası olan Alaaddin Tepesi, şehrin tarihi ve kültürel merkezidir.</p>
-            <a href="https://www.konya.bel.tr/alaaddin-tepesi" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
-        `
-        document.body.appendChild(this.infoPanel)
-
-        // Etkileşimli alan
+        // Etkileşimli alan ekle
         if (this.areas) {
             this.interactiveArea = this.areas.add({
                 position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-                halfExtents: new THREE.Vector2(1.5, 1.5),
+                halfExtents: new THREE.Vector2(1, 1),
                 floorShadowType: 'primary',
                 debug: false
             });
-
+            
+            // Bilgi paneli oluştur
+            this.infoPanel = document.createElement('div');
+            this.infoPanel.style.position = 'absolute';
+            this.infoPanel.style.bottom = '20px';
+            this.infoPanel.style.right = '20px'; // Sağ alt köşede göstermek için
+            this.infoPanel.style.transform = 'none'; // transform'u kaldır
+            this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            this.infoPanel.style.color = 'white';
+            this.infoPanel.style.padding = '15px';
+            this.infoPanel.style.borderRadius = '10px';
+            this.infoPanel.style.fontFamily = 'Arial, sans-serif';
+            this.infoPanel.style.zIndex = '1000';
+            this.infoPanel.style.display = 'none';
+            this.infoPanel.style.transition = 'opacity 0.3s ease-in-out';
+            this.infoPanel.style.textAlign = 'center';
+            this.infoPanel.style.maxWidth = '400px';
+            
+            // Bilgi paneli içeriği - Link ekle
+            this.infoPanel.innerHTML = `
+                <h3 style="margin: 0 0 10px 0; color: #4285f4;">Kelebek Vadisi</h3>
+                <p style="margin: 0 0 10px 0;">Konya Tropikal Kelebek Bahçesi, Türkiye'nin en büyük kelebek uçuş alanına sahip tesisidir.</p>
+                <p style="margin: 0 0 10px 0;">Çeşitli tropikal kelebek türlerini doğal yaşam alanlarında gözlemleyebilirsiniz.</p>
+                <a href="${this.websiteUrl}" target="_blank" style="display: inline-block; text-decoration: none; background-color: #4285f4; color: white; padding: 8px 15px; border-radius: 5px; margin-top: 10px; font-weight: bold;">Web Sitesini Ziyaret Et</a>
+            `;
+            
+            document.body.appendChild(this.infoPanel);
+            
+            // Etkileşimli alan olayları
             this.interactiveArea.on('in', () => {
-                if (this.button && this.button.label) {
-                    gsap.to(this.button.label.position, { 
-                        z: 0.5,
-                        duration: 0.3,
-                        ease: 'power2.out'
-                    });
-                }
-                
-                if (this.button && this.button.fence && this.button.fence.material) {
-                    gsap.to(this.button.fence.material.color, {
-                        r: 0.1,
-                        g: 0.7,
-                        b: 1.0,
-                        duration: 0.3
-                    });
-                }
-
                 // Bilgi panelini göster
-                this.infoPanel.style.display = 'block'
-                this.infoPanel.style.opacity = '0'
+                this.infoPanel.style.display = 'block';
+                this.infoPanel.style.opacity = '0';
                 setTimeout(() => {
-                    this.infoPanel.style.opacity = '1'
-                }, 10)
+                    this.infoPanel.style.opacity = '1';
+                }, 10);
             });
             
             this.interactiveArea.on('out', () => {
-                if (this.button && this.button.label) {
-                    gsap.to(this.button.label.position, { 
-                        z: 0.3,
-                        duration: 0.3,
-                        ease: 'power2.out'
-                    });
-                }
-                
-                if (this.button && this.button.fence && this.button.fence.material) {
-                    gsap.to(this.button.fence.material.color, {
-                        r: 0.26,
-                        g: 0.52,
-                        b: 0.96,
-                        duration: 0.3
-                    });
-                }
-
                 // Bilgi panelini gizle
-                this.infoPanel.style.opacity = '0'
+                this.infoPanel.style.opacity = '0';
                 setTimeout(() => {
-                    this.infoPanel.style.display = 'none'
-                }, 300)
+                    this.infoPanel.style.display = 'none';
+                }, 300);
+            });
+            
+            // Enter tuşuna basma olayı
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && this.interactiveArea.isHovered) {
+                    window.open(this.websiteUrl, '_blank');
+                }
+            });
+            
+            // Tıklama olayı
+            this.interactiveArea.on('interact', () => {
+                window.open(this.websiteUrl, '_blank');
             });
         }
     }
@@ -359,11 +346,11 @@ export default class KelebekVadisi {
         ctx.font = 'bold 96px Arial'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText('OPEN', canvas.width/2, canvas.height/2)
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
         
         ctx.shadowColor = '#4285f4'
         ctx.shadowBlur = 25
-        ctx.fillText('OPEN', canvas.width/2, canvas.height/2)
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
 
         const texture = new THREE.CanvasTexture(canvas)
         texture.magFilter = THREE.LinearFilter

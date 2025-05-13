@@ -51,6 +51,7 @@ import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
 import Kademe from './Kademe.js'
 import Lego from './Lego.js'
+import NewtonSalincagi from './NewtonSalincagi.js'
 
 export default class World
 {
@@ -115,7 +116,6 @@ export default class World
         this.setKapsulBinasi()
         this.setSesOdasi()
         this.setRocket()
-        this.setSesOdasi()
         this.setCustomButton()
         this.setFootball()
         this.setRender_odasi()
@@ -128,11 +128,12 @@ export default class World
         this.setTrafikLambasi()
         this.setBasketSahasi()
         this.setYonTabelasi1()
+        this.setYonTabelasi2()
+        this.setNewtonSalincagi()
         this.setSia()
         this.set3dEkran()
         this.setKademe()
         this.setLego()
-        this.setYonTabelasi2()
     }
 
     setReveal()
@@ -748,28 +749,6 @@ export default class World
         }, 10000)
     }
     
-    //set sesOdasi
-    setSesOdasi()
-    {
-        console.log('setSesOdasi() fonksiyonu çağrıldı, debug durumu:', this.debug);
-        this.sesOdasi = new SesOdasi({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debug,
-            physics: this.physics,
-            materials: this.materials,
-            shadows: this.shadows
-        })
-        
-        if (this.sesOdasi && this.sesOdasi.container) {
-            console.log('SesOdasi container ekleniyor');
-            this.container.add(this.sesOdasi.container);
-        } else {
-            console.error('SesOdasi container oluşturulamadı');
-
-        }
-      
-    }
     setCustomButton()
     {
         console.log('setCustomButton çağrıldı, greenBox:', !!this.greenBox);
@@ -861,10 +840,12 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
+            areas: this.areas,      // Etkileşimli alan için
+            materials: this.materials, // Buton materyalleri için
+            time: this.time,        // Animasyonlar için
             rotateX: Math.PI / 2,   
             rotateY: 0,
-            rotateZ: 0,
-            
+            rotateZ: 0
         });
     }
 
@@ -963,7 +944,7 @@ export default class World
     // Lego modelini eklemek için metot
     setLego()
     {
-        // İlk lego parçası (varsayılan pozisyon kullanılacak)
+        // İlk lego parçası (Newton Salıncağı konumuna)
         this.lego = new Lego({
             scene: this.scene,
             resources: this.resources,
@@ -972,6 +953,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
+            position: new THREE.Vector3(40, -6, 0), // Newton Salıncağı konumu
             rotateX: 0,
             rotateY: 0,
             rotateZ: Math.PI / 2 // 90 derece döndürme
@@ -986,7 +968,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(24, 5, 0), // Özel pozisyon
+            position: new THREE.Vector3(40, -3, 0), // Newton konumunun yanı
             rotateX: 0,
             rotateY: Math.PI, // 180 derece farklı döndürme
             rotateZ: Math.PI / 2 // 90 derece döndürme
@@ -1001,7 +983,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(24, 8, 0), // Özel pozisyon
+            position: new THREE.Vector3(43, -6, 0), // Newton konumunun yanı
             rotateX: 0,
             rotateY: 0,
             rotateZ: 0 // Farklı bir rotasyon
@@ -1016,7 +998,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(20, 8, 0), // Özel pozisyon
+            position: new THREE.Vector3(43, -3, 0), // Newton konumunun yanı
             rotateX: Math.PI / 2, // X ekseninde 90 derece
             rotateY: 0,
             rotateZ: 0
@@ -1035,5 +1017,42 @@ export default class World
             areas: this.areas,
             materials: this.materials
         })
+    }
+
+    // Newton Salıncağı modelini eklemek için metot
+    setNewtonSalincagi()
+    {
+        this.newtonSalincagi = new NewtonSalincagi({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            time: this.time,
+            position: new THREE.Vector3(27, 6, 0), // Bilim Merkezi'ne daha yakın bir konum
+            rotateX: Math.PI / 2, // 90 derece X ekseni etrafında döndür
+            rotateY: Math.PI / 8,
+            rotateZ: 0
+        })
+    }
+
+    //set sesOdasi
+    setSesOdasi()
+    {
+        this.sesOdasi = new SesOdasi({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials,
+            position: new THREE.Vector3(-65, -40, 0), // Z ekseninde daha da aşağı
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: Math.PI / 2
+        });
     }
 }
