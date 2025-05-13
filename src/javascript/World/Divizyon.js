@@ -282,11 +282,11 @@ export default class Divizyon {
     ctx.font = 'bold 96px Arial'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText('OPEN', canvas.width/2, canvas.height/2)
+    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
     
     ctx.shadowColor = '#4285f4'
     ctx.shadowBlur = 25
-    ctx.fillText('OPEN', canvas.width/2, canvas.height/2)
+    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
 
     const texture = new THREE.CanvasTexture(canvas)
     texture.magFilter = THREE.LinearFilter

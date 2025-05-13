@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
+import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
+import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 
 const DEFAULT_POSITION = new THREE.Vector3(54, -37, 0); // Artık doğru yerde tanımlandı
 
@@ -13,6 +15,8 @@ export default class GenclikMerkezi {
     rotateX = 90, 
     rotateY = 0, 
     rotateZ = 0,
+    materials, // Buton materyalleri için eklendi
+    areas, // Etkileşimli alan için eklendi
     // Özel collision ayarları
     collisionPosition = new THREE.Vector3(54, -36.5, 2), // Varsayılan özel konum
     collisionSize = new THREE.Vector3(4.9, 3.4, 5) // Özel boyut (null ise otomatik hesaplanır)
@@ -22,6 +26,8 @@ export default class GenclikMerkezi {
     this.objects = objects;
     this.physics = physics;
     this.debug = debug;
+    this.materials = materials; // Buton materyalleri için eklendi
+    this.areas = areas; // Etkileşimli alan için eklendi
 
     this.rotateX = rotateX;
     this.rotateY = rotateY;
@@ -30,6 +36,12 @@ export default class GenclikMerkezi {
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
     
+    // Web site URL'si
+    this.websiteUrl = 'https://www.calisangenclik.com/';
+    
+    // Buton konumu
+    this.buttonPosition = new THREE.Vector3(47, -37, 0);
+    
     // Collision için özel ayarları kaydet
     this.collisionPosition = collisionPosition || this.position.clone();
     this.collisionSize = collisionSize;
@@ -37,6 +49,11 @@ export default class GenclikMerkezi {
 
     this._buildModel();
     this.scene.add(this.container);
+    
+    // Etkileşimli buton ekle
+    if (this.areas && this.materials) {
+      this.setupButton();
+    }
     
     // Debug kontrolü ekle (eğer debug modu varsa)
     if (this.debug) {
@@ -152,6 +169,189 @@ export default class GenclikMerkezi {
         this.container.add(objectEntry.container);
       }
     }
+  }
+  
+  setupButton() {
+    this.button = {}
+
+    // Container
+    this.button.container = new THREE.Object3D()
+    this.button.container.position.x = this.buttonPosition.x
+    this.button.container.position.y = this.buttonPosition.y
+    this.button.container.matrixAutoUpdate = false
+    this.button.container.updateMatrix()
+    this.scene.add(this.button.container)
+
+    // Alan çerçevesi
+    if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
+      const floorBorderGeometry = new AreaFloorBorderGeometry(2, 2, 0.3)
+      this.button.floorBorder = new THREE.Mesh(
+        floorBorderGeometry,
+        this.materials.items.areaFloorBorder.clone()
+      )
+      this.button.floorBorder.matrixAutoUpdate = false
+      this.button.floorBorder.updateMatrix()
+      this.button.container.add(this.button.floorBorder)
+    }
+    
+    // Alan duvarları
+    if (this.materials && this.materials.items && this.materials.items.areaGradientTexture) {
+      const fenceGeometry = new AreaFenceGeometry(2, 2, 0.3)
+      
+      const fenceMaterial = new THREE.MeshBasicMaterial({
+        transparent: true,
+        side: THREE.DoubleSide,
+        alphaMap: this.materials.items.areaGradientTexture,
+        color: 0x4285f4
+      })
+      
+      this.button.fence = new THREE.Mesh(fenceGeometry, fenceMaterial)
+      this.button.fence.position.z = 0.15
+      this.button.fence.matrixAutoUpdate = false
+      this.button.fence.updateMatrix()
+      this.button.container.add(this.button.fence)
+    }
+
+    // Button Etiketi
+    this.createButtonLabel()
+    
+    // Başlangıçta görünür yap
+    this.button.container.visible = true
+    
+    // Buton animasyonu
+    this.animateButton()
+
+    // Etkileşimli alan ekle
+    if (this.areas) {
+      this.interactiveArea = this.areas.add({
+        position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
+        halfExtents: new THREE.Vector2(1, 1),
+        floorShadowType: 'primary',
+        debug: false
+      });
+      
+      // Bilgi paneli oluştur
+      this.infoPanel = document.createElement('div');
+      this.infoPanel.style.position = 'absolute';
+      this.infoPanel.style.bottom = '20px';
+      this.infoPanel.style.right = '20px'; // Sağ alt köşede göstermek için
+      this.infoPanel.style.transform = 'none'; // transform'u kaldır
+      this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      this.infoPanel.style.color = 'white';
+      this.infoPanel.style.padding = '15px';
+      this.infoPanel.style.borderRadius = '10px';
+      this.infoPanel.style.fontFamily = 'Arial, sans-serif';
+      this.infoPanel.style.zIndex = '1000';
+      this.infoPanel.style.display = 'none';
+      this.infoPanel.style.transition = 'opacity 0.3s ease-in-out';
+      this.infoPanel.style.textAlign = 'center';
+      this.infoPanel.style.maxWidth = '400px';
+      
+      // Bilgi paneli içeriği - Link ekle
+      this.infoPanel.innerHTML = `
+        <h3 style="margin: 0 0 10px 0; color: #4285f4;">Çalışan Gençlik Merkezi</h3>
+        <p style="margin: 0 0 10px 0;">Konya Çalışan Gençlik Meclisi, gençler için çeşitli etkinlikler ve aktiviteler düzenleyen bir organizasyondur.</p>
+        <p style="margin: 0 0 10px 0;">Projeler, etkinlikler ve haberlere web sitesinden ulaşabilirsiniz.</p>
+        <a href="${this.websiteUrl}" target="_blank" style="display: inline-block; text-decoration: none; background-color: #4285f4; color: white; padding: 8px 15px; border-radius: 5px; margin-top: 10px; font-weight: bold;">Web Sitesini Ziyaret Et</a>
+      `;
+      
+      document.body.appendChild(this.infoPanel);
+      
+      // Etkileşimli alan olayları
+      this.interactiveArea.on('in', () => {
+        // Bilgi panelini göster
+        this.infoPanel.style.display = 'block';
+        this.infoPanel.style.opacity = '0';
+        setTimeout(() => {
+          this.infoPanel.style.opacity = '1';
+        }, 10);
+      });
+      
+      this.interactiveArea.on('out', () => {
+        // Bilgi panelini gizle
+        this.infoPanel.style.opacity = '0';
+        setTimeout(() => {
+          this.infoPanel.style.display = 'none';
+        }, 300);
+      });
+      
+      // Enter tuşuna basma olayı
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && this.interactiveArea.isHovered) {
+          window.open(this.websiteUrl, '_blank');
+        }
+      });
+      
+      // Tıklama olayı
+      this.interactiveArea.on('interact', () => {
+        window.open(this.websiteUrl, '_blank');
+      });
+    }
+  }
+
+  createButtonLabel() {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = 1024
+    canvas.height = 256
+    
+    const gradient = ctx.createRadialGradient(
+      canvas.width/2, canvas.height/2, 0,
+      canvas.width/2, canvas.height/2, canvas.width/2
+    )
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
+    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
+    
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.fillStyle = 'white'
+    ctx.font = 'bold 96px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+    
+    ctx.shadowColor = '#4285f4'
+    ctx.shadowBlur = 25
+    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.magFilter = THREE.LinearFilter
+    texture.minFilter = THREE.LinearFilter
+
+    const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
+    const labelMaterial = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    })
+
+    this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+    this.button.label.position.z = 0.2
+    this.button.container.add(this.button.label)
+  }
+  
+  animateButton() {
+    const animate = () => {
+      const time = Date.now() * 0.001
+      
+      if (this.button && this.button.container) {
+        this.button.container.position.z = Math.sin(time * 2) * 0.1
+        
+        if (this.button.label) {
+          this.button.label.rotation.z = Math.sin(time) * 0.05
+        }
+        
+        if (this.button.fence) {
+          this.button.fence.material.opacity = 0.5 + Math.sin(time * 2) * 0.2
+        }
+      }
+      
+      requestAnimationFrame(animate)
+    }
+    
+    animate()
   }
   
   // Collision mesh pozisyonunu güncelle
