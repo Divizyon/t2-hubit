@@ -47,13 +47,13 @@ export default class GreenBox
         this.panelLight = null            // Panel ışığı
         this.enterHint = null             // ENTER ipucu
         
-        // ENTER ipucu elementlerini temizle
-        const existingHints = document.querySelectorAll('.enter-hint')
+        // ENTER ipucu ve hint elementlerini temizle
+        const existingHints = document.querySelectorAll('.enter-hint, .enter-key-hint');
         existingHints.forEach(hint => {
             if (hint && hint.parentNode) {
-                hint.parentNode.removeChild(hint)
+                hint.parentNode.removeChild(hint);
             }
-        })
+        });
         
         // Panel özellikleri
         this.panelProperties = {
@@ -80,53 +80,33 @@ export default class GreenBox
         // Arkaplan verileri - yeşil ekran arka plan resimleri
         this.backgrounds = [
             { 
-                id: 'mnzr1', 
-                name: 'Manzara 1', 
+                id: 'col', 
+                name: 'Çöl', 
                 color: '#e1c78f',
-                image: '/static/images/manzaralar/mnzr1.jpg',
+                image: '/col.webp',
                 fallbackImages: [
-                    '/static/mnzr1.jpg',
-                    'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+                    '/col.webp',
+                    '/images/backgrounds/col.webp'
                 ]
             },
             { 
-                id: 'mnzr2', 
-                name: 'Manzara 2', 
+                id: 'gol', 
+                name: 'Göl', 
                 color: '#87ceeb',
-                image: '/static/images/manzaralar/mnzr2.jpg',
+                image: '/gol.webp',
                 fallbackImages: [
-                    '/static/mnzr2.jpg',
-                    'https://images.unsplash.com/photo-1520942702018-0862200e6873?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+                    '/gol.webp',
+                    '/images/backgrounds/gol.webp'
                 ]
             },
             { 
-                id: 'mnzr3', 
-                name: 'Manzara 3', 
-                color: '#228b22',
-                image: '/static/images/manzaralar/mnzr3.jpg',
+                id: 'gece', 
+                name: 'Gece', 
+                color: '#000033',
+                image: '/gece.webp',
                 fallbackImages: [
-                    '/static/mnzr3.jpg',
-                    'https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ]
-            },
-            { 
-                id: 'mnzr4', 
-                name: 'Manzara 4', 
-                color: '#696969',
-                image: '/static/images/manzaralar/mnzr4.jpg',
-                fallbackImages: [
-                    '/static/mnzr4.jpg',
-                    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ]
-            },
-            { 
-                id: 'mnzr5', 
-                name: 'Manzara 5', 
-                color: '#4682b4',
-                image: '/static/images/manzaralar/mnzr5.jpg',
-                fallbackImages: [
-                    '/static/mnzr5.jpg',
-                    'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+                    '/gece.webp',
+                    '/images/backgrounds/gece.webp'
                 ]
             }
         ];
@@ -299,6 +279,47 @@ export default class GreenBox
         this.button.container.updateMatrix()
         this.container.add(this.button.container)
 
+        // projectsPanoresimFloorTexture ile zemin oluştur
+        if (this.resources && this.resources.items && this.resources.items.projectsPanoresimFloorTexture) {
+            console.log('GreenBox: Projeler floor texture ile zemin oluşturuluyor');
+            
+            // Zemin geometrisi oluştur
+            const floorGeometry = new THREE.PlaneGeometry(2, 2)
+            
+            // Zemin materyali oluştur
+            const floorMaterial = new THREE.MeshBasicMaterial({
+                map: this.resources.items.projectsPanoresimFloorTexture,
+                transparent: true,
+                opacity: 0.9
+            })
+            
+            // Zemin mesh'i oluştur
+            this.button.floor = new THREE.Mesh(floorGeometry, floorMaterial)
+            this.button.floor.rotation.x = -Math.PI * 0.5 // Yatay pozisyon
+            this.button.floor.position.z = 0.01 // Yerden hafif yüksekte
+            this.button.floor.matrixAutoUpdate = false
+            this.button.floor.updateMatrix()
+            this.button.container.add(this.button.floor)
+            
+            // Koyu renk orta panel oluştur
+            const panelGeometry = new THREE.PlaneGeometry(1.5, 1.5) // Kare şeklinde ve daha büyük
+            const panelMaterial = new THREE.MeshBasicMaterial({
+                color: 0x333333, // Koyu gri
+                transparent: true,
+                opacity: 0.8
+            })
+            
+            // Panel mesh'i oluştur
+            this.button.darkPanel = new THREE.Mesh(panelGeometry, panelMaterial)
+            this.button.darkPanel.rotation.x = -Math.PI * 0.5 // Yatay pozisyon
+            this.button.darkPanel.position.z = 0.02 // Zeminden biraz daha yüksekte
+            this.button.darkPanel.matrixAutoUpdate = false
+            this.button.darkPanel.updateMatrix()
+            this.button.container.add(this.button.darkPanel)
+        } else {
+            console.warn('GreenBox: projectsPanoresimFloorTexture bulunamadı');
+        }
+
         // Alan çerçevesi (AreaFloorBorderGeometry kullanarak)
         if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
             console.log('GreenBox: floorBorder oluşturuluyor');
@@ -350,79 +371,139 @@ export default class GreenBox
 
     createButtonLabel()
     {
-        // Canvas ile etiket oluştur
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        canvas.width = 512 // Daha yüksek çözünürlük
-        canvas.height = 256
+        // 3D Text için konteyner oluştur
+        this.button.labelContainer = new THREE.Object3D()
+        this.button.labelContainer.position.z = 0.3
+        this.button.container.add(this.button.labelContainer)
         
-        // Arkaplan (buton üzerinde daha belirgin olması için)
-        const gradient = ctx.createRadialGradient(
-            canvas.width/2, canvas.height/2, 0,
-            canvas.width/2, canvas.height/2, canvas.width/2
-        )
-        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
-        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
         
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // "ENTER" metni - Daha küçük yazı tipi
-        ctx.fillStyle = 'white'
-        ctx.font = 'bold 48px Arial' // Küçültüldü (64px -> 48px)
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('ENTER', canvas.width/2, canvas.height/2)
         
-        // Yazı etrafına glow efekti
-        ctx.shadowColor = '#4285f4'
-        ctx.shadowBlur = 15 // Azaltıldı (20 -> 15)
-        ctx.fillText('ENTER', canvas.width/2, canvas.height/2)
-
-        // Texture oluştur
-        const texture = new THREE.CanvasTexture(canvas)
-        texture.magFilter = THREE.LinearFilter
-        texture.minFilter = THREE.LinearFilter
-
-        // Etiket mesh'i oluştur - Boyutu küçültüldü
-        const labelGeometry = new THREE.PlaneGeometry(1.5, 0.6) // Küçültüldü (2.5, 1 -> 1.5, 0.6)
-        const labelMaterial = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            depthWrite: false,
-            side: THREE.DoubleSide // Her iki taraftan da görünür
-        })
-
-        this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
-        this.button.label.position.z = 0.2 // Yükseklik azaltıldı (0.3 -> 0.2)
-        this.button.container.add(this.button.label)
+        // Texture ile buton oluştur
+        this.setupButtonWithTexture = (texture) => {
+            texture.magFilter = THREE.LinearFilter
+            texture.minFilter = THREE.LinearFilter
+            
+            // Etiket mesh'i oluştur
+            const labelGeometry = new THREE.PlaneGeometry(1.2, 1.2) // Kare şeklinde ve büyük
+            const labelMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            })
+            
+            this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+            this.button.label.position.z = 0.025 // Koyu panelin biraz üzerinde
+            this.button.label.rotation.x = -Math.PI * 0.5 // Yatay pozisyon, panelle aynı düzlemde
+            this.button.labelContainer.add(this.button.label)
+            
+            // Label konteynerini matris güncellemesini manuel yap
+            this.button.labelContainer.matrixAutoUpdate = false
+            this.button.labelContainer.updateMatrix()
+        }
+        
+        // Yedek olarak canvas ile oluştur - görseller yüklenemezse
+        this.createFallbackEnterCanvas = () => {
+            // "ENTER" simgesi için canvas oluştur - Büyük boyutlu
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            canvas.width = 512
+            canvas.height = 512 // Daha kare şeklinde
+            
+            // Canvas'ı temizle (şeffaf)
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            
+            // 90 derece döndürülmüş içerik için tüm canvas'ı döndür
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(Math.PI/2); // 90 derece döndür
+            
+            // Enter tuşu simgesi - büyütülmüş
+            const keySize = 280; // Daha büyük
+            const keyX = 0; // Merkezde
+            const keyY = 0; // Merkezde
+            
+            // Tuş çerçevesi - hafif yuvarlak köşeli dikdörtgen
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 4;
+            
+            // Yuvarlak köşeli tuş çerçevesi çiz
+            const cornerRadius = 8;
+            const width = keySize;
+            const height = keySize * 0.6;
+            const x = keyX - width/2;
+            const y = keyY - height/2;
+            
+            ctx.beginPath();
+            ctx.moveTo(x + cornerRadius, y);
+            ctx.lineTo(x + width - cornerRadius, y);
+            ctx.arcTo(x + width, y, x + width, y + cornerRadius, cornerRadius);
+            ctx.lineTo(x + width, y + height - cornerRadius);
+            ctx.arcTo(x + width, y + height, x + width - cornerRadius, y + height, cornerRadius);
+            ctx.lineTo(x + cornerRadius, y + height);
+            ctx.arcTo(x, y + height, x, y + height - cornerRadius, cornerRadius);
+            ctx.lineTo(x, y + cornerRadius);
+            ctx.arcTo(x, y, x + cornerRadius, y, cornerRadius);
+            ctx.stroke();
+            
+            // Tuş içinde Enter ok simgesi
+            const arrowSize = keySize * 0.4;
+            const arrowX = keyX;
+            const arrowY = keyY;
+            
+            // L şeklindeki ok
+            ctx.lineWidth = 5;
+            
+            // Yatay çizgi
+            ctx.beginPath();
+            ctx.moveTo(arrowX - arrowSize/3, arrowY);
+            ctx.lineTo(arrowX + arrowSize/3, arrowY);
+            ctx.stroke();
+            
+            // Dikey çizgi
+            ctx.beginPath();
+            ctx.moveTo(arrowX - arrowSize/3, arrowY);
+            ctx.lineTo(arrowX - arrowSize/3, arrowY - arrowSize/2);
+            ctx.stroke();
+            
+            // Ok başı
+            ctx.beginPath();
+            ctx.moveTo(arrowX + arrowSize/3 - arrowSize/6, arrowY - arrowSize/8);
+            ctx.lineTo(arrowX + arrowSize/3 - arrowSize/6, arrowY + arrowSize/8);
+            ctx.lineTo(arrowX + arrowSize/3, arrowY);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Canvas döndürme işlemini geri al
+            ctx.restore();
+            
+            // Texture oluştur
+            const texture = new THREE.CanvasTexture(canvas)
+            this.setupButtonWithTexture(texture)
+        }
     }
     
     animateButton()
     {
-        // Butonun yüksekliğini hafifçe değiştiren animasyon
+        // Butonun yüksekliğini çok hafifçe değiştiren animasyon
         const animate = () => {
             const time = Date.now() * 0.001 // saniye cinsinden
             
             if (this.button && this.button.container) {
-                // Buton yükseklik animasyonu
-                this.button.container.position.z = Math.sin(time * 2) * 0.1
+                // Buton yükseklik animasyonu - çok daha hafif
+                this.button.container.position.z = Math.sin(time * 1.5) * 0.05;
                 
-                // Buton dönme animasyonu
-                if (this.button.label) {
-                    this.button.label.rotation.z = Math.sin(time) * 0.05 // Daha az sallanma
-                }
-                
-                // Alan görsellerini güncelle
+                // Alan görsellerini güncelle - biraz daha az sallanma
                 if (this.button.fence) {
-                    this.button.fence.material.opacity = 0.5 + Math.sin(time * 2) * 0.2
+                    this.button.fence.material.opacity = 0.6 + Math.sin(time * 1.5) * 0.1;
                 }
             }
             
-            requestAnimationFrame(animate)
+            requestAnimationFrame(animate);
         }
         
-        animate()
+        animate();
     }
 
     setupInteractiveArea()
@@ -448,12 +529,11 @@ export default class GreenBox
             
             // Buton hover etkisi - araç içeri girdiğinde
             this.interactiveArea.on('in', () => {
-                // Buton hover efekti - mesh yerine label ve fence kullan
-                if (this.button && this.button.label) {
-                    gsap.to(this.button.label.position, { 
-                        z: 0.5, // Yükselme efekti
-                        duration: 0.3,
-                        ease: 'power2.out'
+                // Koyu panel parlaklık artışı
+                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
+                    gsap.to(this.button.darkPanel.material, {
+                        opacity: 1.0,
+                        duration: 0.3
                     });
                 }
                 
@@ -466,18 +546,15 @@ export default class GreenBox
                         duration: 0.3
                     });
                 }
-                
-                // Enter ipucunu göstermeyi kaldırdık
             });
             
             // Buton hover çıkışı - araç dışarı çıktığında
             this.interactiveArea.on('out', () => {
-                // Buton hover çıkış efekti
-                if (this.button && this.button.label) {
-                    gsap.to(this.button.label.position, { 
-                        z: 0.3, // Normal yükseklik
-                        duration: 0.3,
-                        ease: 'power2.out'
+                // Koyu panel normale dönüş
+                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
+                    gsap.to(this.button.darkPanel.material, {
+                        opacity: 0.8,
+                        duration: 0.3
                     });
                 }
                 
@@ -493,6 +570,18 @@ export default class GreenBox
                 
                 // İpucunu kaldır metodu artık çalışmayacak
                 this.hideEnterHint();
+                
+                // Araba Green Box'tan çıktığında, arka planı orijinal yeşil rengine geri döndür
+                // Eğer bir resim uygulanmışsa
+                if (this.currentAppliedImage) {
+                    console.log('Araba Green Box\'tan çıktı, orijinal yeşil renge dönülüyor...');
+                    
+                    // Orijinal arka plan rengine geri dönme animasyonu
+                    this.resetBackground();
+                    
+                    // Uygulanan resmi sıfırla
+                    this.currentAppliedImage = null;
+                }
             });
         } else {
             console.warn('GreenBox: Areas bulunamadı, interactiveArea oluşturulamıyor');
@@ -502,11 +591,11 @@ export default class GreenBox
     setupPopupImage()
     {
         this.popup = {}
-        this.popup.visible = false
+        this.popup.visible = false;
         this.popup.selectedImage = null;
         this.popup.currentIndex = 0; // Aktif görünen kartın indeksi
 
-        // HTML Popup oluştur (3D yerine) - Çerçevesiz tasarım
+        // HTML Popup oluştur - Bej renkli tasarım
         const popupHTML = document.createElement('div');
         popupHTML.className = 'popup-container';
         popupHTML.style.cssText = `
@@ -514,325 +603,226 @@ export default class GreenBox
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0);
-            border-radius: 15px;
+            background: rgba(230, 219, 197, 0.95);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
-            box-shadow: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.5);
             z-index: 1000;
-            padding: 15px;
+            padding: 28px;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s, transform 0.3s;
-            width: 600px;
-            height: 480px;
-            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 320px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
         `;
 
-        // Kaydırılabilir container
-        const carouselContainer = document.createElement('div');
-        carouselContainer.style.cssText = `
+        // Popup başlığı
+        const popupTitle = document.createElement('h2');
+        popupTitle.textContent = 'Arkaplan Seçimi';
+        popupTitle.style.cssText = `
+            color: rgba(90, 70, 40, 0.95);
+            margin: 0 0 20px 0;
+            padding: 0;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+        popupHTML.appendChild(popupTitle);
+
+        // Alt alta resimler için konteyner
+        const imagesContainer = document.createElement('div');
+        imagesContainer.style.cssText = `
             width: 100%;
-            height: 100%;
-            position: relative;
             display: flex;
+            flex-direction: column;
+            gap: 20px;
             align-items: center;
-            justify-content: center;
-            background: transparent;
         `;
         
-        // Manzara resimleri - çoklu alternatif yollar deneyerek
-        const manzaralar = [
-            { 
-                id: 'mnzr1', 
-                image: '/static/images/manzaralar/mnzr1.jpg',
-                fallbackImages: [
-                    '/static/mnzr1.jpg',
-                    'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ] 
-            },
-            { 
-                id: 'mnzr2', 
-                image: '/static/images/manzaralar/mnzr2.jpg',
-                fallbackImages: [
-                    '/static/mnzr2.jpg',
-                    'https://images.unsplash.com/photo-1520942702018-0862200e6873?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ] 
-            },
-            { 
-                id: 'mnzr3', 
-                image: '/static/images/manzaralar/mnzr3.jpg',
-                fallbackImages: [
-                    '/static/mnzr3.jpg',
-                    'https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ] 
-            },
-            { 
-                id: 'mnzr4', 
-                image: '/static/images/manzaralar/mnzr4.jpg',
-                fallbackImages: [
-                    '/static/mnzr4.jpg',
-                    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ] 
-            },
-            { 
-                id: 'mnzr5', 
-                image: '/static/images/manzaralar/mnzr5.jpg',
-                fallbackImages: [
-                    '/static/mnzr5.jpg',
-                    'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-                ] 
-            }
-        ];
+        // Bej renk tonu ve aksan rengi
+        const bejRenk = 'rgba(165, 145, 105, 0.8)';
         
-        // Tüm kartları tutan dizi
-        const allCards = [];
+        // Tüm resim elementlerini tutan dizi
+        const allImageElements = [];
         
-        // Sürükleme ve scroll için değişkenler
-        let isDragging = false;
-        let startY = 0;
-        let startIndex = 0;
-        
-        // Her manzara için card oluştur
-        manzaralar.forEach((manzara, index) => {
-            // Resim kartı - sadeleştirilmiş tasarım
+        // Her arkaplan için resim oluştur
+        this.backgrounds.forEach((background, index) => {
+            // Resim kartı wrapper - içinde sadece image olacak, label kaldırıldı
+            const cardWrapper = document.createElement('div');
+            cardWrapper.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            `;
+            
+            // Resim kartı - daha kare şeklinde
             const card = document.createElement('div');
-            card.className = 'manzara-card';
-            card.dataset.id = manzara.id;
+            card.className = 'manzara-item';
+            card.dataset.id = background.id;
             card.dataset.index = index;
             card.style.cssText = `
-                position: absolute;
-                width: 420px;
-                background-color: #333;
-                border-radius: 12px;
+                position: relative;
+                width: 220px;
+                height: 180px;
+                background-color: transparent;
+                border-radius: 8px;
                 overflow: hidden;
                 cursor: pointer;
-                transition: all 0.4s ease;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-                transform: translateY(${index === 0 ? '-180px' : (index === 1 ? '0' : '180px')}) scale(${index === 1 ? 1 : 0.8});
-                opacity: ${index === 1 ? 1 : 0.6};
-                z-index: ${index === 1 ? 3 : (index < 1 ? 2 : 1)};
-                ${index > 2 ? 'display: none;' : ''}
+                transition: all 0.2s ease;
+                transform: scale(1);
+                border: 3px solid ${index === 0 ? 'rgba(230, 219, 197, 0.95)' : bejRenk};
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             `;
             
-            // Mouse ile tıklama işlevini kaldırıyoruz, sadece Enter tuşu ile seçim yapılabilecek
-            card.addEventListener('click', () => {
-                // Eğer sürükleme esnasında tıklanmışsa, normal tıklama olarak değerlendirme
-                if (isDragging) return;
-                
-                // Tıklamalar sadece navigasyon için kullanılacak
-                if (parseInt(card.dataset.index) === this.popup.currentIndex) {
-                    // Üstteki karta tıklandığında yukarı kay
-                    this.navigateCarousel('prev');
-                } 
-                else if (parseInt(card.dataset.index) === this.popup.currentIndex + 2) {
-                    // Alttaki karta tıklandığında aşağı kay
-                    this.navigateCarousel('next');
-                }
-                // Ortadaki karta tıklama işlevi kaldırıldı - sadece Enter tuşu ile seçim
+            // Hover efekti
+            card.addEventListener('mouseover', () => {
+                card.style.transform = 'scale(1.02)';
+                card.style.border = `3px solid ${bejRenk}`;
+                card.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.3)';
             });
             
-            // Resim - tam kart boyutunda
-            const image = document.createElement('div');
-            image.style.cssText = `
-                width: 100%;
-                height: 270px;
-                background-image: url('${manzara.image}');
-                background-size: cover;
-                background-position: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: transparent;
-                font-size: 0;
-            `;
+            card.addEventListener('mouseout', () => {
+                card.style.transform = 'scale(1)';
+                if (this.popup.currentIndex !== index) {
+                    card.style.border = '3px solid rgba(255, 255, 240, 0.4)';
+                } else {
+                    card.style.border = `3px solid ${bejRenk}`;
+                }
+                card.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+            });
             
-            // Alternatif olarak img elementi de ekleyelim
-            const imgElement = document.createElement('img');
-            imgElement.src = manzara.image;
-            imgElement.alt = `Manzara ${manzara.id}`;
-            imgElement.style.cssText = `
+            // Mouse ile tıklama - Direkt uygula
+            card.addEventListener('click', () => {
+                // Tüm seçimleri temizle
+                allImageElements.forEach(elem => {
+                    elem.style.border = '3px solid rgba(255, 255, 240, 0.4)';
+                });
+                
+                // Bu kartı seç
+                card.style.border = `3px solid ${bejRenk}`;
+                this.popup.currentIndex = index;
+                
+                // Seçilen manzarayı direkt uygula
+                this.popup.selectedImage = background;
+                
+                // Onay animasyonu - checkmark göster
+                const successOverlay = document.createElement('div');
+                successOverlay.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(165, 145, 105, 0.4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                    z-index: 2;
+                `;
+                
+                const checkmark = document.createElement('div');
+                checkmark.style.cssText = `
+                    width: 40px;
+                    height: 40px;
+                    background-color: rgba(165, 145, 105, 1);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 24px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                    transform: scale(0);
+                    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                `;
+                checkmark.innerHTML = '✓';
+                successOverlay.appendChild(checkmark);
+                card.appendChild(successOverlay);
+                
+                // Göster ve sonra kaybol
+                setTimeout(() => {
+                    successOverlay.style.opacity = '1';
+                    checkmark.style.transform = 'scale(1)';
+                }, 10);
+                
+                // Seçilen manzarayı uygula
+                const selectedBackground = this.backgrounds[index];
+                console.log('GreenBox: Seçilen manzara:', selectedBackground.id);
+                
+                this.popup.selectedImage = selectedBackground;
+                this.changeBackgroundImage(selectedBackground);
+                
+                // Arabayı ışınla
+                setTimeout(() => {
+                    this.teleportCarToGreenBox();
+                }, 400);
+                
+                // Popup'ı kapat
+                setTimeout(() => {
+                    this.hidePopup();
+                }, 600);
+            });
+            
+            // Resim - Daha büyük ve kare şeklinde, direk kart içine
+            const image = document.createElement('img');
+            image.src = background.image;
+            image.alt = background.name;
+            image.style.cssText = `
                 position: absolute;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                display: block;
                 z-index: 1;
             `;
             
-            // Fallback mekanizması için tüm alternatifleri deneyelim
-            let currentFallbackIndex = 0;
-            
-            imgElement.onerror = () => {
-                if (manzara.fallbackImages && currentFallbackIndex < manzara.fallbackImages.length) {
-                    imgElement.src = manzara.fallbackImages[currentFallbackIndex];
-                    currentFallbackIndex++;
-                } else {
-                    imgElement.style.display = 'none';
-                    image.style.backgroundColor = '#333';
-                    image.innerHTML += '<div style="color:white;padding:10px;">Manzara resmi</div>';
-                }
+            // Hata durumunda düz renk göster
+            image.onerror = () => {
+                // Sadece resim kısmı görünsün
+                image.style.display = 'none';
+                const errorBox = document.createElement('div');
+                errorBox.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: ${background.color};
+                    z-index: 1;
+                `;
+                card.appendChild(errorBox);
             };
             
-            imgElement.onload = () => {
-            };
-            
-            image.appendChild(imgElement);
-            
-            // Onay işareti ikonu
-            const checkIcon = document.createElement('div');
-            checkIcon.className = 'check-icon';
-            checkIcon.style.cssText = `
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                background-color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                transition: opacity 0.2s;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            `;
-            
-            // Tik işareti
-            const check = document.createElement('div');
-            check.style.cssText = `
-                width: 14px;
-                height: 14px;
-                border-radius: 50%;
-                background-color: #2ecc71;
-            `;
-            checkIcon.appendChild(check);
-            
+            // Tüm elemanları bir araya getir - Burada imgContainer kullanmıyoruz
             card.appendChild(image);
-            card.appendChild(checkIcon);
-            carouselContainer.appendChild(card);
+            cardWrapper.appendChild(card);
+            imagesContainer.appendChild(cardWrapper);
             
-            // Kartı diziye ekle
-            allCards.push(card);
+            // Referans için diziye ekle - sadece card
+            allImageElements.push(card);
         });
         
-        // Sürükleme ve scroll özelliği ekle
-        carouselContainer.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startY = e.clientY;
-            startIndex = this.popup.currentIndex;
-            carouselContainer.style.cursor = 'grabbing';
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !this.popup.visible) return;
-            
-            const deltaY = e.clientY - startY;
-            const sensitivity = 20; // Daha küçük değer = daha hassas sürükleme
-            
-            if (deltaY > sensitivity) {
-                this.navigateCarousel('prev');
-                isDragging = false;
-            } else if (deltaY < -sensitivity) {
-                this.navigateCarousel('next');
-                isDragging = false;
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            if (this.popup.visible) {
-                carouselContainer.style.cursor = 'default';
-            }
-        });
-        
-        // Scroll özelliği ekle
-        carouselContainer.addEventListener('wheel', (e) => {
-            if (!this.popup.visible) return;
-            
-            // Wheel event'inin sayfa zoomunu tetiklemesini engelle
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Yukarı scroll ise prev, aşağı scroll ise next
-            if (e.deltaY < 0) {
-                this.navigateCarousel('prev');
-            } else {
-                this.navigateCarousel('next');
-            }
-        }, { passive: false });
-        
-        // Sayfa zoom'unu engelle (dokunmatik cihazlar için)
-        popupHTML.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-        
-        // Sayfa zoom'unu engelle (klavye için)
-        popupHTML.addEventListener('keydown', (e) => {
-            // Ctrl+'+', Ctrl+'-' gibi zoom kısayollarını engelle
-            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) {
-                e.preventDefault();
-            }
-        });
-        
-        // Gezinme metodunu ekle
-        this.navigateCarousel = (direction) => {
-            // Toplam kart sayısı
-            const totalCards = manzaralar.length;
-            
-            // Mevcut indeksi güncelle - döngülü navigasyon
-            if (direction === 'next') {
-                // Son elemana geldiysek başa dön
-                if (this.popup.currentIndex >= totalCards - 3) {
-                    this.popup.currentIndex = 0;
-                } else {
-                    this.popup.currentIndex++;
-                }
-            } else if (direction === 'prev') {
-                // İlk elemana geldiysek sona dön
-                if (this.popup.currentIndex <= 0) {
-                    this.popup.currentIndex = totalCards - 3;
-                } else {
-                    this.popup.currentIndex--;
-                }
-            }
-            
-            // Tüm kartları güncelle
-            allCards.forEach((card, i) => {
-                const relativeIndex = i - this.popup.currentIndex;
-                const wrappedIndex = (relativeIndex + totalCards) % totalCards; // Döngüsel indeks
-                
-                // Görünürlük durumunu ayarla (0, 1, 2 konumlarındakiler görünür)
-                if (wrappedIndex >= 0 && wrappedIndex <= 2) {
-                    card.style.display = 'block';
-                    
-                    // Pozisyon
-                    card.style.transform = `translateY(${wrappedIndex === 0 ? '-180px' : (wrappedIndex === 1 ? '0' : '180px')}) scale(${wrappedIndex === 1 ? 1 : 0.8})`;
-                    
-                    // Opaklık
-                    card.style.opacity = wrappedIndex === 1 ? 1 : 0.6;
-                    
-                    // z-index
-                    card.style.zIndex = wrappedIndex === 1 ? 3 : (wrappedIndex < 1 ? 2 : 1);
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        };
-        
-        // Tüm öğeleri ekle
-        popupHTML.appendChild(carouselContainer);
+        popupHTML.appendChild(imagesContainer);
         
         // Popup'ı sayfaya ekle
         document.body.appendChild(popupHTML);
         
         // Popup referansını sakla
         this.popup.htmlElement = popupHTML;
+        this.popup.imageElements = allImageElements;
     }
 
     setupKeyboardEvents()
@@ -865,56 +855,89 @@ export default class GreenBox
         });
     }
     
-    // Mevcut görünen kartı seç
+    // Enter tuşuna basılınca en üstteki resmi seç
     selectCurrentCard() {
         if (!this.popup.visible) return;
         
-        console.log('Enter tuşuna basıldı, ortadaki kart seçiliyor...');
+        console.log('GreenBox: Enter tuşuna basıldı, en üstteki kart seçiliyor...');
         
-        // Merkezi görünen kartın indeksi (popup.currentIndex + 1)
-        const currentIndex = this.popup.currentIndex + 1;
+        // En üstteki resim (index 0)
+        const currentIndex = this.popup.currentIndex || 0;
         
-        // Ortadaki kartın manzarasını bulalım
-        if (currentIndex >= 0 && currentIndex < this.backgrounds.length) {
-            const selectedManzara = this.backgrounds[currentIndex];
-            console.log('Seçilen manzara:', selectedManzara.id);
+        // Tüm seçimleri temizle
+        this.popup.imageElements.forEach(elem => {
+            elem.style.border = '3px solid rgba(255, 255, 240, 0.4)';
+        });
+        
+        // İlk kartı seç
+        if (this.popup.imageElements[currentIndex]) {
+            const card = this.popup.imageElements[currentIndex];
+            card.style.border = '3px solid rgba(165, 145, 105, 0.8)';
+            this.popup.currentIndex = currentIndex;
             
-            // Popup'daki kartları bulalım
-            const allCards = document.querySelectorAll('.manzara-card');
+            // Onay animasyonu - checkmark göster
+            const successOverlay = document.createElement('div');
+            successOverlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(165, 145, 105, 0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 2;
+            `;
             
-            // Tüm kartlarda tik işaretini kaldır
-            allCards.forEach(card => {
-                if (card.querySelector('.check-icon')) {
-                    card.querySelector('.check-icon').style.opacity = '0';
-                }
-            });
+            const checkmark = document.createElement('div');
+            checkmark.style.cssText = `
+                width: 40px;
+                height: 40px;
+                background-color: rgba(165, 145, 105, 1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 24px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                transform: scale(0);
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            `;
+            checkmark.innerHTML = '✓';
+            successOverlay.appendChild(checkmark);
+            card.appendChild(successOverlay);
             
-            // Ortadaki kartın tik işaretini göster
-            allCards.forEach(card => {
-                if (parseInt(card.dataset.index) === currentIndex) {
-                    if (card.querySelector('.check-icon')) {
-                        card.querySelector('.check-icon').style.opacity = '1';
-                    }
-                }
-            });
+            // Göster ve sonra kaybol
+            setTimeout(() => {
+                successOverlay.style.opacity = '1';
+                checkmark.style.transform = 'scale(1)';
+            }, 10);
             
             // Seçilen manzarayı uygula
-            this.popup.selectedImage = selectedManzara;
-            this.changeBackgroundImage(selectedManzara);
+            const selectedBackground = this.backgrounds[currentIndex];
+            console.log('GreenBox: Seçilen manzara:', selectedBackground.id);
+            
+            this.popup.selectedImage = selectedBackground;
+            this.changeBackgroundImage(selectedBackground);
             
             // Arabayı ışınla
             setTimeout(() => {
                 this.teleportCarToGreenBox();
-            }, 500);
+            }, 400);
             
             // Popup'ı kapat
             setTimeout(() => {
                 this.hidePopup();
-            }, 200);
+            }, 600);
             
             return true;
         } else {
-            console.error('Geçersiz kart indeksi:', currentIndex);
+            console.error('GreenBox: selectCurrentCard - imageElements bulunamadı');
             return false;
         }
     }
@@ -940,18 +963,16 @@ export default class GreenBox
         // Araç çerçeve içinde mi?
         return distance < interactionRadius;
     }
-    
-    togglePopup()
-    {
+
+    togglePopup() {
         if (this.popup.visible) {
-            this.hidePopup()
+            this.hidePopup();
         } else {
-            this.showPopup()
+            this.showPopup();
         }
     }
-    
-    showPopup()
-    {
+
+    showPopup() {
         this.popup.visible = true;
         
         // HTML popup'ı göster
@@ -959,9 +980,6 @@ export default class GreenBox
             this.popup.htmlElement.style.visibility = 'visible';
             this.popup.htmlElement.style.opacity = '1';
             this.popup.htmlElement.style.transform = 'translate(-50%, -50%) scale(1)';
-            
-            // Enter tuşu kullanım hatırlatıcısı ekle
-            this.addEnterKeyHint();
             
             // Arka plandaki oyun etkileşimini engelle
             this.createGameBlocker();
@@ -972,7 +990,7 @@ export default class GreenBox
             // HTML element bulunamadı
         }
     }
-    
+
     // Enter tuşu kullanım hatırlatıcısı ekle
     addEnterKeyHint() {
         // Önceki bir ipucu varsa kaldır
@@ -1008,19 +1026,13 @@ export default class GreenBox
         `;
         document.head.appendChild(style);
         
-        // İpucu metni
-        enterHint.innerHTML = `
-            <strong>Seçim yapmak için ENTER tuşuna basın</strong><br>
-            <small>Gezinmek için ↑↓ ok tuşlarını kullanın</small>
-        `;
-        
         // Sayfaya ekle
         document.body.appendChild(enterHint);
         
         // Referansı sakla
         this.enterKeyHint = enterHint;
     }
-    
+
     // Enter tuşu ipucunu kaldır
     removeEnterKeyHint() {
         if (this.enterKeyHint && this.enterKeyHint.parentNode) {
@@ -1028,9 +1040,8 @@ export default class GreenBox
             this.enterKeyHint = null;
         }
     }
-    
-    hidePopup()
-    {
+
+    hidePopup() {
         this.popup.visible = false;
         
         // HTML popup'ı gizle
@@ -1039,8 +1050,13 @@ export default class GreenBox
             this.popup.htmlElement.style.opacity = '0';
             this.popup.htmlElement.style.transform = 'translate(-50%, -50%) scale(0.8)';
             
-            // Enter tuşu ipucunu kaldır
-            this.removeEnterKeyHint();
+            // Tüm Enter ipuçlarını kaldır
+            const enterHints = document.querySelectorAll('.enter-hint, .enter-key-hint');
+            enterHints.forEach(hint => {
+                if (hint && hint.parentNode) {
+                    hint.parentNode.removeChild(hint);
+                }
+            });
             
             // Oyun etkileşim engelleyicisini kaldır
             this.removeGameBlocker();
@@ -1049,12 +1065,12 @@ export default class GreenBox
             this.enableCarControls();
         }
     }
-    
+
     // Enter tuşu ipucunu göster - İşlevsiz hale getirildi
     showEnterHint() {
         // İpucu özelliği kaldırıldı
     }
-    
+
     // Enter tuşu ipucunu gizle
     hideEnterHint() {
         if (this.enterHint) {
@@ -1069,9 +1085,8 @@ export default class GreenBox
             }, 300);
         }
     }
-    
-    createGameBlocker() 
-    {
+
+    createGameBlocker() {
         // Eğer zaten bir blocker varsa, tekrar oluşturma
         if (this.gameBlocker) return;
         
@@ -1099,9 +1114,8 @@ export default class GreenBox
         
         document.body.appendChild(this.gameBlocker);
     }
-    
-    removeGameBlocker() 
-    {
+
+    removeGameBlocker() {
         // Eğer game blocker varsa kaldır
         if (this.gameBlocker && this.gameBlocker.parentNode) {
             document.body.removeChild(this.gameBlocker);
@@ -1220,8 +1234,8 @@ export default class GreenBox
     }
     
     // Seçilen görüntüyü Green Box panellerine uygula
-    applyImageToGreenBox(manzara) {
-        console.log('Green Box panellerine resim uygulanıyor:', manzara.id);
+    applyImageToGreenBox(background) {
+        console.log('Green Box panellerine resim uygulanıyor:', background.id);
         
         // Panel yoksa ilk önce panelleri oluştur
         if (this.manualPanels.length === 0) {
@@ -1233,7 +1247,7 @@ export default class GreenBox
         if (this.manualPanels.length > 0) {
             console.log(`${this.manualPanels.length} panel bulundu, texture yükleniyor...`);
             // Texture yükle
-            this.loadTextureForPanels(manzara);
+            this.loadTextureForPanels(background);
             
             // Ekstra güvenlik - resimleri 3D ortamda daha görünür kılmak için bir kez daha kontrol et
             setTimeout(() => {
@@ -1247,7 +1261,7 @@ export default class GreenBox
                 
                 if (!textureApplied) {
                     console.warn('Texture uygulaması başarısız olabilir, tekrar deneniyor...');
-                    this.loadTextureForPanels(manzara);
+                    this.loadTextureForPanels(background);
                 }
             }, 300);
             
@@ -1287,7 +1301,7 @@ export default class GreenBox
             side: THREE.DoubleSide // Her iki taraftan da görünür
         });
         
-        // Siyah yüzeylere uygun panel pozisyonları
+        // Siyah yüzeylere uygun panel pozisyonları - rotasyonları düzeltilmiş
         const panelConfigs = [
             // Arka panel (Z eksenine dik, Green Box'ın arkasında)
             {
@@ -1335,6 +1349,10 @@ export default class GreenBox
             
             // Panel listesine ekle
             this.manualPanels.push(panel);
+            
+            // Panel transform matrisi güncelle
+            panel.updateMatrix();
+            panel.updateMatrixWorld(true);
         });
         
         // Panel ışığı ekle (yüzeylerin daha iyi görünmesi için)
@@ -1380,106 +1398,134 @@ export default class GreenBox
     }
     
     // Paneller için texture yükle
-    loadTextureForPanels(manzara) {
+    loadTextureForPanels(background) {
         // Önceki uygulanmış resmi kaydet
-        this.currentAppliedImage = manzara;
+        this.currentAppliedImage = background;
         
         // Texture önbellekte var mı kontrol et
-        if (this.textureCache[manzara.id]) {
-            console.log('Texture önbellekten yükleniyor:', manzara.id);
-            this.applyTextureToAllPanels(this.textureCache[manzara.id]);
+        if (this.textureCache[background.id]) {
+            console.log('Texture önbellekten yükleniyor:', background.id);
+            this.applyTextureToAllPanels(this.textureCache[background.id]);
             return;
         }
         
-        // Yeni texture yükle
-        const textureLoader = new THREE.TextureLoader();
-        
-        // Ana resmi yüklemeyi dene
-        this.loadImageWithFallback(manzara, 0);
+        // Texture'ı yükle ve terse çevir
+        this.loadImageWithFallback(background, 0);
     }
     
-    // Fallback ile görsel yükleme
-    loadImageWithFallback(manzara, fallbackIndex = 0) {
+    // Texture'ı yükle ve terse çevir
+    loadImageWithFallback(background, fallbackIndex = 0) {
         // Kullanılacak görsel URL'si
-        let imageUrl = manzara.image;
+        let imageUrl = background.image;
         
         // Eğer fallback indeksi varsa ve fallbackImages dizisi tanımlanmışsa
-        if (fallbackIndex > 0 && manzara.fallbackImages && manzara.fallbackImages.length >= fallbackIndex) {
-            imageUrl = manzara.fallbackImages[fallbackIndex - 1];
+        if (fallbackIndex > 0 && background.fallbackImages && background.fallbackImages.length >= fallbackIndex) {
+            imageUrl = background.fallbackImages[fallbackIndex - 1];
         }
         
-        // Görsel yükleme
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.crossOrigin = 'anonymous';
+        console.log('Görsel yükleme deneniyor:', imageUrl);
         
-        textureLoader.load(
-            imageUrl,
-            (texture) => {
-                console.log('Texture yüklendi:', imageUrl);
+        // Önce HTML Image elementiyle resmin yüklenip yüklenemediğini test edelim
+        const testImage = new Image();
+        testImage.onload = () => {
+            console.log(`Test Image başarıyla yüklendi: ${imageUrl} (${testImage.width}x${testImage.height})`);
+            
+            // Resmi ters çeviren canvas işlemi
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Canvas boyutunu ayarla
+            canvas.width = testImage.width;
+            canvas.height = testImage.height;
+            
+            // Resmi canvas'a çiz ve ters çevir - 180 derece döndür
+            ctx.translate(canvas.width, canvas.height);
+            ctx.rotate(Math.PI); // 180 derece
+            ctx.drawImage(testImage, 0, 0, canvas.width, canvas.height);
+            
+            // Canvas'tan texture oluştur
+            const canvasTexture = new THREE.CanvasTexture(canvas);
+            canvasTexture.needsUpdate = true;
+            
+            // Texture'ı kaydedip panellere uygula
+            this.textureCache[background.id] = canvasTexture;
+            
+            // Yeni materyali oluştur
+            const newMaterial = new THREE.MeshBasicMaterial({
+                map: canvasTexture,
+                side: THREE.FrontSide
+            });
+            
+            // Materyali uygula
+            this.applyMaterialWithTransition(newMaterial);
+        };
+        
+        testImage.onerror = () => {
+            console.error(`Test Image yüklenemedi: ${imageUrl}`);
+            
+            // Fallback görsellerini dene
+            const maxFallbackIndex = background.fallbackImages ? background.fallbackImages.length : 0;
+            
+            if (fallbackIndex < maxFallbackIndex) {
+                console.log(`Alternatif görsel deneniyor (${fallbackIndex + 1}/${maxFallbackIndex})...`);
+                this.loadImageWithFallback(background, fallbackIndex + 1);
+            } else {
+                console.error('Tüm görseller yüklenemedi, düz renk kullanılıyor');
                 
-                // Texture ayarları
-                texture.magFilter = THREE.LinearFilter;
-                texture.minFilter = THREE.LinearFilter;
-                
-                // Texture önbelleğe kaydet
-                this.textureCache[manzara.id] = texture;
-                
-                // Yeni materyal oluştur
-                const newMaterial = new THREE.MeshBasicMaterial({
-                    map: texture,
+                // Hiçbir resim yüklenemezse, düz renk kullan
+                const fallbackMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(background.color || '#333333'),
                     side: THREE.FrontSide
                 });
                 
-                // Materyali uygula
-                this.applyMaterialWithTransition(newMaterial);
-            },
-            undefined,
-            (error) => {
-                console.warn(`Görsel yüklenemedi (${imageUrl}):`, error);
-                
-                // Fallback görsellerini dene
-                const maxFallbackIndex = manzara.fallbackImages ? manzara.fallbackImages.length : 0;
-                
-                if (fallbackIndex < maxFallbackIndex) {
-                    console.log(`Alternatif görsel deneniyor (${fallbackIndex + 1}/${maxFallbackIndex})...`);
-                    this.loadImageWithFallback(manzara, fallbackIndex + 1);
-                } else {
-                    console.error('Tüm görseller yüklenemedi, düz renk kullanılıyor');
-                }
+                this.applyMaterialWithTransition(fallbackMaterial);
             }
-        );
+        };
+        
+        // Tarayıcı önbelleğinden resmin yüklenmemesi için öneki rastgele parametre ekleyelim
+        testImage.src = imageUrl + '?t=' + new Date().getTime();
     }
     
     // Texture'ı tüm panellere uygula
     applyTextureToAllPanels(texture) {
         // Texture ayarları
         texture.encoding = THREE.sRGBEncoding;
-        texture.flipY = false;
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.anisotropy = 16; // Daha net görüntü için anisotropik filtreleme
         
         console.log('Texture panellere uygulanıyor...');
         
         // Tüm panellere texture'ı uygula
         this.manualPanels.forEach((panel, index) => {
-            // Texture'ı panele uygula
-            panel.material.map = texture;
+            // Önce eski texture'ı dispose et (memory leak önleme)
+            if (panel.material.map) {
+                panel.material.map.dispose();
+            }
             
-            // Panel materyalini geliştir
+            // Her panel için yeni texture kopyası oluştur - 
+            // Bu kez repeat/offset ayarlamıyoruz çünkü canvas zaten tersine çevirdi
+            const panelTexture = texture.clone();
+            panelTexture.needsUpdate = true;
+            
+            // Panel materyalini yeniden oluştur - daha radikal bir yaklaşım
+            panel.material = new THREE.MeshStandardMaterial({
+                map: panelTexture,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.0, // Başlangıçta saydam, fade-in animasyonu için
+                color: 0xffffff,
+                emissive: 0x333333,
+                emissiveIntensity: 0.5,
+                emissiveMap: panelTexture,
+                roughness: 0.2,
+                metalness: 0.1
+            });
+            
+            // Panel materyalini güncelle
             panel.material.needsUpdate = true;
-            panel.material.transparent = true;
-            panel.material.opacity = 1.0;
             
-            // Materyal ayarlarını güncelle - texture ile daha iyi görünmesi için
-            panel.material.color.set(0xffffff); // Beyaz materyal (texture'ın renklerini göstermek için)
-            panel.material.emissive.set(0x333333); // Daha güçlü emissive
-            panel.material.emissiveIntensity = 0.5; // Daha parlak
-            panel.material.emissiveMap = texture; // Texture'ı emissive map olarak da kullan
-            
-            // Materyal yansıma özelliklerini iyileştir
-            panel.material.roughness = 0.2; // Daha pürüzsüz 
-            panel.material.metalness = 0.1; // Az metalik
-            
-            console.log(`Panel ${index+1} texture uygulandı, materyal güncellendi`);
+            console.log(`Panel ${index+1} (${panel.name}) texture uygulandı, materyal güncellendi`);
             
             // Animasyonla fadeIn efekti ekleyelim
             gsap.fromTo(panel.material, 
@@ -1689,24 +1735,27 @@ export default class GreenBox
     }
     
     // Arkaplanı değiştir
-    changeBackgroundImage(manzara) {
+    changeBackgroundImage(background) {
         if(!this.greenPart) {
             console.error('GreenBox: Yeşil ekran parçası bulunamadı!');
             return;
         }
         
-        console.log('GreenBox: Arkaplan değiştiriliyor:', manzara.id);
+        console.log('GreenBox: Arkaplan değiştiriliyor:', background.id);
+        
+        // Uygulanan resmi kaydet
+        this.currentAppliedImage = background;
         
         // Texture önbellekte var mı kontrol et
-        if(this.textureCache[manzara.id]) {
-            console.log('Texture önbellekten yükleniyor:', manzara.id);
-            this.applyBackgroundTexture(this.textureCache[manzara.id]);
+        if(this.textureCache[background.id]) {
+            console.log('Texture önbellekten yükleniyor:', background.id);
+            this.applyBackgroundTexture(this.textureCache[background.id]);
             return;
         }
         
         // Önce geçici olarak düz renk uygula
         const tempMaterial = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(manzara.color || '#00ff00'),
+            color: new THREE.Color(background.color || '#00ff00'),
             side: THREE.FrontSide
         });
         
@@ -1718,7 +1767,7 @@ export default class GreenBox
         textureLoader.crossOrigin = 'anonymous'; // CORS için gerekli
         
         // Ana resmi yüklemeyi dene
-        this.loadImageWithFallback(manzara, 0);
+        this.loadImageWithFallback(background, 0);
     }
     
     // Texture'ı arka plana uygula
@@ -1769,6 +1818,9 @@ export default class GreenBox
         // Animasyonlu geçiş
         this.applyMaterialWithTransition(this.originalGreenMaterial.clone());
         console.log('GreenBox: Arkaplan orijinal rengine döndürüldü');
+        
+        // Uygulanan resmi sıfırla
+        this.currentAppliedImage = null;
     }
     
     // Arkaplan texture'ı yükleme yardımcısı
