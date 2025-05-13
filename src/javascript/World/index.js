@@ -46,6 +46,7 @@ import KelebekVadisi from './KelebekVadisi.js'
 import TrafikLambasi from './TrafikLambasi.js'
 import BasketSahasi from './BasketSahasi.js'
 import YonTabelasi1 from './YonTabelasi1.js'
+import YonTabelasi2 from './YonTabelasi2.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
 import Kademe from './Kademe.js'
@@ -131,6 +132,7 @@ export default class World
         this.set3dEkran()
         this.setKademe()
         this.setLego()
+        this.setYonTabelasi2()
     }
 
     setReveal()
@@ -901,13 +903,14 @@ export default class World
             scene: this.scene,
             resources: this.resources,
             physics: this.physics,
-            position: new THREE.Vector3(20, -6, 0),
+            position: new THREE.Vector3(15, -16, 0),
             rotateX: 0,
             rotateY: 0, // Y ekseni etrafında 90 derece döndür
             rotateZ: 0,
             scale: new THREE.Vector3(1, 1, 1)
         })
     }
+
 
     // Sia modelini eklemek için metot
     setSia()
@@ -1018,5 +1021,19 @@ export default class World
             rotateY: 0,
             rotateZ: 0
         });
+    }
+
+    // Yön Tabelası 2 modelini eklemek için metot
+    setYonTabelasi2()
+    {
+        this.yonTabelasi2 = new YonTabelasi2({
+            scene: this.scene,
+            resources: this.resources,
+            objects: this.objects,
+            physics: this.physics,
+            debug: this.debugFolder,
+            areas: this.areas,
+            materials: this.materials
+        })
     }
 }

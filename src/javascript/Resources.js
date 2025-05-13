@@ -227,6 +227,9 @@ export default class Resources extends EventEmitter
 
             { name: 'kaleModel', source: './models/soccer/kale.glb' },
 
+            // Yön Tabelası 2
+            { name: 'yonTabelasi2', source: './models/yonTabelasi2/yontabelası2.glb' },
+
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
             // { name: 'distinctionAStaticCollision', source: './models/distinctionA/static/collision.glb' },
