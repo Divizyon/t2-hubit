@@ -366,11 +366,11 @@ export default class World
                     }
                     //alaaddin tepesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound3', 9, -40, 0)
+                        this.sounds.updateSpatialPosition('spatialSound3', 21, -65, 0)
                     }
                     //japon parki icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound4', -17, -51, 0)
+                        this.sounds.updateSpatialPosition('spatialSound4', -7, -34, 0)
                     }
                     //konser alani icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
@@ -378,7 +378,7 @@ export default class World
                     }
                     //newton salıncagı icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound6', 30, 8, 0)
+                        this.sounds.updateSpatialPosition('spatialSound6', 22, 5, 0)
                     }
                 }
             }
@@ -715,11 +715,59 @@ export default class World
         // Roketi sahneye ekle - container'ı scene'e ekleyin
         this.container.add(this.rocket.container)
         
+        // Roket buton konteyneri
+        this.rocketButton = {}
+        this.rocketButton.container = new THREE.Object3D()
+        this.rocketButton.container.position.x = 57.2
+        this.rocketButton.container.position.y = 10.6
+        this.rocketButton.container.matrixAutoUpdate = false
+        this.rocketButton.container.updateMatrix()
+        this.scene.add(this.rocketButton.container)
+        
+        // Alan çerçevesi
+        if (this.materials && this.materials.items && this.materials.items.areaFloorBorder) {
+            const floorBorderGeometry = new AreaFloorBorderGeometry(2, 2, 0.3)
+            this.rocketButton.floorBorder = new THREE.Mesh(
+                floorBorderGeometry,
+                this.materials.items.areaFloorBorder.clone()
+            )
+            this.rocketButton.floorBorder.matrixAutoUpdate = false
+            this.rocketButton.floorBorder.updateMatrix()
+            this.rocketButton.container.add(this.rocketButton.floorBorder)
+        }
+        
+        // Alan duvarları
+        if (this.materials && this.materials.items && this.materials.items.areaGradientTexture) {
+            const fenceGeometry = new AreaFenceGeometry(2, 2, 0.3)
+            
+            const fenceMaterial = new THREE.MeshBasicMaterial({
+                transparent: true,
+                side: THREE.DoubleSide,
+                alphaMap: this.materials.items.areaGradientTexture,
+                color: 0x4285f4
+            })
+            
+            this.rocketButton.fence = new THREE.Mesh(fenceGeometry, fenceMaterial)
+            this.rocketButton.fence.position.z = 0.15
+            this.rocketButton.fence.matrixAutoUpdate = false
+            this.rocketButton.fence.updateMatrix()
+            this.rocketButton.container.add(this.rocketButton.fence)
+        }
+        
+        // Button Etiketi
+        this.createRocketButtonLabel()
+        
+        // Başlangıçta görünür yap
+        this.rocketButton.container.visible = true
+        
+        // Buton animasyonu
+        this.animateRocketButton()
+        
         // Roket fırlatma alanı oluştur
         this.rocketLaunchArea = this.areas.add({
             position: new THREE.Vector2(57.2, 10.6), // X, Y koordinatlarını 16, 28 olarak değiştirdik
             halfExtents: new THREE.Vector2(1.5, 1.5),
-            debug: true,
+            debug: false,
             hasKey: true
         })
         
@@ -757,6 +805,71 @@ export default class World
         }, 10000)
     }
     
+    createRocketButtonLabel() {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = 1024
+        canvas.height = 256
+        
+        const gradient = ctx.createRadialGradient(
+            canvas.width/2, canvas.height/2, 0,
+            canvas.width/2, canvas.height/2, canvas.width/2
+        )
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
+        
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = 'white'
+        ctx.font = 'bold 96px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ROKETİ ATEŞLE', canvas.width/2, canvas.height/2)
+        
+        ctx.shadowColor = '#ff4444'
+        ctx.shadowBlur = 25
+        ctx.fillText('ROKETİ ATEŞLE', canvas.width/2, canvas.height/2)
+
+        const texture = new THREE.CanvasTexture(canvas)
+        texture.magFilter = THREE.LinearFilter
+        texture.minFilter = THREE.LinearFilter
+
+        const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
+        const labelMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        })
+
+        this.rocketButton.label = new THREE.Mesh(labelGeometry, labelMaterial)
+        this.rocketButton.label.position.z = 0.2
+        this.rocketButton.container.add(this.rocketButton.label)
+    }
+    
+    animateRocketButton() {
+        const animate = () => {
+            const time = Date.now() * 0.001
+            
+            if (this.rocketButton && this.rocketButton.container) {
+                this.rocketButton.container.position.z = Math.sin(time * 2) * 0.1
+                
+                if (this.rocketButton.label) {
+                    this.rocketButton.label.rotation.z = Math.sin(time) * 0.05
+                }
+                
+                if (this.rocketButton.fence) {
+                    this.rocketButton.fence.material.opacity = 0.5 + Math.sin(time * 2) * 0.2
+                }
+            }
+            
+            requestAnimationFrame(animate)
+        }
+        
+        animate()
+    }
+
     setCustomButton()
     {
         console.log('setCustomButton çağrıldı, greenBox:', !!this.greenBox);
@@ -799,9 +912,11 @@ export default class World
             resources: this.resources,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX:0,   
+            rotateX: 0,   
             rotateY: 0,
-            rotateZ:0 // Y ekseninde 90 derece döndürme
+            rotateZ: 0,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 

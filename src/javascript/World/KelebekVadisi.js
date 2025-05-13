@@ -262,7 +262,7 @@ export default class KelebekVadisi {
         if (this.areas) {
             this.interactiveArea = this.areas.add({
                 position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-                halfExtents: new THREE.Vector2(1, 1),
+                halfExtents: new THREE.Vector2(1.5, 1.5),
                 floorShadowType: 'primary',
                 debug: false
             });

@@ -163,7 +163,7 @@ export default class Resources extends EventEmitter
             { name: 'BilimMerkezi', source: './models/bilmer/bilim_merkezi.glb'},
             
             //KapsulBinasi
-            { name: 'KapsulBinasi', source: './models/Kapsul.glb'},
+            { name: 'KapsulBinasi', source: './models/kapsul/Kapsul_Bina.glb'},
 
             //render_odasi
             { name: 'render_odasi', source: './models/render_odasi/render_odasi.glb'},

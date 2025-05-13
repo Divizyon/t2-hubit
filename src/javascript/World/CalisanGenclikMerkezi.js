@@ -3,7 +3,7 @@ import CANNON from 'cannon';
 import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 
-const DEFAULT_POSITION = new THREE.Vector3(54, -37, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(53, -34.5, 0); // X: 1 birim sola, Y: 2.5 birim yukarı
 
 export default class GenclikMerkezi {
   constructor({ 
@@ -18,7 +18,7 @@ export default class GenclikMerkezi {
     materials, // Buton materyalleri için eklendi
     areas, // Etkileşimli alan için eklendi
     // Özel collision ayarları
-    collisionPosition = new THREE.Vector3(54, -36.5, 2), // Varsayılan özel konum
+    collisionPosition = new THREE.Vector3(53, -34, 2), // X: 1 birim sola, Y: 2.5 birim yukarı
     collisionSize = new THREE.Vector3(4.9, 3.4, 5) // Özel boyut (null ise otomatik hesaplanır)
   }) {
     this.scene = scene;
@@ -40,7 +40,7 @@ export default class GenclikMerkezi {
     this.websiteUrl = 'https://www.calisangenclik.com/';
     
     // Buton konumu
-    this.buttonPosition = new THREE.Vector3(47, -37, 0);
+    this.buttonPosition = new THREE.Vector3(52, -38, 0); // Buton konumu 52, -38 olarak güncellendi
     
     // Collision için özel ayarları kaydet
     this.collisionPosition = collisionPosition || this.position.clone();
@@ -225,7 +225,7 @@ export default class GenclikMerkezi {
     if (this.areas) {
       this.interactiveArea = this.areas.add({
         position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-        halfExtents: new THREE.Vector2(1, 1),
+        halfExtents: new THREE.Vector2(1.5, 1.5),
         floorShadowType: 'primary',
         debug: false
       });

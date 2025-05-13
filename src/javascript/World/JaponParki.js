@@ -18,11 +18,11 @@ export default class JaponParki {
         this.collisionMesh = null; // Çarpışma kutusunu görselleştirmek için mesh
         
         // Çarpışma kutusu pozisyonu ve boyutu
-        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-6, -31, 1);
-        this.collisionSize = _options.collisionSize || new THREE.Vector3(5, 18, 27); // Boyutu 5x18x27 olarak değiştirildi
+        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-4.5, -32, 1);
+        this.collisionSize = _options.collisionSize || new THREE.Vector3(4.8, 15.5, 26); // Boyutlar biraz küçültüldü
         
         // Buton konumu
-        this.buttonPosition = new THREE.Vector3(5, -18, 0);
+        this.buttonPosition = new THREE.Vector3(6.5, -18, 0);
         
         this.setModel();
         
@@ -52,8 +52,8 @@ export default class JaponParki {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-7, -34, 1); // Konumu Japon Parkı için ayarla
-            this.model.scale.set(0.5, 0.5, 0.5); // Ölçeği düşürüyorum
+            this.model.position.set(-5.5, -34, 1); // Konumu Japon Parkı için ayarla
+            this.model.scale.set(0.48, 0.48, 0.48); // Ölçeği 0.5'ten 0.48'e düşürüldü
             
             // Modeli döndür - ihtiyaca göre değiştirilebilir
             this.model.rotation.x = Math.PI / 2;
@@ -95,9 +95,9 @@ export default class JaponParki {
                 const collisionMaterial = new THREE.MeshBasicMaterial({
                     color: 0xff0000,
                     wireframe: true,
-                    opacity: 0.7,
+                    opacity: 0,
                     transparent: true,
-                    visible: true // Görünür olarak başlat
+                    visible: false // Görünürlük kapatıldı
                 });
                 
                 this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
