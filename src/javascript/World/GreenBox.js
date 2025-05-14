@@ -35,7 +35,7 @@ export default class GreenBox
         
         // Arabanın Green Box içindeki hedef konumu
         this.carTargetPosition = new THREE.Vector3(-73, -40, 0.4) // Green Box içinde uygun bir nokta
-        this.carTargetRotation = new THREE.Euler(-Math.PI, -Math.PI, 90) // 90 derece sağa dönük
+        this.carTargetRotation = new THREE.Euler(-Math.PI, -Math.PI, 120) // 90 derece sağa dönük
         
         // Popup ile ilgili özellikler
         this.interactiveArea = null       // Buton için etkileşim alanı

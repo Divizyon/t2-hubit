@@ -68,25 +68,22 @@ export default class Physics
     {
         this.materials = {}
 
-        /**
-         * Items
-         */
+        // All materials
         this.materials.items = {}
         this.materials.items.floor = new CANNON.Material('floorMaterial')
         this.materials.items.dummy = new CANNON.Material('dummyMaterial')
         this.materials.items.wheel = new CANNON.Material('wheelMaterial')
 
-        /**
-         * Contacts
-         */
+        // Contact between materials
         this.materials.contacts = {}
+
         this.materials.contacts.floorDummy = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.dummy, { friction: 0.05, restitution: 0.3, contactEquationStiffness: 1000 })
         this.world.addContactMaterial(this.materials.contacts.floorDummy)
 
         this.materials.contacts.dummyDummy = new CANNON.ContactMaterial(this.materials.items.dummy, this.materials.items.dummy, { friction: 0.5, restitution: 0.3, contactEquationStiffness: 1000 })
         this.world.addContactMaterial(this.materials.contacts.dummyDummy)
 
-        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.wheel, { friction: 0.5, restitution: 0, contactEquationStiffness: 2000 })
+        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.wheel, { friction: 0.3, restitution: 0, contactEquationStiffness: 1000 })
         this.world.addContactMaterial(this.materials.contacts.floorWheel)
     }
 
@@ -121,41 +118,22 @@ export default class Physics
          * Options
          */
         this.car.options = {}
-        
-        this.car.options.chassisWidth = 1.02;
-        this.car.options.chassisHeight = 0.2
+        this.car.options.chassisWidth = 1.02
+        this.car.options.chassisHeight = 1.16
         this.car.options.chassisDepth = 2.03
-        this.car.options.chassisOffset = new CANNON.Vec3(0, 0, 0.20)
+        this.car.options.chassisOffset = new CANNON.Vec3(0, 0, 0.41)
         this.car.options.chassisMass = 40
-        
-        // Tekerlek konumları (derinlik = ileri/geri, genişlik = sağ/sol)
-        if(this.config && this.config.togg) {
-            // Togg modeli için özel tekerlek ayarları
-            this.car.options.wheelFrontLeftPosition = { depth: 0.67, width: 0.38 };  // Sol ön
-            this.car.options.wheelFrontRightPosition = { depth: 0.67, width: -0.38 }; // Sağ ön
-            this.car.options.wheelBackLeftPosition = { depth: -0.67, width: 0.38 };   // Sol arka
-            this.car.options.wheelBackRightPosition = { depth: -0.67, width: -0.38 };  // Sağ arka
-        } else {
-            // Normal araba için tekerlek ayarları
-            this.car.options.wheelFrontLeftPosition = { depth: 0.635, width: 0.60 };   // Sol ön
-            this.car.options.wheelFrontRightPosition = { depth: 0.635, width: -0.60 };  // Sağ ön
-            this.car.options.wheelBackLeftPosition = { depth: -0.475, width: 0.60 };    // Sol arka
-            this.car.options.wheelBackRightPosition = { depth: -0.475, width: -0.60 };   // Sağ arka
-        }
-        
-        // Bu değerler sadece geriye dönük uyumluluk için kullanılıyor
-        this.car.options.wheelFrontOffsetDepth = this.car.options.wheelFrontLeftPosition.depth;
-        this.car.options.wheelBackOffsetDepth = this.car.options.wheelBackLeftPosition.depth;
-        this.car.options.wheelOffsetWidth = Math.abs(this.car.options.wheelFrontLeftPosition.width);
-        
+        this.car.options.wheelFrontOffsetDepth = 0.635
+        this.car.options.wheelBackOffsetDepth = - 0.70
+        this.car.options.wheelOffsetWidth = 0.39
         this.car.options.wheelRadius = 0.25
         this.car.options.wheelHeight = 0.24
         this.car.options.wheelSuspensionStiffness = 50
-        this.car.options.wheelSuspensionRestLength = 0.2
+        this.car.options.wheelSuspensionRestLength = 0.1
         this.car.options.wheelFrictionSlip = 10
         this.car.options.wheelDampingRelaxation = 1.8
         this.car.options.wheelDampingCompression = 1.5
-        this.car.options.wheelMaxSuspensionForce = 200000
+        this.car.options.wheelMaxSuspensionForce = 100000
         this.car.options.wheelRollInfluence =  0.01
         this.car.options.wheelMaxSuspensionTravel = 0.3
         this.car.options.wheelCustomSlidingRotationalSpeed = - 30
@@ -202,7 +180,7 @@ export default class Physics
 
             this.car.chassis.body = new CANNON.Body({ mass: this.car.options.chassisMass })
             this.car.chassis.body.allowSleep = false
-            this.car.chassis.body.position.set(12, -11, 12)
+            this.car.chassis.body.position.set(0, 0, 12)
             this.car.chassis.body.sleep()
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)
             this.car.chassis.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), - Math.PI * 0.5)
@@ -249,19 +227,19 @@ export default class Physics
             }
 
             // Front left
-            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelFrontLeftPosition.depth, this.car.options.wheelFrontLeftPosition.width, 0)
+            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelFrontOffsetDepth, this.car.options.wheelOffsetWidth, 0)
             this.car.vehicle.addWheel(this.car.wheels.options)
 
             // Front right
-            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelFrontRightPosition.depth, this.car.options.wheelFrontRightPosition.width, 0)
+            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelFrontOffsetDepth, - this.car.options.wheelOffsetWidth, 0)
             this.car.vehicle.addWheel(this.car.wheels.options)
 
             // Back left
-            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelBackLeftPosition.depth, this.car.options.wheelBackLeftPosition.width, 0)
+            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelBackOffsetDepth, this.car.options.wheelOffsetWidth, 0)
             this.car.vehicle.addWheel(this.car.wheels.options)
 
             // Back right
-            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelBackRightPosition.depth, this.car.options.wheelBackRightPosition.width, 0)
+            this.car.wheels.options.chassisConnectionPointLocal.set(this.car.options.wheelBackOffsetDepth, - this.car.options.wheelOffsetWidth, 0)
             this.car.vehicle.addWheel(this.car.wheels.options)
 
             this.car.vehicle.addToWorld(this.world)
@@ -607,6 +585,21 @@ export default class Physics
             }
         })
 
+        // Tekerlek konumları (derinlik = ileri/geri, genişlik = sağ/sol)
+        if(this.config && this.config.togg) {
+            // Togg modeli için özel tekerlek ayarları
+            this.car.options.wheelFrontLeftPosition = { depth: 0.67, width: 0.65 };  // Sol ön - genişlik 0.50'den 0.65'e
+            this.car.options.wheelFrontRightPosition = { depth: 0.67, width: -0.65 }; // Sağ ön - genişlik -0.50'den -0.65'e
+            this.car.options.wheelBackLeftPosition = { depth: -0.67, width: 0.65 };   // Sol arka - genişlik 0.50'den 0.65'e
+            this.car.options.wheelBackRightPosition = { depth: -0.67, width: -0.65 };  // Sağ arka - genişlik -0.50'den -0.65'e
+        } else {
+            // Normal araba için tekerlek ayarları
+            this.car.options.wheelFrontLeftPosition = { depth: 0.635, width: 0.90 };   // Sol ön - genişlik 0.75'ten 0.90'a
+            this.car.options.wheelFrontRightPosition = { depth: 0.635, width: -0.90 };  // Sağ ön - genişlik -0.75'ten -0.90'a
+            this.car.options.wheelBackLeftPosition = { depth: -0.475, width: 0.90 };    // Sol arka - genişlik 0.75'ten 0.90'a
+            this.car.options.wheelBackRightPosition = { depth: -0.475, width: -0.90 };   // Sağ arka - genişlik -0.75'ten -0.90'a
+        }
+
         // Create the initial car
         this.car.create()
 
@@ -621,31 +614,9 @@ export default class Physics
             this.car.debugFolder.add(this.car.options, 'chassisDepth').step(0.001).min(0).max(5).name('chassisDepth').onFinishChange(this.car.recreate)
             this.car.debugFolder.add(this.car.options.chassisOffset, 'z').step(0.001).min(0).max(5).name('chassisOffset').onFinishChange(this.car.recreate)
             this.car.debugFolder.add(this.car.options, 'chassisMass').step(0.001).min(0).max(1000).name('chassisMass').onFinishChange(this.car.recreate)
-            
-            // Tekerlek pozisyon ayarları
-            const wheelPositionFolder = this.car.debugFolder.addFolder('Tekerlek Pozisyonları')
-            wheelPositionFolder.open()
-            
-            // Ön sol tekerlek
-            const flFolder = wheelPositionFolder.addFolder('Ön Sol Tekerlek')
-            flFolder.add(this.car.options.wheelFrontLeftPosition, 'depth').step(0.01).min(-2).max(2).name('İleri/Geri').onFinishChange(this.car.recreate)
-            flFolder.add(this.car.options.wheelFrontLeftPosition, 'width').step(0.01).min(-2).max(2).name('Sağ/Sol').onFinishChange(this.car.recreate)
-            
-            // Ön sağ tekerlek
-            const frFolder = wheelPositionFolder.addFolder('Ön Sağ Tekerlek')
-            frFolder.add(this.car.options.wheelFrontRightPosition, 'depth').step(0.01).min(-2).max(2).name('İleri/Geri').onFinishChange(this.car.recreate)
-            frFolder.add(this.car.options.wheelFrontRightPosition, 'width').step(0.01).min(-2).max(2).name('Sağ/Sol').onFinishChange(this.car.recreate)
-            
-            // Arka sol tekerlek
-            const blFolder = wheelPositionFolder.addFolder('Arka Sol Tekerlek')
-            blFolder.add(this.car.options.wheelBackLeftPosition, 'depth').step(0.01).min(-2).max(2).name('İleri/Geri').onFinishChange(this.car.recreate)
-            blFolder.add(this.car.options.wheelBackLeftPosition, 'width').step(0.01).min(-2).max(2).name('Sağ/Sol').onFinishChange(this.car.recreate)
-            
-            // Arka sağ tekerlek
-            const brFolder = wheelPositionFolder.addFolder('Arka Sağ Tekerlek')
-            brFolder.add(this.car.options.wheelBackRightPosition, 'depth').step(0.01).min(-2).max(2).name('İleri/Geri').onFinishChange(this.car.recreate)
-            brFolder.add(this.car.options.wheelBackRightPosition, 'width').step(0.01).min(-2).max(2).name('Sağ/Sol').onFinishChange(this.car.recreate)
-            
+            this.car.debugFolder.add(this.car.options, 'wheelFrontOffsetDepth').step(0.001).min(0).max(5).name('wheelFrontOffsetDepth').onFinishChange(this.car.recreate)
+            this.car.debugFolder.add(this.car.options, 'wheelBackOffsetDepth').step(0.001).min(- 5).max(0).name('wheelBackOffsetDepth').onFinishChange(this.car.recreate)
+            this.car.debugFolder.add(this.car.options, 'wheelOffsetWidth').step(0.001).min(0).max(5).name('wheelOffsetWidth').onFinishChange(this.car.recreate)
             this.car.debugFolder.add(this.car.options, 'wheelRadius').step(0.001).min(0).max(2).name('wheelRadius').onFinishChange(this.car.recreate)
             this.car.debugFolder.add(this.car.options, 'wheelHeight').step(0.001).min(0).max(2).name('wheelHeight').onFinishChange(this.car.recreate)
             this.car.debugFolder.add(this.car.options, 'wheelSuspensionStiffness').step(0.001).min(0).max(300).name('wheelSuspensionStiffness').onFinishChange(this.car.recreate)
