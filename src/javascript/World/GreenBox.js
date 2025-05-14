@@ -26,16 +26,16 @@ export default class GreenBox
         this.container.matrixAutoUpdate = false
 
         // Green Box'ın konumu (sabit pozisyon)
-        this.position = new THREE.Vector3(-76, -19, 0)
+        this.position = new THREE.Vector3(-73, -40, 0)
         
         // Popup Button'un konumu (Green Box'ın yanında)
         this.buttonPosition = {
-            x: -70,  // Green Box ile aynı x pozisyonu
-            y: -18   // Green Box'ın biraz önünde
+            x: -64,  // Green Box ile aynı x pozisyonu
+            y: -40   // Green Box'ın biraz önünde
         }
         
         // Arabanın Green Box içindeki hedef konumu
-        this.carTargetPosition = new THREE.Vector3(-30, -10, 0.4) // Green Box içinde uygun bir nokta
+        this.carTargetPosition = new THREE.Vector3(-73, -40, 0.4) // Green Box içinde uygun bir nokta
         this.carTargetRotation = new THREE.Euler(-Math.PI, -Math.PI, 90) // 90 derece sağa dönük
         
         // Popup ile ilgili özellikler

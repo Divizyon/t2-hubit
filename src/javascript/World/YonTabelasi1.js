@@ -18,6 +18,12 @@ export default class YonTabelasi1 {
     this.scene.add(this.container)
     
     this.setModel()
+    this.addCollision()
+    this.addColumnCollision()
+    this.addColumnCollision2()
+    this.addColumnCollision3()
+    this.addColumnCollision4()
+    this.addColumnCollision5()
   }
   
   setModel() {
@@ -54,6 +60,397 @@ export default class YonTabelasi1 {
     model.scale.copy(this.scale)
     this.container.add(model)
     
+    // Modeli referans olarak saklayalım
+    this.model = model
+  }
+  
+  addCollision() {
+    if (!this.physics) {
+      console.warn('YonTabelasi1: physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
     
+    // Collision boyutları
+    const width = 0.3  // x ekseni boyutu
+    const height = 0.3 // y ekseni boyutu
+    const depth = 4    // z ekseni boyutu
+    
+    // Görsel temsil (debug için)
+    const boxGeometry = new THREE.BoxGeometry(width, height, depth)
+    const boxMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff00ff, // Mor renk
+      wireframe: true,
+      transparent: true,
+      opacity: 0.5
+    })
+    
+    this.collisionMesh = new THREE.Mesh(boxGeometry, boxMaterial)
+    
+    // Collision mesh pozisyonu - ana containerın içinde, biraz yukarı
+    this.collisionMesh.position.set(-3, 2, 0)
+    
+    // Debug için görünür yap
+    this.collisionMesh.visible = false
+    this.container.add(this.collisionMesh)
+    
+    // Cannon.js için fizik gövdesi
+    const boxShape = new CANNON.Box(
+      new CANNON.Vec3(width / 2, height / 2, depth / 2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.body = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        this.position.x-1.6, // 0.5 + 0.3 = 0.8
+        this.position.y -1, // 0.2 + 0.3 = 0.5
+        this.position.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion()
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ')
+    this.body.quaternion.copy(quat)
+    
+    // Şekli gövdeye ekle
+    this.body.addShape(boxShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.body)
+    
+    console.log('YonTabelasi1 için collision eklendi:', width, height, depth, 'boyutlarında')
+  }
+  
+  addColumnCollision() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(-15, -9.5, 0)
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 1.12    // X ekseni genişliği
+    const columnHeight = 1.2   // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 7      // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 'boyutlar:', columnWidth, columnHeight, columnDepth)
+  }
+
+  
+  addColumnCollision2() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(-15, -14.8, 0)
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 1.12    // X ekseni genişliği
+    const columnHeight = 1.2   // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 7      // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 'boyutlar:', columnWidth, columnHeight, columnDepth)
+  }
+
+
+  addColumnCollision3() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(27.3, 5.3, 0)
+    
+    // Kolon için rotasyon açıları (radyan cinsinden)
+    const columnRotateX = 0  // X ekseni etrafında 22.5 derece
+    const columnRotateY = 0            // Y ekseni etrafında rotasyon yok
+    const columnRotateZ = 0.4  // Z ekseni etrafında 30 derece
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 9.5  // X ekseni genişliği
+    const columnHeight = 7  // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 7    // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    
+    // Kolona rotasyon ekle
+    this.columnMesh.rotation.set(columnRotateX, columnRotateY, columnRotateZ)
+    
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Fizik gövdesine rotasyon ekle
+    const quat = new CANNON.Quaternion()
+    quat.setFromEuler(columnRotateX, columnRotateY, columnRotateZ, 'XYZ')
+    this.columnBody.quaternion.copy(quat)
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 
+                'boyutlar:', columnWidth, columnHeight, columnDepth,
+                'rotasyon (derece):', 
+                THREE.MathUtils.radToDeg(columnRotateX),
+                THREE.MathUtils.radToDeg(columnRotateY),
+                THREE.MathUtils.radToDeg(columnRotateZ))
+  }
+
+  
+  addColumnCollision4() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(-40, -47.3, 0)
+    
+    // Kolon için rotasyon açıları (radyan cinsinden)
+    const columnRotateX = 0  // X ekseni etrafında 22.5 derece
+    const columnRotateY = 0            // Y ekseni etrafında rotasyon yok
+    const columnRotateZ = 0  // Z ekseni etrafında 30 derece
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 5.5  // X ekseni genişliği
+    const columnHeight = 5.5 // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 7    // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    
+    // Kolona rotasyon ekle
+    this.columnMesh.rotation.set(columnRotateX, columnRotateY, columnRotateZ)
+    
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Fizik gövdesine rotasyon ekle
+    const quat = new CANNON.Quaternion()
+    quat.setFromEuler(columnRotateX, columnRotateY, columnRotateZ, 'XYZ')
+    this.columnBody.quaternion.copy(quat)
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 
+                'boyutlar:', columnWidth, columnHeight, columnDepth,
+                'rotasyon (derece):', 
+                THREE.MathUtils.radToDeg(columnRotateX),
+                THREE.MathUtils.radToDeg(columnRotateY),
+                THREE.MathUtils.radToDeg(columnRotateZ))
+  }
+
+    
+  addColumnCollision5() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(-6, -32, 0)
+    
+    // Kolon için rotasyon açıları (radyan cinsinden)
+    const columnRotateX = 0  // X ekseni etrafında 22.5 derece
+    const columnRotateY = 0            // Y ekseni etrafında rotasyon yok
+    const columnRotateZ = 0  // Z ekseni etrafında 30 derece
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 16  // X ekseni genişliği
+    const columnHeight = 24 // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 7    // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    
+    // Kolona rotasyon ekle
+    this.columnMesh.rotation.set(columnRotateX, columnRotateY, columnRotateZ)
+    
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Fizik gövdesine rotasyon ekle
+    const quat = new CANNON.Quaternion()
+    quat.setFromEuler(columnRotateX, columnRotateY, columnRotateZ, 'XYZ')
+    this.columnBody.quaternion.copy(quat)
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 
+                'boyutlar:', columnWidth, columnHeight, columnDepth,
+                'rotasyon (derece):', 
+                THREE.MathUtils.radToDeg(columnRotateX),
+                THREE.MathUtils.radToDeg(columnRotateY),
+                THREE.MathUtils.radToDeg(columnRotateZ))
   }
 } 

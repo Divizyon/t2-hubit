@@ -33,8 +33,8 @@ export default class Render_odasi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-79, -2, 0);
-            this.model.scale.set(2.3, 2.3, 2.3);
+            this.model.position.set(-79, -11, 0);
+            this.model.scale.set(3.4, 3.4, 3.4);
             
             // Modeli döndür
             this.model.rotation.z =  Math.PI ;

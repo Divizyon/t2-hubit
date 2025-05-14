@@ -215,8 +215,7 @@ export default class Resources extends EventEmitter
             // Kademe
             { name: 'kademe', source: './models/kademe/Kademe.glb' },
             
-            // Lego
-            { name: 'lego', source: './models/lego/lego_parca.glb' },
+
                          
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },
