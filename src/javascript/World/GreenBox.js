@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import * as CANNON from 'cannon'
 import gsap from 'gsap'
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js'
 import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js'
@@ -162,98 +161,18 @@ export default class GreenBox
         // Yeşil materyal referansını al
         this.findGreenMaterial();
         
-        // Manuel fizik bileşeni oluşturma
-        const boxMaterial = this.physics.materials.items.dummy
-        
-        // Fizik gövdesi oluştur - statik bir nesne
-        const body = new CANNON.Body({
-            mass: 0, // 0 kütle = statik nesne
-            material: boxMaterial,
-            position: new CANNON.Vec3(this.position.x, this.position.y, this.position.z),
-            type: CANNON.Body.STATIC
-        })
-        
-        // Oda boyutları
-        const width = 4.6;  // x-ekseni genişliği
-        const length = 2;  // y-ekseni uzunluğu
-        const height = 12; // z-ekseni yüksekliği
-        
-        // Duvar konumlarını modele yaklaştır
-        const backWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: length/2 = 5)
-        const leftWallDistance = 3;  // Daha küçük değer = modele daha yakın (eski değer: width/2 = 5)
-
-
-
-        // Arka duvar (pozitif Y yönünde) - GreenBox'ın arkasına
-        const backWallSize = new CANNON.Vec3(width/2, 0.5, height/2) // x, y, z yarı genişlikler
-        const backWallShape = new CANNON.Box(backWallSize)
-        body.addShape(backWallShape, new CANNON.Vec3(0, backWallDistance+1.3, 0)) // Modele daha yakın
-        
-        // Sol duvar (negatif X yönünde) - GreenBox'ın soluna
-        const leftWallSize = new CANNON.Vec3(0.5, length/2, height/2)
-        const leftWallShape = new CANNON.Box(leftWallSize)
-        body.addShape(leftWallShape, new CANNON.Vec3(-leftWallDistance, 0, 0)) // Modele daha yakın
-        
-        // Fizik dünyasına ekle
-        this.physics.world.addBody(body)
-        
-        // Debug için görsel helper'lar
-        if (this.debug) {
-            this.wallHelpers = new THREE.Group()
-            
-            // Arka duvar helper
-            const backWallHelper = new THREE.Mesh(
-                new THREE.BoxGeometry(backWallSize.x * 2, backWallSize.y * 2, backWallSize.z * 2),
-                new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
-            )
-            backWallHelper.position.set(
-                this.position.x, 
-                this.position.y + backWallDistance, 
-                this.position.z
-            )
-            this.wallHelpers.add(backWallHelper)
-            
-            // Sol duvar helper
-            const leftWallHelper = new THREE.Mesh(
-                new THREE.BoxGeometry(leftWallSize.x * 2, leftWallSize.y * 2, leftWallSize.z * 2),
-                new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
-            )
-            leftWallHelper.position.set(
-                this.position.x - leftWallDistance, 
-                this.position.y, 
-                this.position.z
-            )
-            this.wallHelpers.add(leftWallHelper)
-            
-            this.wallHelpers.visible = false
-            this.container.add(this.wallHelpers)
-            
-            // Debug paneline gösterge ekle
-            this.debugFolder.add(this.wallHelpers, 'visible').name('Show Collision Walls')
-        }
-        
-        // Model referansı 
-        this.model.collision = {
-            body: body,
-            reset: () => this.resetPosition()
-        }
+        // Remove all physics/collision related code
         
         // Başlangıç pozisyonunu kaydet
         this.originalPosition = {
-            position: body.position.clone(),
-            quaternion: body.quaternion.clone()
+            position: new THREE.Vector3(this.position.x, this.position.y, this.position.z),
+            quaternion: new THREE.Quaternion()
         }
     }
     
     // Pozisyonu sıfırlama (debug için)
     resetPosition() {
-        if(this.model.collision && this.model.collision.body) {
-            this.model.collision.body.position.copy(this.originalPosition.position)
-            this.model.collision.body.quaternion.copy(this.originalPosition.quaternion)
-            this.model.collision.body.velocity.set(0, 0, 0)
-            this.model.collision.body.angularVelocity.set(0, 0, 0)
-            this.model.collision.body.wakeUp()
-        }
+        // Removed physics/collision code
     }
 
     // Update metodu - her frame'de çağrılır
@@ -1193,13 +1112,12 @@ export default class GreenBox
             carBody.position.y = this.position.y;      // Green Box'ın y pozisyonuyla aynı
             carBody.position.z = this.position.z + 5;  // 5 birim yukarıda başlat
             
-            // Hedef rotasyonu quaternion'a çevir
-            const quaternion = new CANNON.Quaternion();
+            // Hedef rotasyonu THREE.Quaternion'a çevir
+            const quaternion = new THREE.Quaternion();
             quaternion.setFromEuler(
-                this.carTargetRotation.x,
-                this.carTargetRotation.y,
-                this.carTargetRotation.z,
-                'XYZ'
+                this.carTargetRotation.x, 
+                this.carTargetRotation.y, 
+                this.carTargetRotation.z
             );
             
             // Rotasyonu ayarla

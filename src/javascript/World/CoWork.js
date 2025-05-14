@@ -29,6 +29,20 @@ export default class CoWork {
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
 
+    // Manuel collision kutusu boyutları (varsayılan değerler)
+    this.collisionSize = {
+      x: 10,  // genişlik
+      y: 9.5,   // yükseklik
+      z: 10   // derinlik
+    };
+
+    // Manuel collision kutusu pozisyon offseti (model pozisyonuna eklenir)
+    this.collisionOffset = {
+      x: -0.5,
+      y: 0,
+      z: 2.5  // Yerden biraz yüksekte
+    };
+
     this._buildModel();
     this.scene.add(this.container);
 
@@ -36,6 +50,30 @@ export default class CoWork {
     if (this.materials && this.areas) {
       this.setupButton();
     }
+
+    // Debug için kontroller ekle
+    if (this.debug) {
+      this.setupDebugControls();
+    }
+  }
+
+  setupDebugControls() {
+    const debugFolder = this.debug.addFolder('CoWork Collision');
+    
+    // Boyut kontrolleri
+    const sizeFolder = debugFolder.addFolder('Collision Size');
+    sizeFolder.add(this.collisionSize, 'x', 1, 20).name('Width').onChange(() => this.updateCollisionBox());
+    sizeFolder.add(this.collisionSize, 'y', 1, 20).name('Height').onChange(() => this.updateCollisionBox());
+    sizeFolder.add(this.collisionSize, 'z', 1, 20).name('Depth').onChange(() => this.updateCollisionBox());
+    
+    // Offset kontrolleri
+    const offsetFolder = debugFolder.addFolder('Collision Offset');
+    offsetFolder.add(this.collisionOffset, 'x', -10, 10).name('X Offset').onChange(() => this.updateCollisionBox());
+    offsetFolder.add(this.collisionOffset, 'y', -10, 10).name('Y Offset').onChange(() => this.updateCollisionBox());
+    offsetFolder.add(this.collisionOffset, 'z', -5, 10).name('Z Offset').onChange(() => this.updateCollisionBox());
+    
+    // Görünürlük kontrolü
+    debugFolder.add(this, 'toggleCollisionVisibility').name('Toggle Visibility');
   }
 
   _buildModel() {
@@ -71,28 +109,8 @@ export default class CoWork {
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 
-    // Bounding box hesapla
-    model.updateMatrixWorld(true);
-    const bbox = new THREE.Box3().setFromObject(model);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
+    // Manuel fizik gövdesi oluştur
+    this.createCollisionBox();
 
     // Obje sistemine ekle
     if (this.objects) {
@@ -103,10 +121,117 @@ export default class CoWork {
         offset: this.position.clone(),
         mass: 0
       });
-      objectEntry.collision = { body };
+      
+      // Eğer daha önce fizik gövdesi oluşturulmuşsa, collision ile ilişkilendir
+      if (this.body) {
+        objectEntry.collision = { body: this.body };
+      }
+      
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
+    }
+  }
+
+  createCollisionBox() {
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(
+      this.collisionSize.x / 2,
+      this.collisionSize.y / 2,
+      this.collisionSize.z / 2
+    );
+    
+    const boxShape = new CANNON.Box(halfExtents);
+
+    this.body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(
+        this.position.x + this.collisionOffset.x,
+        this.position.y + this.collisionOffset.y,
+        this.position.z + this.collisionOffset.z
+      ),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    this.body.quaternion.copy(quat);
+
+    this.body.addShape(boxShape);
+    this.physics.world.addBody(this.body);
+
+    // Görünür collision kutusu oluştur
+    const boxGeometry = new THREE.BoxGeometry(
+      this.collisionSize.x,
+      this.collisionSize.y,
+      this.collisionSize.z
+    );
+    
+    const boxMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.5
+    });
+    
+    this.collisionMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+    
+    // Collision mesh pozisyonu
+    this.collisionMesh.position.set(
+      this.position.x + this.collisionOffset.x,
+      this.position.y + this.collisionOffset.y,
+      this.position.z + this.collisionOffset.z
+    );
+    
+    // Rotation
+    this.collisionMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    
+    // Başlangıçta görünmez yap
+    this.collisionMesh.visible = false;
+    
+    this.container.add(this.collisionMesh);
+  }
+
+  updateCollisionBox() {
+    // Önce eski physics body'i kaldır
+    if (this.body) {
+      this.physics.world.removeBody(this.body);
+    }
+    
+    // Yeni collision box oluştur
+    this.createCollisionBox();
+    
+    // Görsel meshini güncelle
+    if (this.collisionMesh) {
+      this.container.remove(this.collisionMesh);
+      
+      const boxGeometry = new THREE.BoxGeometry(
+        this.collisionSize.x,
+        this.collisionSize.y,
+        this.collisionSize.z
+      );
+      
+      this.collisionMesh = new THREE.Mesh(
+        boxGeometry,
+        this.collisionMesh.material
+      );
+      
+      this.collisionMesh.position.set(
+        this.position.x + this.collisionOffset.x,
+        this.position.y + this.collisionOffset.y,
+        this.position.z + this.collisionOffset.z
+      );
+      
+      this.collisionMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+      
+      this.container.add(this.collisionMesh);
+    }
+  }
+
+  toggleCollisionVisibility() {
+    if (this.collisionMesh) {
+      this.collisionMesh.visible = !this.collisionMesh.visible;
     }
   }
 

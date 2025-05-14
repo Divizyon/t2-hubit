@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-50, -10, 0); // Konser alanı konumu
+const DEFAULT_POSITION = new THREE.Vector3(-42, -20, 1.6); // Konser alanı konumu
 
 export default class KonserAlani {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0}) {
@@ -31,6 +31,10 @@ export default class KonserAlani {
 
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
+    
+    // Modeli 2 katına büyüt
+    model.scale.set(2, 2, 2);
+    
     model.traverse(child => {
       if (child.isMesh) {
         const origMat = child.material;
@@ -50,43 +54,5 @@ export default class KonserAlani {
     model.position.copy(this.position);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
-
-    // Bounding box hesapla
-    model.updateMatrixWorld(true);
-    const bbox = new THREE.Box3().setFromObject(model);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
-
-    // Obje sistemine ekle
-    if (this.objects) {
-      const children = model.children.slice();
-      const objectEntry = this.objects.add({
-        base: { children },
-        collision: { children },
-        offset: this.position.clone(),
-        mass: 0
-      });
-      objectEntry.collision = { body };
-      if (objectEntry.container) {
-        this.container.add(objectEntry.container);
-      }
-    }
   }
 }
