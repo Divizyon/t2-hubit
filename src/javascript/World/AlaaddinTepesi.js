@@ -23,7 +23,7 @@ export default class AlaaddinTepesi {
      
         this.setModel();
         this.createPlatform();
-        this.buttonPosition = new THREE.Vector3(21, -65, 0); // X pozisyonunu 3 birim sağa kaydırdım (18 -> 21)
+        this.buttonPosition = new THREE.Vector3(21, -66, 0); // X pozisyonunu 3 birim sağa kaydırdım (18 -> 21)
         this.setupButton();
         
         if (this.time) {
@@ -129,7 +129,7 @@ export default class AlaaddinTepesi {
         }
         
         // Kare platform oluştur
-        const platformSize = 24; // Kare platformun bir kenar uzunluğu küçültüldü (26 -> 22)
+        const platformSize = 20; // Platformun kenar uzunluğunu daha da küçülttüm (24 -> 20)
         const platformGeometry = new THREE.BoxGeometry(platformSize, platformSize, 1); // Kare platform
         const platformMaterial = new THREE.MeshStandardMaterial({
             color: 0x808080, // Gri
@@ -138,7 +138,7 @@ export default class AlaaddinTepesi {
         });
         
         this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
-        this.platform.position.set(5.5, -66, 0); // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
+        this.platform.position.set(5.5, -66, 0); // X pozisyonu aynı kaldı
         this.platform.rotation.x = Math.PI; // Yatay duruma getir
         this.platform.castShadow = true;
         this.platform.receiveShadow = true;
@@ -149,16 +149,16 @@ export default class AlaaddinTepesi {
         if (this.physics) {
             // Platformun fiziksel boyutları - yarı boyutlar olarak tanımlanır
             const halfSize = platformSize / 2; // Kenar uzunluğunun yarısı
-            const collisionHeight = 5; // Z boyutunu artırıyoruz (5 birim yükseklik)
+            const collisionHeight = 3; // Z boyutunu azalttım (5 -> 3 birim yükseklik)
             
             const platformBody = new CANNON.Body({
                 mass: 0, // Statik nesne
-                position: new CANNON.Vec3(5.5, -66, 0), // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
+                position: new CANNON.Vec3(5.5, -66, 0), // X pozisyonu aynı kaldı
                 material: this.physics.materials.items.floor
             });
             
             // Kare platform şekli - BoxShape kullanılıyor
-            const platformShape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, collisionHeight / 2)); // Yarı boyutlar (13, 13, 2.5)
+            const platformShape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, collisionHeight / 2)); // Yarı boyutlar güncellendi
             
             platformBody.addShape(platformShape);
             
