@@ -71,8 +71,10 @@ export default class PlaygroundSection
     {
         // Set up
         this.brickWalls = {}
-        this.brickWalls.x = this.x + 82
-        this.brickWalls.y = this.y + 26
+
+        this.brickWalls.x = this.x + 83
+        this.brickWalls.y = this.y + 26.5
+
         this.brickWalls.items = []
 
         // Brick options

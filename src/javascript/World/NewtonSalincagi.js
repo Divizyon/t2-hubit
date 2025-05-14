@@ -19,6 +19,9 @@ export default class NewtonSalincagi {
     // Pozisyon değeri, eğer verilmediyse varsayılan olarak 13.6,17.7,0 kullan
     this.position = position || new THREE.Vector3(13.6, 17.7, 0)
     
+    // Animasyon hız çarpanı
+    this.timeScale = 1.5
+    
     // Ana konteyner oluştur
     this.container = new THREE.Object3D()
     this.container.matrixAutoUpdate = false
@@ -80,6 +83,7 @@ export default class NewtonSalincagi {
       
       gltf.animations.forEach((clip) => {
         const action = this.mixer.clipAction(clip)
+        action.setEffectiveTimeScale(this.timeScale)
         action.play()
       })
       
@@ -87,13 +91,25 @@ export default class NewtonSalincagi {
       if (this.time) {
         this.time.on('tick', () => {
           if (this.mixer) {
-            this.mixer.update(this.time.delta * 0.001)
+            this.mixer.update(this.time.delta * 0.001 * this.timeScale)
           }
         })
       }
     }
     
     console.log('Newton Salıncağı eklendi, konum:', this.position)
+  }
+  
+  // Animasyon hızını değiştirme metodu
+  setAnimationSpeed(speed) {
+    this.timeScale = speed
+    
+    // Tüm animasyonların hızını ayarla
+    if (this.mixer) {
+      this.mixer._actions.forEach((action) => {
+        action.setEffectiveTimeScale(this.timeScale)
+      })
+    }
   }
   
   _buildPlatform() {
