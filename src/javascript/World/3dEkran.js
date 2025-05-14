@@ -332,43 +332,40 @@ export default class Ekran3D {
         canvas.width = 1024
         canvas.height = 256
         
-        // info_BG.png dosyasını önce canvas'a arka plan olarak çizelim
-        const buttonBg = new Image()
-        buttonBg.onload = () => {
-            // Resmi canvas'a çiz
-            ctx.drawImage(buttonBg, 0, 0, canvas.width, canvas.height)
-            
-            // Yazı ayarları - resmin üzerine yazdır
-            ctx.fillStyle = 'black'
-            ctx.font = 'bold 80px Arial'
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-            
-            // Canvas değiştiğinde texture'ı güncelle
-            texture.needsUpdate = true
-        }
-        buttonBg.src = 'images/info_BG.png'
+        const gradient = ctx.createRadialGradient(
+          canvas.width/2, canvas.height/2, 0,
+          canvas.width/2, canvas.height/2, canvas.width/2
+        )
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
         
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = 'white'
+        ctx.font = 'bold 96px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+        
+        ctx.shadowColor = '#4285f4'
+        ctx.shadowBlur = 25
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+
         const texture = new THREE.CanvasTexture(canvas)
         texture.magFilter = THREE.LinearFilter
         texture.minFilter = THREE.LinearFilter
 
-        // Tek bir geometri ve material kullan
-        const labelGeometry = new THREE.PlaneGeometry(3, 1.2)
+        const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
         const labelMaterial = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            depthWrite: false,
-            side: THREE.DoubleSide
+          map: texture,
+          transparent: true,
+          depthWrite: false,
+          side: THREE.DoubleSide
         })
-        
-        // Mesh oluştur
+
         this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
-        
-        // Grubun z-pozisyonu
         this.button.label.position.z = 0.2
-        
         this.button.container.add(this.button.label)
     }
       
