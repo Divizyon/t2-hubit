@@ -71,8 +71,10 @@ export default class PlaygroundSection
     {
         // Set up
         this.brickWalls = {}
+
         this.brickWalls.x = this.x + 83
         this.brickWalls.y = this.y + 26.5
+
         this.brickWalls.items = []
 
         // Brick options
@@ -99,7 +101,7 @@ export default class PlaygroundSection
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
-                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                    randomRotation: new THREE.Vector3(0, 0, 0)
                 }
             }),
             this.walls.add({
@@ -113,7 +115,7 @@ export default class PlaygroundSection
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
-                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                    randomRotation: new THREE.Vector3(0, 0, 0)
                 }
             }),
             this.walls.add({
@@ -126,7 +128,7 @@ export default class PlaygroundSection
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
-                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                    randomRotation: new THREE.Vector3(0, 0, 0)
                 }
             })
         )

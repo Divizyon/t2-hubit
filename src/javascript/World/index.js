@@ -1021,7 +1021,7 @@ export default class World
             rotateX: Math.PI / 2,
             rotateY: 0,
             rotateZ: 0,
-            scale: new THREE.Vector3(1.6, 1.6, 1.6) // Ölçeği 1.6 katına çıkardık
+            scale: new THREE.Vector3(2.2, 2.2, 2.2) // Ölçeği 1.6 katına çıkardık
         })
     }
     
