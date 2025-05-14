@@ -357,11 +357,11 @@ export default class World
                     // Uzamsal ses kaynağını güncelle - burası önemli
                     if(this.sounds && this.sounds.updateSpatialPosition) {
                         // Ses kaynağı aracın karşısına yerleştir
-                        this.sounds.updateSpatialPosition('spatialSound1', -84.6, -35, 1.3)
+                        this.sounds.updateSpatialPosition('spatialSound1', -55, -50, 1.3)
                     }
                     //kelebek bahcesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound2', 52, -7, 0)
+                        this.sounds.updateSpatialPosition('spatialSound2', 55, -5, 0)
                     }
                     //alaaddin tepesi icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
@@ -369,7 +369,7 @@ export default class World
                     }
                     //japon parki icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound4', -7, -34, 0)
+                        this.sounds.updateSpatialPosition('spatialSound4', -5.5, -34, 0)
                     }
                     //konser alani icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
@@ -377,7 +377,7 @@ export default class World
                     }
                     //newton salıncagı icin uzamsal ses pozisyonu
                     if(this.sounds && this.sounds.updateSpatialPosition) {
-                        this.sounds.updateSpatialPosition('spatialSound6', 22, 5, 0)
+                        this.sounds.updateSpatialPosition('spatialSound6', 13.6, 17.7, 0)
                     }
                 }
             }

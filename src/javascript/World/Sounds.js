@@ -161,7 +161,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-84, -35, 0] 
+                defaultPosition: [-55, -50, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound2',
@@ -174,7 +174,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [52, -7, 0] 
+                defaultPosition: [55, -5, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound3',
@@ -200,7 +200,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-7, -34, 0] 
+                defaultPosition: [-5.5, -34, 0] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound5',
@@ -226,7 +226,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [22, 5, 0] 
+                defaultPosition: [13.6, 17.7, 0] 
             },
             {
                 name: 'rocketPrepare',
@@ -507,7 +507,7 @@ export default class Sounds
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 2;
+                    _options.volumeMax = 4;
                 }
                 if (_options.name === 'spatialSound6') {
                     customPannerAttr = {
@@ -520,7 +520,7 @@ export default class Sounds
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 0.2;
+                    _options.volumeMax = 2;
                 }
                 
                 item.howl = new Howl({
