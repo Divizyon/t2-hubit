@@ -30,6 +30,7 @@ import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
+import * as CANNON from 'cannon'
 
 
 import AladdinTepesi from './AlaaddinTepesi.js'
@@ -133,6 +134,9 @@ export default class World
         this.set3dEkran()
         this.setKademe()
         this.setSesOdasi()
+        this.setKaleCollision()
+        this.setKaleCollision2()
+        this.setKaleCollision3()
     }
 
     setReveal()
@@ -1138,6 +1142,755 @@ export default class World
           areas:     this.areas,
           materials: this.materials
         });
-      }
-      
+    }
+    
+    // Kale çevresinde collision kutusu oluştur
+    setKaleCollision()
+    {
+        // Collision kutusu oluştur
+        this.kaleCollision = {}
+        
+        // Başlangıç özellikleri - kale konumuna göre ayarlanmış
+        this.kaleCollision.position = new THREE.Vector3(-74.8, 19.5, 1)
+        this.kaleCollision.size = new THREE.Vector3(4, 1, 3.5)
+        
+        // Debug kontrolleri için parametre objesi
+        this.kaleCollision.params = {
+            visible: false,
+            positionX: this.kaleCollision.position.x,
+            positionY: this.kaleCollision.position.y,
+            positionZ: this.kaleCollision.position.z,
+            sizeX: this.kaleCollision.size.x,
+            sizeY: this.kaleCollision.size.y,
+            sizeZ: this.kaleCollision.size.z,
+            color: 0x00ff00, // Yeşil renk
+            opacity: 0.8, // Biraz daha belirgin
+            wireframe: true // Wireframe modunu aktif et
+        }
+        
+        // Görünür kutu geometrisi oluştur
+        this.kaleCollision.geometry = new THREE.BoxGeometry(
+            this.kaleCollision.size.x,
+            this.kaleCollision.size.y,
+            this.kaleCollision.size.z
+        )
+        
+        // Wireframe materyal oluştur
+        this.kaleCollision.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision.params.color,
+            transparent: true,
+            opacity: this.kaleCollision.params.opacity,
+            wireframe: this.kaleCollision.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision.mesh = new THREE.Mesh(
+            this.kaleCollision.geometry,
+            this.kaleCollision.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision.mesh.position.copy(this.kaleCollision.position)
+        
+        // Görünürlük ayarı
+        this.kaleCollision.mesh.visible = this.kaleCollision.params.visible
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision.mesh)
+        
+        // Fizik motoru için collision body oluştur
+        if(this.physics)
+        {
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision.size.x * 0.5,
+                this.kaleCollision.size.y * 0.5,
+                this.kaleCollision.size.z * 0.5
+            ))
+            
+            this.kaleCollision.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision.position.x,
+                    this.kaleCollision.position.y,
+                    this.kaleCollision.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Collision body'yi fizik motoruna ekle
+            this.physics.world.addBody(this.kaleCollision.body)
+        }
+        
+        // Debug panelinde düzenleme seçenekleri ekle
+        if(this.debug)
+        {
+            const collisionFolder = this.debugFolder.addFolder('Kale Collision')
+            
+            // Görünürlük kontrolü
+            collisionFolder.add(this.kaleCollision.params, 'visible')
+                .name('Görünür')
+                .onChange(() => {
+                    this.kaleCollision.mesh.visible = this.kaleCollision.params.visible
+                })
+            
+            // Pozisyon kontrolü
+            const positionFolder = collisionFolder.addFolder('Pozisyon')
+            
+            positionFolder.add(this.kaleCollision.params, 'positionX')
+                .min(-100).max(100).step(0.1)
+                .name('X Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition()
+                })
+            
+            positionFolder.add(this.kaleCollision.params, 'positionY')
+                .min(-100).max(100).step(0.1)
+                .name('Y Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition()
+                })
+            
+            positionFolder.add(this.kaleCollision.params, 'positionZ')
+                .min(-10).max(10).step(0.1)
+                .name('Z Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition()
+                })
+            
+            // Boyut kontrolü
+            const sizeFolder = collisionFolder.addFolder('Boyut')
+            
+            sizeFolder.add(this.kaleCollision.params, 'sizeX')
+                .min(0.1).max(20).step(0.1)
+                .name('X Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize()
+                })
+            
+            sizeFolder.add(this.kaleCollision.params, 'sizeY')
+                .min(0.1).max(20).step(0.1)
+                .name('Y Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize()
+                })
+            
+            sizeFolder.add(this.kaleCollision.params, 'sizeZ')
+                .min(0.1).max(20).step(0.1)
+                .name('Z Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize()
+                })
+            
+            // Görünüm kontrolü
+            const lookFolder = collisionFolder.addFolder('Görünüm')
+            
+            lookFolder.addColor(this.kaleCollision.params, 'color')
+                .name('Renk')
+                .onChange(() => {
+                    this.kaleCollision.material.color.set(this.kaleCollision.params.color)
+                })
+            
+            lookFolder.add(this.kaleCollision.params, 'opacity')
+                .min(0).max(1).step(0.01)
+                .name('Opaklık')
+                .onChange(() => {
+                    this.kaleCollision.material.opacity = this.kaleCollision.params.opacity
+                })
+                
+            lookFolder.add(this.kaleCollision.params, 'wireframe')
+                .name('Wireframe')
+                .onChange(() => {
+                    this.kaleCollision.material.wireframe = this.kaleCollision.params.wireframe
+                })
+        }
+    }
+    
+    // Kale collision pozisyonunu güncelle
+    updateKalePosition()
+    {
+        // Mesh pozisyonunu güncelle
+        this.kaleCollision.position.set(
+            this.kaleCollision.params.positionX,
+            this.kaleCollision.params.positionY,
+            this.kaleCollision.params.positionZ
+        )
+        
+        this.kaleCollision.mesh.position.copy(this.kaleCollision.position)
+        
+        // Fizik body pozisyonunu güncelle
+        if(this.physics && this.kaleCollision.body)
+        {
+            this.kaleCollision.body.position.set(
+                this.kaleCollision.params.positionX,
+                this.kaleCollision.params.positionY,
+                this.kaleCollision.params.positionZ
+            )
+        }
+    }
+    
+    // Kale collision boyutunu güncelle
+    updateKaleSize()
+    {
+        // Eski mesh'i kaldır
+        this.scene.remove(this.kaleCollision.mesh)
+        
+        // Yeni geometri oluştur
+        this.kaleCollision.geometry = new THREE.BoxGeometry(
+            this.kaleCollision.params.sizeX,
+            this.kaleCollision.params.sizeY,
+            this.kaleCollision.params.sizeZ
+        )
+        
+        // Materyal özellikleri koru
+        this.kaleCollision.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision.params.color,
+            transparent: true,
+            opacity: this.kaleCollision.params.opacity,
+            wireframe: this.kaleCollision.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision.mesh = new THREE.Mesh(
+            this.kaleCollision.geometry,
+            this.kaleCollision.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision.mesh.position.copy(this.kaleCollision.position)
+        
+        // Görünürlük ayarı
+        this.kaleCollision.mesh.visible = this.kaleCollision.params.visible
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision.mesh)
+        
+        // Fizik body'yi güncelle
+        if(this.physics && this.kaleCollision.body)
+        {
+            // Eski body'yi kaldır
+            this.physics.world.removeBody(this.kaleCollision.body)
+            
+            // Yeni shape oluştur
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision.params.sizeX * 0.5,
+                this.kaleCollision.params.sizeY * 0.5,
+                this.kaleCollision.params.sizeZ * 0.5
+            ))
+            
+            // Yeni body oluştur
+            this.kaleCollision.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision.position.x,
+                    this.kaleCollision.position.y,
+                    this.kaleCollision.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Dünyaya ekle
+            this.physics.world.addBody(this.kaleCollision.body)
+        }
+    }
+
+    // Kale çevresinde ikinci collision kutusu oluştur
+    setKaleCollision2()
+    {
+        // Collision kutusu oluştur
+        this.kaleCollision2 = {}
+        
+        // Başlangıç özellikleri - belirtilen konuma göre ayarlanmış
+        this.kaleCollision2.position = new THREE.Vector3(-74.8, 27, 1)
+        this.kaleCollision2.size = new THREE.Vector3(4, 1, 3.5)
+        
+        // Debug kontrolleri için parametre objesi
+        this.kaleCollision2.params = {
+            visible: false,
+            positionX: this.kaleCollision2.position.x,
+            positionY: this.kaleCollision2.position.y,
+            positionZ: this.kaleCollision2.position.z,
+            sizeX: this.kaleCollision2.size.x,
+            sizeY: this.kaleCollision2.size.y,
+            sizeZ: this.kaleCollision2.size.z,
+            color: 0x00ff00, // Yeşil renk
+            opacity: 0.8, // Biraz daha belirgin
+            wireframe: true // Wireframe modunu aktif et
+        }
+        
+        // Görünür kutu geometrisi oluştur
+        this.kaleCollision2.geometry = new THREE.BoxGeometry(
+            this.kaleCollision2.size.x,
+            this.kaleCollision2.size.y,
+            this.kaleCollision2.size.z
+        )
+        
+        // Wireframe materyal oluştur
+        this.kaleCollision2.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision2.params.color,
+            transparent: true,
+            opacity: this.kaleCollision2.params.opacity,
+            wireframe: this.kaleCollision2.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision2.mesh = new THREE.Mesh(
+            this.kaleCollision2.geometry,
+            this.kaleCollision2.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision2.mesh.position.copy(this.kaleCollision2.position)
+        
+        // Görünürlük ayarı
+        this.kaleCollision2.mesh.visible = this.kaleCollision2.params.visible
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision2.mesh)
+        
+        // Fizik motoru için collision body oluştur
+        if(this.physics)
+        {
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision2.size.x * 0.5,
+                this.kaleCollision2.size.y * 0.5,
+                this.kaleCollision2.size.z * 0.5
+            ))
+            
+            this.kaleCollision2.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision2.position.x,
+                    this.kaleCollision2.position.y,
+                    this.kaleCollision2.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Collision body'yi fizik motoruna ekle
+            this.physics.world.addBody(this.kaleCollision2.body)
+        }
+        
+        // Debug panelinde düzenleme seçenekleri ekle
+        if(this.debug)
+        {
+            const collisionFolder = this.debugFolder.addFolder('Kale Collision 2')
+            
+            // Görünürlük kontrolü
+            collisionFolder.add(this.kaleCollision2.params, 'visible')
+                .name('Görünür')
+                .onChange(() => {
+                    this.kaleCollision2.mesh.visible = this.kaleCollision2.params.visible
+                })
+            
+            // Pozisyon kontrolü
+            const positionFolder = collisionFolder.addFolder('Pozisyon')
+            
+            positionFolder.add(this.kaleCollision2.params, 'positionX')
+                .min(-100).max(100).step(0.1)
+                .name('X Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition2()
+                })
+            
+            positionFolder.add(this.kaleCollision2.params, 'positionY')
+                .min(-100).max(100).step(0.1)
+                .name('Y Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition2()
+                })
+            
+            positionFolder.add(this.kaleCollision2.params, 'positionZ')
+                .min(-10).max(10).step(0.1)
+                .name('Z Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition2()
+                })
+            
+            // Boyut kontrolü
+            const sizeFolder = collisionFolder.addFolder('Boyut')
+            
+            sizeFolder.add(this.kaleCollision2.params, 'sizeX')
+                .min(0.1).max(20).step(0.1)
+                .name('X Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize2()
+                })
+            
+            sizeFolder.add(this.kaleCollision2.params, 'sizeY')
+                .min(0.1).max(20).step(0.1)
+                .name('Y Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize2()
+                })
+            
+            sizeFolder.add(this.kaleCollision2.params, 'sizeZ')
+                .min(0.1).max(20).step(0.1)
+                .name('Z Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize2()
+                })
+            
+            // Görünüm kontrolü
+            const lookFolder = collisionFolder.addFolder('Görünüm')
+            
+            lookFolder.addColor(this.kaleCollision2.params, 'color')
+                .name('Renk')
+                .onChange(() => {
+                    this.kaleCollision2.material.color.set(this.kaleCollision2.params.color)
+                })
+            
+            lookFolder.add(this.kaleCollision2.params, 'opacity')
+                .min(0).max(1).step(0.01)
+                .name('Opaklık')
+                .onChange(() => {
+                    this.kaleCollision2.material.opacity = this.kaleCollision2.params.opacity
+                })
+                
+            lookFolder.add(this.kaleCollision2.params, 'wireframe')
+                .name('Wireframe')
+                .onChange(() => {
+                    this.kaleCollision2.material.wireframe = this.kaleCollision2.params.wireframe
+                })
+        }
+    }
+    
+    // İkinci kale collision pozisyonunu güncelle
+    updateKalePosition2()
+    {
+        // Mesh pozisyonunu güncelle
+        this.kaleCollision2.position.set(
+            this.kaleCollision2.params.positionX,
+            this.kaleCollision2.params.positionY,
+            this.kaleCollision2.params.positionZ
+        )
+        
+        this.kaleCollision2.mesh.position.copy(this.kaleCollision2.position)
+        
+        // Fizik body pozisyonunu güncelle
+        if(this.physics && this.kaleCollision2.body)
+        {
+            this.kaleCollision2.body.position.set(
+                this.kaleCollision2.params.positionX,
+                this.kaleCollision2.params.positionY,
+                this.kaleCollision2.params.positionZ
+            )
+        }
+    }
+    
+    // İkinci kale collision boyutunu güncelle
+    updateKaleSize2()
+    {
+        // Eski mesh'i kaldır
+        this.scene.remove(this.kaleCollision2.mesh)
+        
+        // Yeni geometri oluştur
+        this.kaleCollision2.geometry = new THREE.BoxGeometry(
+            this.kaleCollision2.params.sizeX,
+            this.kaleCollision2.params.sizeY,
+            this.kaleCollision2.params.sizeZ
+        )
+        
+        // Materyal özellikleri koru
+        this.kaleCollision2.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision2.params.color,
+            transparent: true,
+            opacity: this.kaleCollision2.params.opacity,
+            wireframe: this.kaleCollision2.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision2.mesh = new THREE.Mesh(
+            this.kaleCollision2.geometry,
+            this.kaleCollision2.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision2.mesh.position.copy(this.kaleCollision2.position)
+        
+        // Görünürlük ayarı
+        this.kaleCollision2.mesh.visible = this.kaleCollision2.params.visible
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision2.mesh)
+        
+        // Fizik body'yi güncelle
+        if(this.physics && this.kaleCollision2.body)
+        {
+            // Eski body'yi kaldır
+            this.physics.world.removeBody(this.kaleCollision2.body)
+            
+            // Yeni shape oluştur
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision2.params.sizeX * 0.5,
+                this.kaleCollision2.params.sizeY * 0.5,
+                this.kaleCollision2.params.sizeZ * 0.5
+            ))
+            
+            // Yeni body oluştur
+            this.kaleCollision2.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision2.position.x,
+                    this.kaleCollision2.position.y,
+                    this.kaleCollision2.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Dünyaya ekle
+            this.physics.world.addBody(this.kaleCollision2.body)
+        }
+    }
+
+    // Kale çevresinde üçüncü collision kutusu oluştur
+    setKaleCollision3()
+    {
+        // Collision kutusu oluştur
+        this.kaleCollision3 = {}
+        
+        // Başlangıç özellikleri - belirtilen konuma göre ayarlanmış
+        this.kaleCollision3.position = new THREE.Vector3(-77, 24, 1)
+        this.kaleCollision3.size = new THREE.Vector3(1, 7.5, 3.5)
+        
+        // Debug kontrolleri için parametre objesi
+        this.kaleCollision3.params = {
+            visible: false,
+            positionX: this.kaleCollision3.position.x,
+            positionY: this.kaleCollision3.position.y,
+            positionZ: this.kaleCollision3.position.z,
+            sizeX: this.kaleCollision3.size.x,
+            sizeY: this.kaleCollision3.size.y,
+            sizeZ: this.kaleCollision3.size.z,
+            color: 0x00ff00, // Yeşil renk
+            opacity: 0.8, // Biraz daha belirgin
+            wireframe: true // Wireframe modunu aktif et
+        }
+        
+        // Görünür kutu geometrisi oluştur
+        this.kaleCollision3.geometry = new THREE.BoxGeometry(
+            this.kaleCollision3.size.x,
+            this.kaleCollision3.size.y,
+            this.kaleCollision3.size.z
+        )
+        
+        // Wireframe materyal oluştur
+        this.kaleCollision3.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision3.params.color,
+            transparent: true,
+            opacity: this.kaleCollision3.params.opacity,
+            wireframe: this.kaleCollision3.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision3.mesh = new THREE.Mesh(
+            this.kaleCollision3.geometry,
+            this.kaleCollision3.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision3.mesh.position.copy(this.kaleCollision3.position)
+        
+        // Görünürlük ayarı
+        this.kaleCollision3.mesh.visible = this.kaleCollision3.params.visible
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision3.mesh)
+        
+        // Fizik motoru için collision body oluştur
+        if(this.physics)
+        {
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision3.size.x * 0.5,
+                this.kaleCollision3.size.y * 0.5,
+                this.kaleCollision3.size.z * 0.5
+            ))
+            
+            this.kaleCollision3.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision3.position.x,
+                    this.kaleCollision3.position.y,
+                    this.kaleCollision3.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Collision body'yi fizik motoruna ekle
+            this.physics.world.addBody(this.kaleCollision3.body)
+        }
+        
+        // Debug panelinde düzenleme seçenekleri ekle
+        if(this.debug)
+        {
+            const collisionFolder = this.debugFolder.addFolder('Kale Collision 3')
+            
+            // Görünürlük kontrolü
+            collisionFolder.add(this.kaleCollision3.params, 'visible')
+                .name('Görünür')
+                .onChange(() => {
+                    this.kaleCollision3.mesh.visible = this.kaleCollision3.params.visible
+                })
+            
+            // Pozisyon kontrolü
+            const positionFolder = collisionFolder.addFolder('Pozisyon')
+            
+            positionFolder.add(this.kaleCollision3.params, 'positionX')
+                .min(-100).max(100).step(0.1)
+                .name('X Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition3()
+                })
+            
+            positionFolder.add(this.kaleCollision3.params, 'positionY')
+                .min(-100).max(100).step(0.1)
+                .name('Y Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition3()
+                })
+            
+            positionFolder.add(this.kaleCollision3.params, 'positionZ')
+                .min(-10).max(10).step(0.1)
+                .name('Z Pozisyonu')
+                .onChange(() => {
+                    this.updateKalePosition3()
+                })
+            
+            // Boyut kontrolü
+            const sizeFolder = collisionFolder.addFolder('Boyut')
+            
+            sizeFolder.add(this.kaleCollision3.params, 'sizeX')
+                .min(0.1).max(20).step(0.1)
+                .name('X Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize3()
+                })
+            
+            sizeFolder.add(this.kaleCollision3.params, 'sizeY')
+                .min(0.1).max(20).step(0.1)
+                .name('Y Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize3()
+                })
+            
+            sizeFolder.add(this.kaleCollision3.params, 'sizeZ')
+                .min(0.1).max(20).step(0.1)
+                .name('Z Boyutu')
+                .onChange(() => {
+                    this.updateKaleSize3()
+                })
+            
+            // Görünüm kontrolü
+            const lookFolder = collisionFolder.addFolder('Görünüm')
+            
+            lookFolder.addColor(this.kaleCollision3.params, 'color')
+                .name('Renk')
+                .onChange(() => {
+                    this.kaleCollision3.material.color.set(this.kaleCollision3.params.color)
+                })
+            
+            lookFolder.add(this.kaleCollision3.params, 'opacity')
+                .min(0).max(1).step(0.01)
+                .name('Opaklık')
+                .onChange(() => {
+                    this.kaleCollision3.material.opacity = this.kaleCollision3.params.opacity
+                })
+                
+            lookFolder.add(this.kaleCollision3.params, 'wireframe')
+                .name('Wireframe')
+                .onChange(() => {
+                    this.kaleCollision3.material.wireframe = this.kaleCollision3.params.wireframe
+                })
+        }
+    }
+    
+    // Üçüncü kale collision pozisyonunu güncelle
+    updateKalePosition3()
+    {
+        // Mesh pozisyonunu güncelle
+        this.kaleCollision3.position.set(
+            this.kaleCollision3.params.positionX,
+            this.kaleCollision3.params.positionY,
+            this.kaleCollision3.params.positionZ
+        )
+        
+        this.kaleCollision3.mesh.position.copy(this.kaleCollision3.position)
+        
+        // Fizik body pozisyonunu güncelle
+        if(this.physics && this.kaleCollision3.body)
+        {
+            this.kaleCollision3.body.position.set(
+                this.kaleCollision3.params.positionX,
+                this.kaleCollision3.params.positionY,
+                this.kaleCollision3.params.positionZ
+            )
+        }
+    }
+    
+    // Üçüncü kale collision boyutunu güncelle
+    updateKaleSize3()
+    {
+        // Eski mesh'i kaldır
+        this.scene.remove(this.kaleCollision3.mesh)
+        
+        // Yeni geometri oluştur
+        this.kaleCollision3.geometry = new THREE.BoxGeometry(
+            this.kaleCollision3.params.sizeX,
+            this.kaleCollision3.params.sizeY,
+            this.kaleCollision3.params.sizeZ
+        )
+        
+        // Materyal özellikleri koru
+        this.kaleCollision3.material = new THREE.MeshBasicMaterial({
+            color: this.kaleCollision3.params.color,
+            transparent: true,
+            opacity: this.kaleCollision3.params.opacity,
+            wireframe: this.kaleCollision3.params.wireframe
+        })
+        
+        // Yeni mesh oluştur
+        this.kaleCollision3.mesh = new THREE.Mesh(
+            this.kaleCollision3.geometry,
+            this.kaleCollision3.material
+        )
+        
+        // Pozisyonu ayarla
+        this.kaleCollision3.mesh.position.copy(this.kaleCollision3.position)
+        
+        // Sahneye ekle
+        this.scene.add(this.kaleCollision3.mesh)
+        
+        // Fizik body'yi güncelle
+        if(this.physics && this.kaleCollision3.body)
+        {
+            // Eski body'yi kaldır
+            this.physics.world.removeBody(this.kaleCollision3.body)
+            
+            // Yeni shape oluştur
+            const shape = new CANNON.Box(new CANNON.Vec3(
+                this.kaleCollision3.params.sizeX * 0.5,
+                this.kaleCollision3.params.sizeY * 0.5,
+                this.kaleCollision3.params.sizeZ * 0.5
+            ))
+            
+            // Yeni body oluştur
+            this.kaleCollision3.body = new CANNON.Body({
+                mass: 0, // Statik nesne
+                position: new CANNON.Vec3(
+                    this.kaleCollision3.position.x,
+                    this.kaleCollision3.position.y,
+                    this.kaleCollision3.position.z
+                ),
+                shape: shape,
+                material: this.physics.materials.items.dummy
+            })
+            
+            // Dünyaya ekle
+            this.physics.world.addBody(this.kaleCollision3.body)
+        }
+    }
 }
