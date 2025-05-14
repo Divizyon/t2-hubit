@@ -262,22 +262,21 @@ export default class Stadyum {
     this.infoPanel.style.right = '20px'
     this.infoPanel.style.left = 'auto'
     this.infoPanel.style.transform = 'none'
-    this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
-    this.infoPanel.style.color = 'white'
-    this.infoPanel.style.padding = '15px'
-    this.infoPanel.style.borderRadius = '10px'
+    this.infoPanel.style.width = '320px'
     this.infoPanel.style.fontFamily = 'Arial, sans-serif'
     this.infoPanel.style.zIndex = '1000'
     this.infoPanel.style.display = 'none'
     this.infoPanel.style.transition = 'opacity 0.3s ease-in-out'
-    this.infoPanel.style.textAlign = 'center'
-    this.infoPanel.style.maxWidth = '400px'
     
     // Bilgi paneli içeriği
     this.infoPanel.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #4285f4;">Konya Stadyumu</h3>
-      <p style="margin: 0 0 10px 0;">Konya Büyükşehir Belediye Stadyumu, Türkiye'nin en modern stadyumlarından biridir. 42.000 kişilik kapasitesi ile spor etkinliklerine ev sahipliği yapmaktadır.</p>
-      <a href="https://stadyum.konya.bel.tr/" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+      <div style="position: relative; width: 100%;">
+        <img src="images/info_BG.png" style="width: 100%; border-radius: 10px;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+          <h3 style="margin: 0 0 5px 0; color: #000000; font-size: 18px; font-weight: bold;">Konya Stadyumu</h3>
+          <p style="margin: 0; color: #000000; font-size: 12px; line-height: 1.2; max-width: 85%;">Konya Büyükşehir Belediye Stadyumu, Türkiye'nin en modern stadyumlarından biridir.</p>
+        </div>
+      </div>
     `
     document.body.appendChild(this.infoPanel)
 
@@ -368,22 +367,15 @@ export default class Stadyum {
     canvas.width = 1024
     canvas.height = 256
     
-    const gradient = ctx.createRadialGradient(
-      canvas.width/2, canvas.height/2, 0,
-      canvas.width/2, canvas.height/2, canvas.width/2
-    )
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
-    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
-    
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
+    // Siyah gradient arka planı kaldırıldı
+    // Sadece beyaz yazı bırakıldı
     ctx.fillStyle = 'white'
     ctx.font = 'bold 64px Arial'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
     
+    // Gölge efekti korundu
     ctx.shadowColor = '#4285f4'
     ctx.shadowBlur = 25
     ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)

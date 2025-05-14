@@ -539,22 +539,21 @@ export default class JaponParki {
         this.infoPanel.style.right = '20px'
         this.infoPanel.style.left = 'auto'
         this.infoPanel.style.transform = 'none'
-        this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
-        this.infoPanel.style.color = 'white'
-        this.infoPanel.style.padding = '15px'
-        this.infoPanel.style.borderRadius = '10px'
+        this.infoPanel.style.width = '320px'
         this.infoPanel.style.fontFamily = 'Arial, sans-serif'
         this.infoPanel.style.zIndex = '1000'
         this.infoPanel.style.display = 'none'
         this.infoPanel.style.transition = 'opacity 0.3s ease-in-out'
-        this.infoPanel.style.textAlign = 'center'
-        this.infoPanel.style.maxWidth = '400px'
         
         // Bilgi paneli içeriği
         this.infoPanel.innerHTML = `
-            <h3 style="margin: 0 0 10px 0; color: #4285f4;">Japon Parkı</h3>
-            <p style="margin: 0 0 10px 0;">Japon Parkı hakkında detaylı bilgi burada yer alacak.</p>
-            <a href="https://www.konya.bel.tr/hizmet-binalari-ve-sosyal-tesisler/japon-parki" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+            <div style="position: relative; width: 100%;">
+                <img src="images/info_BG.png" style="width: 100%; border-radius: 10px;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <h3 style="margin: 0 0 5px 0; color: #000000; font-size: 18px; font-weight: bold;">Japon Parkı</h3>
+                    <p style="margin: 0; color: #000000; font-size: 12px; line-height: 1.2; max-width: 85%;">Konya'nın egzotik park alanı</p>
+                </div>
+            </div>
         `
         document.body.appendChild(this.infoPanel)
 
@@ -646,7 +645,7 @@ export default class JaponParki {
         canvas.height = 256
         
         // Yazı ayarları - resmin üzerine yazdır
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = 'white'
         ctx.font = 'bold 80px Arial' // Font boyutu 88'den 80'e küçültüldü
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
@@ -664,9 +663,7 @@ export default class JaponParki {
             side: THREE.DoubleSide
         })
 
-        // info_BG.png dosyasını arka plan olarak yükle
-        const backgroundTexture = new THREE.TextureLoader().load('images/info_BG.png')
-        
+        const backgroundTexture = new THREE.TextureLoader()     
         // Arka plan için malzeme
         const backgroundMaterial = new THREE.MeshBasicMaterial({
             map: backgroundTexture,

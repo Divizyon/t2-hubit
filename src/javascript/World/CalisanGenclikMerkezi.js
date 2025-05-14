@@ -238,23 +238,21 @@ export default class GenclikMerkezi {
       this.infoPanel.style.bottom = '20px';
       this.infoPanel.style.right = '20px'; // Sağ alt köşede göstermek için
       this.infoPanel.style.transform = 'none'; // transform'u kaldır
-      this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-      this.infoPanel.style.color = 'white';
-      this.infoPanel.style.padding = '15px';
-      this.infoPanel.style.borderRadius = '10px';
+      this.infoPanel.style.width = '320px';
       this.infoPanel.style.fontFamily = 'Arial, sans-serif';
       this.infoPanel.style.zIndex = '1000';
       this.infoPanel.style.display = 'none';
       this.infoPanel.style.transition = 'opacity 0.3s ease-in-out';
-      this.infoPanel.style.textAlign = 'center';
-      this.infoPanel.style.maxWidth = '400px';
       
       // Bilgi paneli içeriği - Link ekle
       this.infoPanel.innerHTML = `
-        <h3 style="margin: 0 0 10px 0; color: #4285f4;">Çalışan Gençlik Merkezi</h3>
-        <p style="margin: 0 0 10px 0;">Konya Çalışan Gençlik Meclisi, gençler için çeşitli etkinlikler ve aktiviteler düzenleyen bir organizasyondur.</p>
-        <p style="margin: 0 0 10px 0;">Projeler, etkinlikler ve haberlere web sitesinden ulaşabilirsiniz.</p>
-        <a href="${this.websiteUrl}" target="_blank" style="display: inline-block; text-decoration: none; background-color: #4285f4; color: white; padding: 8px 15px; border-radius: 5px; margin-top: 10px; font-weight: bold;">Web Sitesini Ziyaret Et</a>
+        <div style="position: relative; width: 100%;">
+          <img src="images/info_BG.png" style="width: 100%; border-radius: 10px;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <h3 style="margin: 0 0 5px 0; color: #000000; font-size: 18px; font-weight: bold;">Çalışan Gençlik Merkezi</h3>
+            <p style="margin: 0; color: #000000; font-size: 12px; line-height: 1.2; max-width: 85%;">Gençler için etkinlikler düzenleyen organizasyon</p>
+          </div>
+        </div>
       `;
       
       document.body.appendChild(this.infoPanel);
@@ -296,26 +294,20 @@ export default class GenclikMerkezi {
     const ctx = canvas.getContext('2d')
     canvas.width = 1024
     canvas.height = 256
-    
-    // info_BG.png dosyasını önce canvas'a arka plan olarak çizelim
-    const buttonBg = new Image()
-    buttonBg.onload = () => {
-        // Resmi canvas'a çiz
-        ctx.drawImage(buttonBg, 0, 0, canvas.width, canvas.height)
-        
+   
         // Yazı ayarları - resmin üzerine yazdır
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = 'white'
         ctx.font = 'bold 80px Arial'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
         
-        // Canvas değiştiğinde texture'ı güncelle
-        texture.needsUpdate = true
-    }
-    buttonBg.src = 'images/info_BG.png'
+        // Canvas değiştiğinde texture'ı güncell
+       
+    
     
     const texture = new THREE.CanvasTexture(canvas)
+    texture.needsUpdate = true
     texture.magFilter = THREE.LinearFilter
     texture.minFilter = THREE.LinearFilter
 
