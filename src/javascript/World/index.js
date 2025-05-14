@@ -927,9 +927,18 @@ export default class World
             physics: this.physics,
             areas: this.areas,
             materials: this.materials,
-            // Özel collision ayarları
-            collisionPosition: new THREE.Vector3(-6.5, -31, 0), // Özel konum
-            collisionSize: new THREE.Vector3(18, 27, 5) // Boyutu 5x18x27 olarak güncellendi
+            // Ana çarpışma kutusu ayarları
+            collisionPosition: new THREE.Vector3(-5, -31.5, 0), // Ana kutunun konumu
+            collisionSize: new THREE.Vector3(17, 26.5, 5), // Ana kutunun boyutu (x, y, z)
+            collisionRotation: new THREE.Euler(0, 0, 0), // Ana kutunun rotasyonu (x, y, z açıları)
+            // Sağdaki çıkıntı için çarpışma kutusu ayarları
+            rightBoxPosition: new THREE.Vector3(6.5, -2, 0), // Sağ kutunun ana kutuya göre pozisyon farkı
+            rightBoxSize: new THREE.Vector3(5, 18, 5), // Sağ kutunun boyutu (genişlik, yükseklik, derinlik)
+            rightBoxRotation: new THREE.Euler(0, 0, 0), // Sağ kutunun rotasyonu (x, y, z açıları)
+            // Üçüncü çarpışma kutusu (yeni eklenen)
+            thirdBoxPosition: new THREE.Vector3(6, 9.85, 0), // Üçüncü kutunun ana kutuya göre pozisyon farkı
+            thirdBoxSize: new THREE.Vector3(7, 3, 3), // Üçüncü kutunun boyutu (genişlik, yükseklik, derinlik)
+            thirdBoxRotation: new THREE.Euler(0, 0, -Math.PI / 3.7) // Z ekseni etrafında -45 derece döndür (diğer yöne)
         });
     }
 
