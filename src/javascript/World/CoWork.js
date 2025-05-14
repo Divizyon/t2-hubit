@@ -305,7 +305,7 @@ export default class CoWork {
     
     // Bilgi paneli içeriği
     this.infoPanel.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #4285f4;">CoWork</h3>
+      <h3 style="margin: 0 0 10px 0; color: #4285f4;">Ziyaret Et</h3>
       <p style="margin: 0 0 10px 0;">CoWork alanı hakkında detaylı bilgi burada yer alacak.</p>
       <a href="#" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
     `
@@ -348,7 +348,7 @@ export default class CoWork {
         // Enter tuşu için event listener ekleniyor
         this.enterKeyListener = (event) => {
           if (event.key === 'Enter') {
-            window.open('#', '_blank');
+            window.open('https://www.divizyon.org/co-working/', '_blank');
           }
         };
         window.addEventListener('keydown', this.enterKeyListener);
@@ -387,7 +387,7 @@ export default class CoWork {
       
       // Doğrudan etkileşim için tıklama desteği ekle
       this.interactiveArea.on('interact', () => {
-        window.open('#', '_blank');
+        window.open('https://www.divizyon.org/co-working/', '_blank');
       });
     }
   }

@@ -1134,7 +1134,9 @@ export default class World
           debug:     this.debugFolder,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece
+          areas:     this.areas,
+          materials: this.materials
         });
       }
       

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-37, -43, 4); // İstediğiniz pozisyonu ayarlayabilirsiniz
+const DEFAULT_POSITION = new THREE.Vector3(-37, -43, 1); // İstediğiniz pozisyonu ayarlayabilirsiniz
 
 export default class Kademe {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
