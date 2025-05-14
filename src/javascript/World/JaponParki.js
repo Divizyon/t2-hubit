@@ -33,7 +33,7 @@ export default class JaponParki {
         this.thirdBoxRotation = _options.thirdBoxRotation || new THREE.Euler(0, 0, -Math.PI / 4);
         
         // Buton konumu
-        this.buttonPosition = new THREE.Vector3(6.5, -18, 0);
+        this.buttonPosition = new THREE.Vector3(6.5, -21, 0);
         
         this.setModel();
         

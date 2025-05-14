@@ -5,7 +5,7 @@ import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
 // Model için varsayılan pozisyon - konumu ihtiyaca göre ayarlayabilirsiniz
-const DEFAULT_POSITION = new THREE.Vector3(68, -7, 0);
+const DEFAULT_POSITION = new THREE.Vector3(69, -7, -1);
 
 export default class Sia {
   constructor({ 
@@ -37,11 +37,12 @@ export default class Sia {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
-    this.buttonPosition = new THREE.Vector3(68, -12, 0); // Buton pozisyonu - binanın önünde
+    this.buttonPosition = new THREE.Vector3(69, -12, 0); // Buton pozisyonunu modele göre güncelledim
     
     // Collision değerlerini kaydet
-    this.collisionPosition = collisionPosition || this.position.clone();
-    this.collisionSize = collisionSize;
+    // collisionPosition belirtilmemişse modelin pozisyonunu kullan
+    this.collisionPosition = collisionPosition || new THREE.Vector3(69, -7, 1.5); // X koordinatını 1 birim sola kaydırdım (69 -> 68)
+    this.collisionSize = collisionSize || new THREE.Vector3(3, 3, 3); // Boyutu güncellendi
     this.collisionMesh = null; // Referans için
 
     this._buildModel();
@@ -87,34 +88,55 @@ export default class Sia {
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 
-    // Bounding box hesapla
+    // Bounding box hesapla - model matrixini güncelleyerek kesin ölçüm almak için
     model.updateMatrixWorld(true);
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
+    const center = bbox.getCenter(new THREE.Vector3());
 
-    // Fizik gövdesi oluştur - özel boyut veya otomatik boyut
+    console.log('Sia modeli gerçek boyutu:', size);
+    console.log('Sia modeli merkez noktası:', center);
+
+    // Collision kutusu boyutlarını model boyutuna göre ayarla
+    // Modelin gerçek ölçülerine göre collision kutusu boyutunu belirliyoruz
     let halfExtents;
     if (this.collisionSize) {
-      // Özel boyut kullanılıyor
+      // Kullanıcı tarafından belirtilen özel boyut kullanılıyor
       halfExtents = new CANNON.Vec3(
         this.collisionSize.x / 2, 
         this.collisionSize.y / 2, 
         this.collisionSize.z / 2
       );
     } else {
-      // Otomatik hesaplanan boyut
-      halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+      // Model boyutlarına dayanarak otomatik hesaplanmış değerler
+      // Z ve Y eksenleri, modelin konumu ve rotasyonuna göre değişiyor
+      halfExtents = new CANNON.Vec3(
+        size.x / 2, 
+        size.z / 2, // Modelin Z'si, fizik motorunda Y olarak kullanılıyor (rotasyon nedeniyle)
+        size.y / 2  // Modelin Y'si, fizik motorunda Z olarak kullanılıyor (rotasyon nedeniyle)
+      );
     }
     
+    // Kullanılan boyutları kaydet
+    const usedCollisionSize = new THREE.Vector3(
+      halfExtents.x * 2,
+      halfExtents.y * 2,
+      halfExtents.z * 2
+    );
+    
+    // Collision'ın merkezini modelin merkezine hizala
+    const collisionPos = this.collisionPosition.clone();
+    
+    // BoxShape oluştur
     const boxShape = new CANNON.Box(halfExtents);
 
+    // Fizik gövdesi oluştur
     const body = new CANNON.Body({
-      mass: 0,
-      // Özel collision pozisyonu veya model pozisyonu
+      mass: 0, // Statik nesne
       position: new CANNON.Vec3(
-        this.collisionPosition.x, 
-        this.collisionPosition.y, 
-        this.collisionPosition.z
+        collisionPos.x, 
+        collisionPos.y, 
+        collisionPos.z
       ),
       material: this.physics.materials.items.floor
     });
@@ -129,27 +151,27 @@ export default class Sia {
     
     // Görünür collision mesh oluştur
     const collisionGeometry = new THREE.BoxGeometry(
-      halfExtents.x * 2, 
-      halfExtents.y * 2, 
-      halfExtents.z * 2
+      usedCollisionSize.x, 
+      usedCollisionSize.y, 
+      usedCollisionSize.z
     );
     
     const collisionMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
+      color: 0xff00ff, // Mor renk - daha kolay görülmesi için
       wireframe: true,
-      opacity: 0,
+      opacity: 0.5, // Görünürlüğü arttırdım
       transparent: true,
-      visible: false
+      visible: false // Varsayılan olarak gizli yapıyoruz
     });
     
     this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
-    this.collisionMesh.position.copy(this.collisionPosition);
+    this.collisionMesh.position.copy(collisionPos);
     this.collisionMesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.scene.add(this.collisionMesh);
     
-    console.log('Sia collision mesh eklendi:', 
-      'Pozisyon:', this.collisionPosition, 
-      'Boyut:', new THREE.Vector3(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
+    console.log('Sia collision mesh ayarlandı:', 
+      'Pozisyon:', collisionPos, 
+      'Boyut:', usedCollisionSize
     );
 
     // Obje sistemine ekle
@@ -208,6 +230,7 @@ export default class Sia {
   setCollisionVisibility(visible) {
     if (this.collisionMesh) {
       this.collisionMesh.visible = visible;
+      console.log(`Sia collision görünürlüğü: ${visible ? 'Açık' : 'Kapalı'}`);
     }
   }
   

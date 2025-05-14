@@ -1061,10 +1061,13 @@ export default class World
             rotateZ: 0,
             areas: this.areas,
             materials: this.materials,
-            // Özel collision ayarları
-            collisionPosition: new THREE.Vector3(68, -5, 2), // Güncellenen collision konumu
-            collisionSize: new THREE.Vector3(3, 5, 6) // Güncellenen collision boyutu
+            // Ekran görüntüsünde görünen modele göre ayarlanmış collision değerleri
+            collisionPosition: new THREE.Vector3(68.75, -7, 1.5), // X koordinatını 1 birim SOLA kaydırdım (69 -> 68)
+            collisionSize: new THREE.Vector3(3, 2.5, 3) // Modelin görünen boyutuna uygun hale getirdim
         })
+        
+        // Collision kutusunu gizle
+        this.sia.setCollisionVisibility(false);
     }
 
     // 3D Ekran modelini eklemek için metot
