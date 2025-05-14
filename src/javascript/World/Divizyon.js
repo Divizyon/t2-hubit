@@ -22,7 +22,7 @@ export default class Divizyon {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
-    this.buttonPosition = new THREE.Vector3(-78, -25, 0); // Buton pozisyonu
+    this.buttonPosition = new THREE.Vector3(-74.4, -27.4, 0); // Buton pozisyonu güncellendi
 
     this._buildModel();
     this.scene.add(this.container);
@@ -44,7 +44,7 @@ export default class Divizyon {
     const model = gltf.scene.clone(true);
     
     // model boyutu
-    model.scale.set(1, 1, 1);
+    model.scale.set(1.6, 1.6, 1.6);
     
     model.traverse(child => {
       if (child.isMesh) {

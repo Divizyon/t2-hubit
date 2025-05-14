@@ -18,7 +18,7 @@ export default class SesOdasi {
     this.rotateZ = rotateZ;
     
     // Pozisyon değeri, eğer verilmediyse varsayılan olarak -65, -40, 0 kullan
-    this.position = position || new THREE.Vector3(-65, -40, 0);
+    this.position = position || new THREE.Vector3(-55, -50, 0);
     
     // Ana konteyner oluştur
     this.container = new THREE.Object3D();
@@ -116,7 +116,7 @@ export default class SesOdasi {
       }
     }
     
-    console.log('Ses Odası eklendi, konum:', this.position);
+
   }
   
   setupButton() {

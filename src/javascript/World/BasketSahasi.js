@@ -3,7 +3,7 @@ import CANNON from 'cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export default class BasketSahasi {
-  constructor({ scene, resources, physics, position = new THREE.Vector3(-50, -35, 0), rotateX = 0, rotateY = 0, rotateZ = 0, scale = new THREE.Vector3(1, 1, 1) }) {
+  constructor({ scene, resources, physics, position = new THREE.Vector3(-38, 16, -1), rotateX = 0, rotateY = 0, rotateZ = 0, scale = new THREE.Vector3(1, 1, 1) }) {
     this.scene = scene
     this.resources = resources
     this.physics = physics

@@ -590,7 +590,7 @@ export default class Sounds
                 // Howl nesnesinin pozisyonunu güncelle
                 if(item.howl) {
                     item.howl.pos(x, y, z)
-                    console.log(`Uzamsal ses "${name}" pozisyonu güncellendi: [${x}, ${y}, ${z}]`);
+                    
                 }
                 
                 return true

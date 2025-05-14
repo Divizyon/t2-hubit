@@ -2,13 +2,11 @@ import * as THREE from 'three'
 import CANNON from 'cannon'
 
 export default class NewtonSalincagi {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, position = null, materials = null, areas = null, time = null }) {
+  constructor({ scene, resources, objects, rotateX = 0, rotateY = 0, rotateZ = 0, position = null, materials = null, areas = null, time = null }) {
     // Özellikleri kaydet
     this.scene = scene
     this.resources = resources
     this.objects = objects
-    this.physics = physics
-    this.debug = debug
     this.materials = materials
     this.areas = areas
     this.time = time
@@ -18,8 +16,8 @@ export default class NewtonSalincagi {
     this.rotateY = rotateY
     this.rotateZ = rotateZ
     
-    // Pozisyon değeri, eğer verilmediyse varsayılan olarak 22,5,0 kullan
-    this.position = position || new THREE.Vector3(22, 5, 0)
+    // Pozisyon değeri, eğer verilmediyse varsayılan olarak 13.6,17.7,0 kullan
+    this.position = position || new THREE.Vector3(13.6, 17.7, 0)
     
     // Ana konteyner oluştur
     this.container = new THREE.Object3D()
@@ -29,6 +27,9 @@ export default class NewtonSalincagi {
     
     // Model oluştur
     this._buildModel()
+    
+    // Platform ekle
+    this._buildPlatform()
   }
   
   _buildModel() {
@@ -70,26 +71,6 @@ export default class NewtonSalincagi {
     const bbox = new THREE.Box3().setFromObject(model)
     const size = bbox.getSize(new THREE.Vector3())
     
-    // Fizik gövdesi oluştur
-    if (this.physics) {
-      const halfExtents = new CANNON.Vec3(size.x / 2.5, size.y / 3.5, size.z / 3.5)
-      const boxShape = new CANNON.Box(halfExtents)
-      
-      const body = new CANNON.Body({
-        mass: 0, // Statik nesne
-        position: new CANNON.Vec3(this.position.x, this.position.y - 1, this.position.z),
-        material: this.physics.materials.items.floor
-      })
-      
-      // Dönüşü quaternion olarak ayarla
-      const quat = new CANNON.Quaternion()
-      quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ')
-      body.quaternion.copy(quat)
-      
-      body.addShape(boxShape)
-      this.physics.world.addBody(body)
-    }
-    
     // Bu modeli animasyon için kullan
     this.model = model
     
@@ -114,4 +95,60 @@ export default class NewtonSalincagi {
     
     console.log('Newton Salıncağı eklendi, konum:', this.position)
   }
+  
+  _buildPlatform() {
+    // Bounding box hesapla
+    this.model.updateMatrixWorld(true)
+    const bbox = new THREE.Box3().setFromObject(this.model)
+    const size = bbox.getSize(new THREE.Vector3())
+    
+    // Platform boyutunu model boyutuna göre ayarla
+    const platformWidth = size.x -1
+    const platformDepth = size.z -1
+    const platformHeight = 0.5
+    
+    // Platform geometrisi
+    const platformGeometry = new THREE.BoxGeometry(
+      platformWidth, 
+      platformHeight, 
+      platformDepth
+    )
+    
+    // Platform materyali
+    const platformMaterial = new THREE.MeshStandardMaterial({
+      color: 0x808080,
+      roughness: 0.5,
+      metalness: 0.2
+    })
+    
+    // Platform mesh'i
+    this.platform = new THREE.Mesh(platformGeometry, platformMaterial)
+    
+    // Platform pozisyonu
+    this.platform.position.set(
+      this.position.x+0.4,
+      this.position.y - size.y / 2 - platformHeight / 2+2.5,
+      this.position.z
+    )
+    
+    // Platform rotasyonu, ana modelin rotasyonuna uygun olarak
+    this.platform.rotation.set(this.rotateX, this.rotateY, this.rotateZ)
+    
+    // Platform gölge atsın ve alsın
+    this.platform.castShadow = true
+    this.platform.receiveShadow = true
+    
+    // Platforma kenar çizgileri ekle
+    const edgesGeometry = new THREE.EdgesGeometry(platformGeometry)
+    const edgesMaterial = new THREE.LineBasicMaterial({ 
+      color: 0x666666,
+      linewidth: 1
+    })
+    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial)
+    this.platform.add(edges)
+    
+    // Konteyner'a ekle
+    this.container.add(this.platform)
+  }
+  
 } 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-55, -37, 0); // CoWork konumu
+const DEFAULT_POSITION = new THREE.Vector3(-60, -1.5, 0); // CoWork konumu
 
 export default class CoWork {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -31,6 +31,10 @@ export default class CoWork {
 
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
+    
+    // Model boyutunu 1.4 katına çıkar
+    model.scale.set(1.6, 1.6, 1.6);
+    
     model.traverse(child => {
       if (child.isMesh) {
         const origMat = child.material;

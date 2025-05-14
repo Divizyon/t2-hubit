@@ -50,7 +50,6 @@ import YonTabelasi2 from './YonTabelasi2.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
 import Kademe from './Kademe.js'
-import Lego from './Lego.js'
 import NewtonSalincagi from './NewtonSalincagi.js'
 
 export default class World
@@ -133,7 +132,6 @@ export default class World
         this.setSia()
         this.set3dEkran()
         this.setKademe()
-        this.setLego()
     }
 
     setReveal()
@@ -277,7 +275,7 @@ export default class World
         // Progress
         this.resources.on('progress', (_progress) =>
         {
-            console.log(`Yükleme ilerlemesi: %${Math.round(_progress * 100)}`)
+       
             // Update area
             this.startingScreen.area.floorBorder.material.uniforms.uAlpha.value = 1
             this.startingScreen.area.floorBorder.material.uniforms.uLoadProgress.value = _progress
@@ -627,6 +625,16 @@ export default class World
             y: -12
         })
         this.container.add(this.sections.projects.container)
+        // Playground
+        this.sections.playground = new PlaygroundSection({
+            ...options,
+            x: - 38,
+            y: - 34
+            // x: - 15,
+            // y: - 4
+        })
+        this.container.add(this.sections.playground.container)
+
     }
 
     setEasterEggs()
@@ -681,7 +689,7 @@ export default class World
           debug:     this.debugFolder,
           rotateX:   0,   // 
           rotateY:   0,
-          rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
+          rotateZ:   Math.PI -1, // Y ekseninde 90 derece,
           areas:     this.areas,
           materials: this.materials
         });
@@ -840,7 +848,7 @@ export default class World
             debug: this.debugFolder,
             rotateX: 0,   
             rotateY: 0,
-            rotateZ: 0
+            rotateZ: 1.6
         });
     }
 
@@ -880,11 +888,11 @@ export default class World
             scene: this.scene,
             resources: this.resources,
             physics: this.physics,
-            position: new THREE.Vector3(-35, -35, -2),
+            position: new THREE.Vector3(-33, 16, -1),
             rotateX: Math.PI / 2,
             rotateY: 0,
             rotateZ: 0,
-            scale: new THREE.Vector3(1, 1, 1)
+            scale: new THREE.Vector3(1.6, 1.6, 1.6) // Ölçeği 1.6 katına çıkardık
         })
     }
     
@@ -895,11 +903,13 @@ export default class World
             scene: this.scene,
             resources: this.resources,
             physics: this.physics,
-            position: new THREE.Vector3(15, -16, 0),
             rotateX: 0,
             rotateY: 0, // Y ekseni etrafında 90 derece döndür
             rotateZ: 0,
-            scale: new THREE.Vector3(1, 1, 1)
+            scale: new THREE.Vector3(1, 1, 1),
+            collisionWidth: 0.1,
+            collisionHeight: 0.1,
+            collisionDepth: 4
         })
     }
 
@@ -946,75 +956,13 @@ export default class World
             objects: this.objects,
             physics: this.physics,
             debug: this.debugFolder,
-            rotateX: Math.PI,
-            rotateY: Math.PI,
-            rotateZ: Math.PI / 2 // 90 derece döndürme
+            rotateX: Math.PI/2,
+            rotateY: Math.PI/2,
+            rotateZ: Math.PI // 90 derece döndürme
         })
     }
     
-    // Lego modelini eklemek için metot
-    setLego()
-    {
-        // İlk lego parçası (Newton Salıncağı konumuna)
-        this.lego = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(40, -6, 0), // Newton Salıncağı konumu
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: Math.PI / 2 // 90 derece döndürme
-        });
-        
-        // İkinci lego parçası (özel pozisyon)
-        this.lego2 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(40, -3, 0), // Newton konumunun yanı
-            rotateX: 0,
-            rotateY: Math.PI, // 180 derece farklı döndürme
-            rotateZ: Math.PI / 2 // 90 derece döndürme
-        });
-        
-        // Üçüncü lego parçası
-        this.lego3 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(43, -6, 0), // Newton konumunun yanı
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0 // Farklı bir rotasyon
-        });
-        
-        // Dördüncü lego parçası
-        this.lego4 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(43, -3, 0), // Newton konumunun yanı
-            rotateX: Math.PI / 2, // X ekseninde 90 derece
-            rotateY: 0,
-            rotateZ: 0
-        });
-    }
+ 
 
     // Yön Tabelası 2 modelini eklemek için metot
     setYonTabelasi2()
@@ -1060,7 +1008,7 @@ export default class World
             debug: this.debugFolder,
             areas: this.areas,
             materials: this.materials,
-            position: new THREE.Vector3(-65, -40, 0), // Z ekseninde daha da aşağı
+            position: new THREE.Vector3(-55, -50, 0), // Z ekseninde daha da aşağı
             rotateX: 0,
             rotateY: 0,
             rotateZ: Math.PI / 2
