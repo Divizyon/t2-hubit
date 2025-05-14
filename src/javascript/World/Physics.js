@@ -129,9 +129,9 @@ export default class Physics
         if(this.config && this.config.togg) {
             // Togg modeli için özel tekerlek ayarları
             this.car.options.wheelFrontLeftPosition = { depth: 0.67, width: 0.38 };  // Sol ön
-            this.car.options.wheelFrontRightPosition = { depth: 0.67, width: -0.45 }; // Sağ ön
-            this.car.options.wheelBackLeftPosition = { depth: -0.63, width: 0.38 };   // Sol arka
-            this.car.options.wheelBackRightPosition = { depth: -0.63, width: -0.45 };  // Sağ arka
+            this.car.options.wheelFrontRightPosition = { depth: 0.67, width: -0.38 }; // Sağ ön
+            this.car.options.wheelBackLeftPosition = { depth: -0.67, width: 0.38 };   // Sol arka
+            this.car.options.wheelBackRightPosition = { depth: -0.67, width: -0.38 };  // Sağ arka
         } else {
             // Normal araba için tekerlek ayarları
             this.car.options.wheelFrontLeftPosition = { depth: 0.635, width: 0.60 };   // Sol ön
@@ -199,7 +199,7 @@ export default class Physics
 
             this.car.chassis.body = new CANNON.Body({ mass: this.car.options.chassisMass })
             this.car.chassis.body.allowSleep = false
-            this.car.chassis.body.position.set(0, 0, 12)
+            this.car.chassis.body.position.set(12, -11, 12)
             this.car.chassis.body.sleep()
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)
             this.car.chassis.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), - Math.PI * 0.5)

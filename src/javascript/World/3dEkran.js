@@ -16,7 +16,7 @@ export default class Ekran3D {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
-        this.buttonPosition = new THREE.Vector3(31, -35, 0); // Buton pozisyonu güncellendi
+        this.buttonPosition = new THREE.Vector3(36, -37, 0); // Buton pozisyonu güncellendi (31, -35 -> 36, -37)
         
         this.setModel();
         
@@ -45,13 +45,13 @@ export default class Ekran3D {
             console.log('3D Ekran modeli yüklendi:', gltf);
             
             this.model = gltf.scene;
-            this.model.position.set(37, -36, 0); // Pozisyonu ayarlayabilirsiniz
+            this.model.position.set(33, -32, 0); // Pozisyonu ayarlayabilirsiniz
             this.model.scale.set(1, 1, 1); // Ölçeği ayarlayabilirsiniz
             
             // Modeli döndür
             this.model.rotation.x = 0;
             this.model.rotation.y = 0;
-            this.model.rotation.z = Math.PI / 2;
+            this.model.rotation.z = Math.PI / 1.35;
             
             this.scene.add(this.model);
 
@@ -61,8 +61,8 @@ export default class Ekran3D {
                 const boundingBox = new THREE.Box3().setFromObject(this.model);
                 const size = boundingBox.getSize(new THREE.Vector3());
                 
-                // Collision için özel pozisyon kullanılıyor
-                const collisionPosition = new THREE.Vector3(37, -36, 2);
+                // Collision için model ile aynı pozisyon kullanılıyor
+                const collisionPosition = new THREE.Vector3(33, -32, 0);
                 
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
@@ -94,7 +94,7 @@ export default class Ekran3D {
                     wireframe: true,
                     opacity: 0, // Tamamen saydam
                     transparent: true,
-                    visible: false // Görünürlüğü tamamen kapat
+                    visible: false // Görünürlüğü kapat
                 });
                 
                 this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
@@ -102,7 +102,7 @@ export default class Ekran3D {
                 this.collisionMesh.rotation.set(this.model.rotation.x, this.model.rotation.y, this.model.rotation.z);
                 this.scene.add(this.collisionMesh);
                 
-                console.log('3D Ekran için görünür collision mesh eklendi:', 
+                console.log('3D Ekran için collision mesh güncellendi:', 
                     'Pozisyon:', collisionPosition, 
                     'Boyut:', collisionSize
                 );

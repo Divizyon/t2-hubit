@@ -4,7 +4,10 @@ import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
-const DEFAULT_POSITION = new THREE.Vector3(42.7, 13, -1.4); // Y ekseninde 2 birim aşağı çekildi (15'ten 13'e)
+
+
+const DEFAULT_POSITION = new THREE.Vector3(42.7, 13, -1.4); // Y ekseninde 2 birim yukarı taşındı (11 -> 13)
+
 
 export default class BilimMerkezi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = Math.PI, areas = null, materials = null }) {
@@ -22,7 +25,9 @@ export default class BilimMerkezi {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
-    this.buttonPosition = new THREE.Vector3(44.5, 5.5, 0); // Y pozisyonu 2 birim aşağı çekildi (7.5'ten 5.5'e)
+
+    this.buttonPosition = new THREE.Vector3(43, 5.5, 0); // Buton pozisyonu da yukarı taşındı (3.5 -> 5.5)
+
 
     // Platform
     this.platform = null;
@@ -107,7 +112,10 @@ export default class BilimMerkezi {
     });
     
     this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
-    this.platform.position.set(42, 16, 0); // Y pozisyonu 2 birim aşağı çekildi (18'den 16'ya)
+
+
+    this.platform.position.set(42, 15, 0); // Y ekseninde 2 birim yukarı taşındı (13 -> 15)
+
     
     // Platformun rotasyonunu modelin rotasyonu ile aynı yap
     this.platform.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
@@ -127,7 +135,9 @@ export default class BilimMerkezi {
       
       const platformBody = new CANNON.Body({
         mass: 0, // Statik nesne
-        position: new CANNON.Vec3(42, 16, 0), // Y pozisyonu 2 birim aşağı çekildi (18'den 16'ya)
+
+        position: new CANNON.Vec3(42, 15, 0), // Y ekseninde 2 birim yukarı taşındı (13 -> 15)
+
         material: this.physics.materials.items.floor
       });
       

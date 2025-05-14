@@ -15,14 +15,25 @@ export default class JaponParki {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
-        this.collisionMesh = null; // Çarpışma kutusunu görselleştirmek için mesh
+        this.collisionMeshes = [];
         
-        // Çarpışma kutusu pozisyonu ve boyutu
-        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-6, -31, 1);
-        this.collisionSize = _options.collisionSize || new THREE.Vector3(5, 18, 27); // Boyutu 5x18x27 olarak değiştirildi
+        // Ana çarpışma kutusu pozisyonu, boyutu ve rotasyonu
+        this.collisionPosition = _options.collisionPosition || new THREE.Vector3(-4.5, -32, 1);
+        this.collisionSize = _options.collisionSize || new THREE.Vector3(4.8, 15.5, 26);
+        this.collisionRotation = _options.collisionRotation || new THREE.Euler(0, 0, 0);
+        
+        // Sağ çıkıntı için çarpışma kutusu özellikleri
+        this.rightBoxPosition = _options.rightBoxPosition || new THREE.Vector3(5, 0, 0);
+        this.rightBoxSize = _options.rightBoxSize || new THREE.Vector3(3, 4, 5);
+        this.rightBoxRotation = _options.rightBoxRotation || new THREE.Euler(0, 0, 0);
+        
+        // Üçüncü çarpışma kutusu özellikleri
+        this.thirdBoxPosition = _options.thirdBoxPosition || new THREE.Vector3(0, -10, 0);
+        this.thirdBoxSize = _options.thirdBoxSize || new THREE.Vector3(5, 3, 5);
+        this.thirdBoxRotation = _options.thirdBoxRotation || new THREE.Euler(0, 0, -Math.PI / 4);
         
         // Buton konumu
-        this.buttonPosition = new THREE.Vector3(5, -18, 0);
+        this.buttonPosition = new THREE.Vector3(6.5, -18, 0);
         
         this.setModel();
         
@@ -30,6 +41,9 @@ export default class JaponParki {
         if (this.areas && this.materials) {
             this.setupButton();
         }
+        
+        // Çarpışma kutusunu başlangıçta görünmez yap
+        this.setCollisionVisibility(false);
         
         if (this.time) {
             this.time.on('tick', () => {
@@ -52,8 +66,8 @@ export default class JaponParki {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-7, -34, 1); // Konumu Japon Parkı için ayarla
-            this.model.scale.set(0.5, 0.5, 0.5); // Ölçeği düşürüyorum
+            this.model.position.set(-5.5, -34, 1); // Konumu Japon Parkı için ayarla
+            this.model.scale.set(0.48, 0.48, 0.48); // Ölçeği 0.5'ten 0.48'e düşürüldü
             
             // Modeli döndür - ihtiyaca göre değiştirilebilir
             this.model.rotation.x = Math.PI / 2;
@@ -62,13 +76,7 @@ export default class JaponParki {
 
             // Fizik gövdesi oluştur
             if (this.physics) {
-                // Fizik gövdesi oluştur - boyutları özel olarak belirledik
-                const halfExtents = new CANNON.Vec3(
-                    this.collisionSize.x / 2,
-                    this.collisionSize.y / 2, 
-                    this.collisionSize.z / 2
-                );
-                
+                // Bileşik bir çarpışma şekli oluşturacağız
                 this.collisionBody = new CANNON.Body({
                     mass: 0, // Statik nesne
                     position: new CANNON.Vec3(
@@ -79,15 +87,91 @@ export default class JaponParki {
                     material: this.physics.materials.items.floor
                 });
                 
-                // Box şekli ekle
-                const boxShape = new CANNON.Box(halfExtents);
-                this.collisionBody.addShape(boxShape);
+                // Quaternion oluştur - CANNON için rotasyonları quaternion'a dönüştürmeliyiz
+                const mainQuaternion = new CANNON.Quaternion();
+                mainQuaternion.setFromEuler(
+                    this.collisionRotation.x,
+                    this.collisionRotation.y,
+                    this.collisionRotation.z,
+                    'XYZ'
+                );
+                
+                // Ana yapı için kutu
+                const mainBoxShape = new CANNON.Box(new CANNON.Vec3(
+                    this.collisionSize.x * 0.7 / 2,
+                    this.collisionSize.y / 2,
+                    this.collisionSize.z / 2
+                ));
+                
+                // Ana kutuyu rotasyonu ile birlikte ekle
+                this.collisionBody.addShape(
+                    mainBoxShape, 
+                    new CANNON.Vec3(-2, 0, 0),
+                    mainQuaternion
+                );
+                
+                // Sağ kutu için quaternion
+                const rightQuaternion = new CANNON.Quaternion();
+                rightQuaternion.setFromEuler(
+                    this.rightBoxRotation.x,
+                    this.rightBoxRotation.y,
+                    this.rightBoxRotation.z,
+                    'XYZ'
+                );
+                
+                // Sağ taraftaki çıkıntı için daha küçük kutu (giriş alanı)
+                const rightBoxShape = new CANNON.Box(new CANNON.Vec3(
+                    this.rightBoxSize.x / 2,
+                    this.rightBoxSize.y / 2,
+                    this.rightBoxSize.z / 2
+                ));
+                
+                // Sağ kutuyu rotasyonu ile birlikte ekle
+                this.collisionBody.addShape(
+                    rightBoxShape, 
+                    new CANNON.Vec3(
+                        this.rightBoxPosition.x,
+                        this.rightBoxPosition.y,
+                        this.rightBoxPosition.z
+                    ),
+                    rightQuaternion
+                );
+                
+                // Üçüncü kutu için quaternion - Z ekseni etrafında 45 derece
+                const thirdQuaternion = new CANNON.Quaternion();
+                thirdQuaternion.setFromEuler(
+                    this.thirdBoxRotation.x,
+                    this.thirdBoxRotation.y,
+                    this.thirdBoxRotation.z,
+                    'XYZ'
+                );
+                
+                // Üçüncü kutu
+                const thirdBoxShape = new CANNON.Box(new CANNON.Vec3(
+                    this.thirdBoxSize.x / 2,
+                    this.thirdBoxSize.y / 2,
+                    this.thirdBoxSize.z / 2
+                ));
+                
+                // Üçüncü kutuyu rotasyonu ile birlikte ekle
+                this.collisionBody.addShape(
+                    thirdBoxShape, 
+                    new CANNON.Vec3(
+                        this.thirdBoxPosition.x,
+                        this.thirdBoxPosition.y,
+                        this.thirdBoxPosition.z
+                    ),
+                    thirdQuaternion
+                );
                 
                 this.physics.world.addBody(this.collisionBody);
                 
-                // Görünür çarpışma kutusu oluştur
-                const collisionGeometry = new THREE.BoxGeometry(
-                    this.collisionSize.x,
+                // Görünür çarpışma kutuları oluştur
+                this.collisionMeshes = [];
+                
+                // Ana mesh
+                const mainGeometry = new THREE.BoxGeometry(
+                    this.collisionSize.x * 0.7,
                     this.collisionSize.y,
                     this.collisionSize.z
                 );
@@ -95,16 +179,49 @@ export default class JaponParki {
                 const collisionMaterial = new THREE.MeshBasicMaterial({
                     color: 0xff0000,
                     wireframe: true,
-                    opacity: 0.7,
+                    opacity: 0.5,
                     transparent: true,
-                    visible: true // Görünür olarak başlat
+                    visible: false
                 });
                 
-                this.collisionMesh = new THREE.Mesh(collisionGeometry, collisionMaterial);
+                this.collisionMesh = new THREE.Mesh(mainGeometry, collisionMaterial);
                 this.collisionMesh.position.copy(this.collisionPosition);
+                this.collisionMesh.position.x -= 2; // Ana şekil biraz sola kaydırıldı
+                this.collisionMesh.rotation.copy(this.collisionRotation);
                 this.scene.add(this.collisionMesh);
+                this.collisionMeshes.push(this.collisionMesh);
                 
-                console.log('Japon Parkı çarpışma kutusu eklendi:', 
+                // Sağ çıkıntı mesh
+                const rightGeometry = new THREE.BoxGeometry(
+                    this.rightBoxSize.x,
+                    this.rightBoxSize.y,
+                    this.rightBoxSize.z
+                );
+                const rightMesh = new THREE.Mesh(rightGeometry, collisionMaterial.clone());
+                rightMesh.position.copy(this.collisionPosition);
+                rightMesh.position.x += this.rightBoxPosition.x;
+                rightMesh.position.y += this.rightBoxPosition.y;
+                rightMesh.position.z += this.rightBoxPosition.z;
+                rightMesh.rotation.copy(this.rightBoxRotation);
+                this.scene.add(rightMesh);
+                this.collisionMeshes.push(rightMesh);
+                
+                // Üçüncü çıkıntı mesh - Z ekseninde 45 derece dönük
+                const thirdGeometry = new THREE.BoxGeometry(
+                    this.thirdBoxSize.x,
+                    this.thirdBoxSize.y,
+                    this.thirdBoxSize.z
+                );
+                const thirdMesh = new THREE.Mesh(thirdGeometry, collisionMaterial.clone());
+                thirdMesh.position.copy(this.collisionPosition);
+                thirdMesh.position.x += this.thirdBoxPosition.x;
+                thirdMesh.position.y += this.thirdBoxPosition.y;
+                thirdMesh.position.z += this.thirdBoxPosition.z;
+                thirdMesh.rotation.copy(this.thirdBoxRotation); // Z ekseni etrafında 45 derece
+                this.scene.add(thirdMesh);
+                this.collisionMeshes.push(thirdMesh);
+                
+                console.log('Japon Parkı çarpışma kutusu eklendi (bileşik):', 
                     'Pozisyon:', this.collisionPosition, 
                     'Boyut:', this.collisionSize
                 );
@@ -153,17 +270,38 @@ export default class JaponParki {
 
     // Çarpışma kutusunun görünürlüğünü değiştiren metod
     setCollisionVisibility(visible) {
-        if (this.collisionMesh) {
-            this.collisionMesh.visible = visible;
+        if (this.collisionMeshes && this.collisionMeshes.length > 0) {
+            this.collisionMeshes.forEach((mesh) => {
+                mesh.visible = visible;
+            });
         }
     }
     
     // Çarpışma kutusu pozisyonunu güncelleme metodu
     updateCollisionPosition(newPosition) {
-        if (!this.collisionMesh) return;
+        if (!this.collisionMeshes || this.collisionMeshes.length === 0) return;
         
         this.collisionPosition.copy(newPosition);
-        this.collisionMesh.position.copy(newPosition);
+        
+        // Ana mesh pozisyonunu güncelle
+        this.collisionMeshes[0].position.copy(newPosition);
+        this.collisionMeshes[0].position.x = newPosition.x - 2; // Ana şekil biraz sola kaydırıldı
+        
+        // Sağ çıkıntı mesh pozisyonunu güncelle
+        if (this.collisionMeshes.length > 1) {
+            this.collisionMeshes[1].position.copy(newPosition);
+            this.collisionMeshes[1].position.x += this.rightBoxPosition.x;
+            this.collisionMeshes[1].position.y += this.rightBoxPosition.y;
+            this.collisionMeshes[1].position.z += this.rightBoxPosition.z;
+        }
+        
+        // Üçüncü çıkıntı mesh pozisyonunu güncelle
+        if (this.collisionMeshes.length > 2) {
+            this.collisionMeshes[2].position.copy(newPosition);
+            this.collisionMeshes[2].position.x += this.thirdBoxPosition.x;
+            this.collisionMeshes[2].position.y += this.thirdBoxPosition.y;
+            this.collisionMeshes[2].position.z += this.thirdBoxPosition.z;
+        }
         
         // Fizik gövdesini de güncelle
         if (this.collisionBody) {
@@ -175,31 +313,167 @@ export default class JaponParki {
     
     // Çarpışma kutusu boyutunu güncelleme metodu
     updateCollisionSize(newSize) {
-        if (!this.collisionMesh) return;
+        if (!this.collisionMeshes || this.collisionMeshes.length === 0) return;
         
         this.collisionSize.copy(newSize);
         
-        // Eski mesh'i kaldır
-        this.scene.remove(this.collisionMesh);
+        // Tüm eski meshlerden kurtul
+        this.collisionMeshes.forEach(mesh => {
+            mesh.geometry.dispose();
+            if (mesh.material) mesh.material.dispose();
+            this.scene.remove(mesh);
+        });
         
-        // Yeni geometri oluştur
-        const newGeometry = new THREE.BoxGeometry(
-            newSize.x,
+        // Bellekte yer açmak için diziyi temizle
+        this.collisionMeshes = [];
+        
+        // Fizik gövdesini kaldır ve yeniden oluştur
+        if (this.collisionBody) {
+            this.physics.world.removeBody(this.collisionBody);
+            
+            // Yeni bileşik fizik gövdesi oluştur
+            this.collisionBody = new CANNON.Body({
+                mass: 0,
+                position: new CANNON.Vec3(
+                    this.collisionPosition.x,
+                    this.collisionPosition.y,
+                    this.collisionPosition.z
+                ),
+                material: this.physics.materials.items.floor
+            });
+            
+            // Ana yapı için kutu
+            const mainBoxShape = new CANNON.Box(new CANNON.Vec3(
+                newSize.x * 0.7 / 2,
+                newSize.y / 2,
+                newSize.z / 2
+            ));
+            
+            // Ana kutuyu ekle
+            const mainQuaternion = new CANNON.Quaternion();
+            mainQuaternion.setFromEuler(
+                this.collisionRotation.x,
+                this.collisionRotation.y,
+                this.collisionRotation.z,
+                'XYZ'
+            );
+            
+            this.collisionBody.addShape(
+                mainBoxShape, 
+                new CANNON.Vec3(-2, 0, 0),
+                mainQuaternion
+            );
+            
+            // Sağ kutu için quaternion
+            const rightQuaternion = new CANNON.Quaternion();
+            rightQuaternion.setFromEuler(
+                this.rightBoxRotation.x,
+                this.rightBoxRotation.y,
+                this.rightBoxRotation.z,
+                'XYZ'
+            );
+            
+            // Sağ taraftaki çıkıntı için daha küçük kutu
+            const rightBoxShape = new CANNON.Box(new CANNON.Vec3(
+                this.rightBoxSize.x / 2,
+                this.rightBoxSize.y / 2,
+                this.rightBoxSize.z / 2
+            ));
+            
+            // Sağ kutuyu ekle
+            this.collisionBody.addShape(
+                rightBoxShape, 
+                new CANNON.Vec3(
+                    this.rightBoxPosition.x,
+                    this.rightBoxPosition.y,
+                    this.rightBoxPosition.z
+                ),
+                rightQuaternion
+            );
+            
+            // Üçüncü kutu için quaternion
+            const thirdQuaternion = new CANNON.Quaternion();
+            thirdQuaternion.setFromEuler(
+                this.thirdBoxRotation.x,
+                this.thirdBoxRotation.y,
+                this.thirdBoxRotation.z,
+                'XYZ'
+            );
+            
+            // Üçüncü kutu
+            const thirdBoxShape = new CANNON.Box(new CANNON.Vec3(
+                this.thirdBoxSize.x / 2,
+                this.thirdBoxSize.y / 2,
+                this.thirdBoxSize.z / 2
+            ));
+            
+            // Üçüncü kutuyu ekle
+            this.collisionBody.addShape(
+                thirdBoxShape, 
+                new CANNON.Vec3(
+                    this.thirdBoxPosition.x,
+                    this.thirdBoxPosition.y,
+                    this.thirdBoxPosition.z
+                ),
+                thirdQuaternion
+            );
+            
+            this.physics.world.addBody(this.collisionBody);
+        }
+        
+        // Yeni görünür çarpışma kutuları oluştur
+        const collisionMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            wireframe: true,
+            opacity: 0.5,
+            transparent: true,
+            visible: false
+        });
+        
+        // Ana mesh
+        const mainGeometry = new THREE.BoxGeometry(
+            newSize.x * 0.7,
             newSize.y,
             newSize.z
         );
+        const mainMesh = new THREE.Mesh(mainGeometry, collisionMaterial);
+        mainMesh.position.copy(this.collisionPosition);
+        mainMesh.position.x -= 2; // Ana şekil biraz sola kaydırıldı
+        mainMesh.rotation.copy(this.collisionRotation);
+        this.scene.add(mainMesh);
+        this.collisionMeshes.push(mainMesh);
         
-        // Aynı materyal ile yeni mesh oluştur
-        const material = this.collisionMesh.material;
-        this.collisionMesh = new THREE.Mesh(newGeometry, material);
+        // Sağ çıkıntı mesh
+        const rightGeometry = new THREE.BoxGeometry(
+            this.rightBoxSize.x,
+            this.rightBoxSize.y,
+            this.rightBoxSize.z
+        );
+        const rightMesh = new THREE.Mesh(rightGeometry, collisionMaterial.clone());
+        rightMesh.position.copy(this.collisionPosition);
+        rightMesh.position.x += this.rightBoxPosition.x;
+        rightMesh.position.y += this.rightBoxPosition.y;
+        rightMesh.position.z += this.rightBoxPosition.z;
+        rightMesh.rotation.copy(this.rightBoxRotation);
+        this.scene.add(rightMesh);
+        this.collisionMeshes.push(rightMesh);
         
-        // Pozisyonu ayarla
-        this.collisionMesh.position.copy(this.collisionPosition);
+        // Üçüncü çıkıntı mesh
+        const thirdGeometry = new THREE.BoxGeometry(
+            this.thirdBoxSize.x,
+            this.thirdBoxSize.y,
+            this.thirdBoxSize.z
+        );
+        const thirdMesh = new THREE.Mesh(thirdGeometry, collisionMaterial.clone());
+        thirdMesh.position.copy(this.collisionPosition);
+        thirdMesh.position.x += this.thirdBoxPosition.x;
+        thirdMesh.position.y += this.thirdBoxPosition.y;
+        thirdMesh.position.z += this.thirdBoxPosition.z;
+        thirdMesh.rotation.copy(this.thirdBoxRotation);
+        this.scene.add(thirdMesh);
+        this.collisionMeshes.push(thirdMesh);
         
-        // Sahneye ekle
-        this.scene.add(this.collisionMesh);
-        
-        console.log('Japon Parkı çarpışma kutusu boyutu güncellendi:', newSize);
+        console.log('Japon Parkı çarpışma kutusu boyutu güncellendi (bileşik):', newSize);
     }
 
     tick(delta) {
