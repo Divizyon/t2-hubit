@@ -230,8 +230,7 @@ export default class Resources extends EventEmitter
             // Newton Salıncağı
             { name: 'newtonSalincagi', source: './models/newton_salincagi/newton.glb' },
 
-            // Ses Odası
-            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb' },
+            
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
@@ -316,6 +315,9 @@ export default class Resources extends EventEmitter
 
             // Alaaddin Tepesi
             { name: 'AlaaddinTepesi', source: './models/AlaaddinTepesi.glb' },
+            
+            // Ses Odasi
+            { name: 'sesOdasi', source: './models/SesOdasi/SesOdasi.glb' },
             
         ])
 

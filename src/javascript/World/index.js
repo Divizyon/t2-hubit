@@ -30,10 +30,11 @@ import GreenBox from './GreenBox.js'
 import GenclikMerkezi from './CalisanGenclikMerkezi.js'
 import konyagenckart from './konyagenckart.js'
 import Divizyon from './Divizyon.js'
-import SesOdasi from './SesOdasi.js'
+
 
 import AladdinTepesi from './AlaaddinTepesi.js'
 import Render_odasi from './render_odasi.js'
+import SesOdasi from './SesOdasi.js'
 
 import BilimMerkezi from './BilimMerkezi.js'
 import KapsulBinasi from './KapsulBinasi.js'
@@ -113,7 +114,6 @@ export default class World
         this.setAladdinTepesi()
         this.setBilimMerkezi()
         this.setKapsulBinasi()
-        this.setSesOdasi()
         this.setRocket()
         this.setCustomButton()
         this.setFootball()
@@ -132,6 +132,7 @@ export default class World
         this.setSia()
         this.set3dEkran()
         this.setKademe()
+        this.setSesOdasi()
     }
 
     setReveal()
@@ -408,7 +409,9 @@ export default class World
         this.Render_odasi = new Render_odasi({
             scene: this.scene,
             time: this.time,
-            physics: this.physics
+            physics: this.physics,
+            materials: this.materials,
+            areas: this.areas
         });
     }
    
@@ -972,7 +975,9 @@ export default class World
             debug: this.debugFolder,
             rotateX: 0,   
             rotateY: 0,
-            rotateZ: 1.6
+            rotateZ: 1.6,
+            areas: this.areas,
+            materials: this.materials
         });
     }
 
@@ -1120,22 +1125,17 @@ export default class World
             rotateZ: 0
         })
     }
-
-    //set sesOdasi
-    setSesOdasi()
-    {
-        this.sesOdasi = new SesOdasi({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(-55, -50, 0), // Z ekseninde daha da aşağı
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: Math.PI / 2
+    
+    setSesOdasi() {
+        this.SesOdasi = new SesOdasi({
+          scene:     this.scene,
+          resources: this.resources,
+          physics:   this.physics,
+          debug:     this.debugFolder,
+          rotateX:   0,   // 
+          rotateY:   0,
+          rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
         });
-    }
+      }
+      
 }
