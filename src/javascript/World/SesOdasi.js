@@ -76,7 +76,7 @@ export default class SesOdasi {
     }
     
     // Kolon için sabit konum
-    const columnPosition = new THREE.Vector3(-54.5, -45.9, 0)
+    const columnPosition = new THREE.Vector3(-54.5, -45.9, 0.2) // Z eksenini yukarı kaldırdım (0 -> 0.2)
     
     // Kolon için rotasyon açıları (radyan cinsinden)
     const columnRotateX = 0  // X ekseni etrafında 22.5 derece
@@ -86,7 +86,7 @@ export default class SesOdasi {
     // Kolon boyutları - Y ekseni boyunca uzun bir kolon
     const columnWidth = 6.1  // X ekseni genişliği
     const columnHeight = 2.4 // Y ekseni yüksekliği (dikey uzunluk)
-    const columnDepth = 7    // Z ekseni derinliği
+    const columnDepth = 6.5    // Z ekseni derinliği (7 -> 6.5)
     
     // Kolon görsel temsili oluştur
     const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
@@ -150,7 +150,7 @@ export default class SesOdasi {
     }
     
     // Kolon için sabit konum
-    const columnPosition = new THREE.Vector3(-57.4, -48, 0)
+    const columnPosition = new THREE.Vector3(-57.4, -48, 0.2) // Z eksenini yukarı kaldırdım (0 -> 0.2)
     
     // Kolon için rotasyon açıları (radyan cinsinden)
     const columnRotateX = 0  // X ekseni etrafında 22.5 derece
@@ -160,7 +160,7 @@ export default class SesOdasi {
     // Kolon boyutları - Y ekseni boyunca uzun bir kolon
     const columnWidth = 0.5  // X ekseni genişliği
     const columnHeight = 6.35 // Y ekseni yüksekliği (dikey uzunluk)
-    const columnDepth = 7    // Z ekseni derinliği
+    const columnDepth = 6.5    // Z ekseni derinliği (7 -> 6.5)
     
     // Kolon görsel temsili oluştur
     const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)

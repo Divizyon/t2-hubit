@@ -68,22 +68,25 @@ export default class Physics
     {
         this.materials = {}
 
-        // All materials
+        /**
+         * Items
+         */
         this.materials.items = {}
         this.materials.items.floor = new CANNON.Material('floorMaterial')
         this.materials.items.dummy = new CANNON.Material('dummyMaterial')
         this.materials.items.wheel = new CANNON.Material('wheelMaterial')
 
-        // Contact between materials
+        /**
+         * Contacts
+         */
         this.materials.contacts = {}
-
         this.materials.contacts.floorDummy = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.dummy, { friction: 0.05, restitution: 0.3, contactEquationStiffness: 1000 })
         this.world.addContactMaterial(this.materials.contacts.floorDummy)
 
         this.materials.contacts.dummyDummy = new CANNON.ContactMaterial(this.materials.items.dummy, this.materials.items.dummy, { friction: 0.5, restitution: 0.3, contactEquationStiffness: 1000 })
         this.world.addContactMaterial(this.materials.contacts.dummyDummy)
 
-        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.wheel, { friction: 0.3, restitution: 0, contactEquationStiffness: 1000 })
+        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.wheel, { friction: 0.5, restitution: 0, contactEquationStiffness: 2000 })
         this.world.addContactMaterial(this.materials.contacts.floorWheel)
     }
 
@@ -147,12 +150,12 @@ export default class Physics
         
         this.car.options.wheelRadius = 0.25
         this.car.options.wheelHeight = 0.24
-        this.car.options.wheelSuspensionStiffness = 30
-        this.car.options.wheelSuspensionRestLength = 0.1
+        this.car.options.wheelSuspensionStiffness = 50
+        this.car.options.wheelSuspensionRestLength = 0.2
         this.car.options.wheelFrictionSlip = 10
         this.car.options.wheelDampingRelaxation = 1.8
         this.car.options.wheelDampingCompression = 1.5
-        this.car.options.wheelMaxSuspensionForce = 100000
+        this.car.options.wheelMaxSuspensionForce = 200000
         this.car.options.wheelRollInfluence =  0.01
         this.car.options.wheelMaxSuspensionTravel = 0.3
         this.car.options.wheelCustomSlidingRotationalSpeed = - 30
