@@ -224,6 +224,9 @@ export default class Resources extends EventEmitter
 
             { name: 'kaleModel', source: './models/soccer/kale.glb' },
 
+            // Futbol topu
+            { name: 'topv2Model', source: './models/soccer/topv2.glb' },
+
             // Yön Tabelası 2
             { name: 'yonTabelasi2', source: './models/yonTabelasi2/yontabelası2.glb' },
 

@@ -58,7 +58,7 @@ export default class Football
         // Futbol topu
         this.models.ball = {}
         this.models.ball.offset = new THREE.Vector3(0, 0, 0) // Topun yerden yüksekliği
-        this.models.ball.radius = 1 // Top yarıçapı
+        this.models.ball.radius = 0.8 // Top yarıçapı (daha küçük)
         this.models.ball.position = new THREE.Vector3(0, 0, 0) // Başlangıç pozisyonu - daha sonra güncellenecek
 
         // Kale boyutları - kale.glb modeline uygun olarak güncellenmiş
@@ -380,36 +380,117 @@ export default class Football
                 this.models.ball.initialPosition.z
             );
 
-            // Görsel model - daha güzel top
-            const ballGeometry = new THREE.SphereGeometry(this.models.ball.radius, 32, 32)
+            // Ana container önce oluşturulur - hem top modeli hem collision sphere bunun altında olacak
+            this.ball.container = new THREE.Object3D()
+            this.ball.container.position.copy(this.models.ball.initialPosition)
+            this.container.add(this.ball.container)
             
-            // Futbol topu dokusu
-            const ballTexture = new THREE.TextureLoader().load('/assets/textures/football.jpg')
+            // Önce collision sphere oluştur - referans olarak kullanılacak
+            this.createCollisionDebugSphere()
             
-            // Daha güzel materyal
-            const ballMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xffffff,
-                map: ballTexture,
-                metalness: 0.2,
-                roughness: 0.4
-            })
-            
-            // Eğer doku bulunamazsa basit beyaz top kullan
-            if (!ballTexture) {
-                console.warn('Futbol topu dokusu yüklenemedi, basit top kullanılıyor')
-                this.ball.mesh = new THREE.Mesh(
-                    ballGeometry, 
-                    new THREE.MeshBasicMaterial({ color: 0xffffff })
-                )
+            // GLB modelini kullanarak topun görsel modelini oluştur
+            if (this.resources.items.topv2Model) {
+                console.log('Top modeli (topv2.glb) bulundu, yükleniyor...')
+                
+                // Modeli için ayrı container oluştur (pivot noktası için)
+                this.ball.modelContainer = new THREE.Object3D()
+                this.ball.modelContainer.position.set(0, 0, 0) // Collision sphere ile aynı merkezde
+                
+                // ModelContainer'ı ana container'a ekle
+                this.ball.container.add(this.ball.modelContainer)
+                
+                // GLB modelini kopyala
+                const topModel = this.resources.items.topv2Model.scene.clone()
+                
+                // Önce varsayılan bir ölçek uygula (daha küçük başlangıç ölçeği)
+                topModel.scale.set(1.8, 1.8, 1.8)
+                
+                // BoundingBox oluştur ve modelin boyutunu hesapla
+                const tempBbox = new THREE.Box3().setFromObject(topModel)
+                const modelSize = new THREE.Vector3()
+                tempBbox.getSize(modelSize)
+                
+                // Modelin en büyük boyutu
+                const maxDimension = Math.max(modelSize.x, modelSize.y, modelSize.z)
+                
+                // Collision sphere'in çapı
+                const sphereDiameter = this.models.ball.radius * 2
+                
+                // Modelin tam olarak sphere'e sığması için ölçek faktörü hesapla
+                const scaleFactor = sphereDiameter / maxDimension
+                
+                // Yeni ölçeği uygula - top tam olarak collision sphere boyutunda olacak
+                const finalScale = 1.8 * scaleFactor * 0.99 // %99 oranında sığdırma (kesin taşmama için)
+                topModel.scale.set(finalScale, finalScale, finalScale)
+                
+                console.log('Top modeli için hesaplanan ölçek:', finalScale)
+                
+                // Son durumda modelin merkez noktasını hesapla
+                const bbox = new THREE.Box3().setFromObject(topModel)
+                const modelCenter = new THREE.Vector3()
+                bbox.getCenter(modelCenter)
+                
+                console.log('Model merkez noktası:', modelCenter)
+                
+                // Modeli merkez noktası (0,0,0) olacak şekilde konumlandır
+                topModel.position.set(-modelCenter.x, -modelCenter.y, -modelCenter.z)
+                
+                // Merkeze tam oturması için küçük bir offset 
+                const manualOffset = new THREE.Vector3(0, 0, 0);
+                topModel.position.add(manualOffset);
+                
+                // Tüm mesh'leri geçip materyalleri ayarla
+                topModel.traverse((child) => {
+                    if (child.isMesh) {
+                        console.log('Top mesh bulundu:', child.name)
+                        
+                        // Beyaz kısımlar için basit flat materyal kullan - daha parlak
+                        if (child.name.includes('White') || child.name === 'shadeWhite.001') {
+                            child.material = new THREE.MeshBasicMaterial({
+                                color: 0xFFFFFF, // Tam beyaz
+                                flatShading: true
+                            })
+                        } 
+                        // Siyah kısımlar için daha belirgin renk kullan
+                        else if (child.name.includes('Black') || child.name === 'shadeBlack') {
+                            child.material = new THREE.MeshBasicMaterial({
+                                color: 0x222222, // Daha koyu siyah
+                                flatShading: true
+                            })
+                        }
+                        
+                        // Gölgeleri tamamen kapat
+                        child.castShadow = false
+                        child.receiveShadow = false
+                    }
+                })
+                
+                // Modeli modelContainer'a ekle
+                this.ball.modelContainer.add(topModel)
+                
+                // Top mesh'i olarak container'ı ata (tüm fizik güncellemeleri buna uygulanacak) 
+                this.ball.mesh = this.ball.container
+                
+                console.log('Top modeli başarıyla yüklendi, shader ve gölgeler düzeltildi')
             } else {
-                this.ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
+                // Varsayılan top (model bulunamazsa)
+                const ballGeometry = new THREE.SphereGeometry(this.models.ball.radius, 32, 32)
+                const ballMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    wireframe: true
+                })
+                const simpleBallMesh = new THREE.Mesh(ballGeometry, ballMaterial)
+                
+                // Gölge özelliklerini kapat
+                simpleBallMesh.castShadow = false
+                simpleBallMesh.receiveShadow = false
+                
+                // Basit topu ana container'a ekle
+                this.ball.container.add(simpleBallMesh)
+                this.ball.mesh = this.ball.container
+                
+                console.warn('Top modeli (topv2.glb) bulunamadı, basit top kullanılıyor')
             }
-            
-            // Gölge ayarları
-            this.ball.mesh.castShadow = true
-            this.ball.mesh.receiveShadow = true
-            
-            this.container.add(this.ball.mesh)
 
             // Top-zemin etkileşimi
             const ballGroundContact = new CANNON.ContactMaterial(
@@ -436,22 +517,45 @@ export default class Football
             // Her karede topun pozisyonunu güncelle
             this.time.on('tick', () => {
                 if (this.ball && this.ball.mesh && this.ball.body) {
-                    this.ball.mesh.position.copy(this.ball.body.position)
-                    this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
+                    // Ana container'ı fizik gövdesine senkronize et
+                    this.ball.container.position.copy(this.ball.body.position);
+                    this.ball.container.quaternion.copy(this.ball.body.quaternion);
                     
                     // YENİ: Gol çizgisini geçip geçmediğini kontrol et
                     this.checkBallCrossedGoalLine();
-                    
-                    // Debug modu açıksa collider görsellerini güncelle
-                    if (this.debug && this.colliderVisuals) {
-                        // Debug olarak eklenen görsel öğeleri güncelle
-                        // Böylece fizik motorundaki pozisyonlar görsel olarak da görünür
-                    }
                 }
-            })
+            });
         } catch (error) {
             console.error('Top oluşturulamadı:', error)
         }
+    }
+
+    // Fizik motoru collision için debug sphere oluştur
+    createCollisionDebugSphere() {
+        // Debug sphere için materyal oluştur - GÖRÜNMEZ wireframe
+        const debugMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            wireframe: true,
+            transparent: true,
+            opacity: 0, // Tamamen saydam (görünmez)
+            depthTest: false,
+            depthWrite: false
+        });
+        
+        // Physics body boyutlarıyla uyumlu debug sphere oluştur
+        const debugGeometry = new THREE.SphereGeometry(this.models.ball.radius, 24, 24);
+        this.ball.debugMesh = new THREE.Mesh(debugGeometry, debugMaterial);
+        
+        // Debug mesh'i container'ın merkezine yerleştir - tam 0,0,0 noktasında
+        this.ball.debugMesh.position.set(0, 0, 0);
+        
+        // Debug mesh'i container'a ekle
+        this.ball.container.add(this.ball.debugMesh);
+        
+        // Debug mesh'i görünmez yap
+        this.ball.debugMesh.visible = false;
+        
+        console.log('Collision debug mesh oluşturuldu (GÖRÜNMEZ)');
     }
 
     /**

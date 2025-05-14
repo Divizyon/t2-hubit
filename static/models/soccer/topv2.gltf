@@ -1,0 +1,214 @@
+{
+  "asset": {
+    "generator": "Khronos glTF Blender I/O v4.3.47",
+    "version": "2.0"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Icosphere",
+      "scale": [
+        0.3846660554409027,
+        0.3846660554409027,
+        0.3846660554409027
+      ],
+      "translation": [
+        0,
+        0.32820382714271545,
+        0
+      ]
+    },
+    {
+      "mesh": 0,
+      "name": "shadeWhite.001",
+      "scale": [
+        0.3846660554409027,
+        0.3846660554409027,
+        0.3846660554409027
+      ],
+      "translation": [
+        0,
+        0.32820382714271545,
+        0
+      ]
+    },
+    {
+      "mesh": 1,
+      "name": "shadeBlack",
+      "scale": [
+        0.3846660554409027,
+        0.3846660554409027,
+        0.3846660554409027
+      ],
+      "translation": [
+        0,
+        0.32820382714271545,
+        0
+      ]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Icosphere.003",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3
+        }
+      ]
+    },
+    {
+      "name": "Icosphere.004",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 4,
+            "NORMAL": 5,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7
+        }
+      ]
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 2880,
+      "max": [
+        0.9237341284751892,
+        0.8984306454658508,
+        0.9248636960983276
+      ],
+      "min": [
+        -0.923734188079834,
+        -0.8984307050704956,
+        -0.9248636960983276
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 2880,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 2880,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5123,
+      "count": 4320,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 960,
+      "max": [
+        0.9185165166854858,
+        0.9303051233291626,
+        0.8900296092033386
+      ],
+      "min": [
+        -0.9185164570808411,
+        -0.9303051233291626,
+        -0.8900296092033386
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 960,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 960,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5123,
+      "count": 1440,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 34560,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 34560,
+      "byteOffset": 34560,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 23040,
+      "byteOffset": 69120,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8640,
+      "byteOffset": 92160,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 11520,
+      "byteOffset": 100800,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 11520,
+      "byteOffset": 112320,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 7680,
+      "byteOffset": 123840,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2880,
+      "byteOffset": 131520,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "topv2_data.bin",
+      "byteLength": 134400
+    }
+  ]
+}
