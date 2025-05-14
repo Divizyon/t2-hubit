@@ -50,7 +50,7 @@ import YonTabelasi2 from './YonTabelasi2.js'
 import Sia from './Sia.js'
 import Ekran3D from './3dEkran.js'
 import Kademe from './Kademe.js'
-import Lego from './Lego.js'
+
 import NewtonSalincagi from './NewtonSalincagi.js'
 
 export default class World
@@ -133,7 +133,7 @@ export default class World
         this.setSia()
         this.set3dEkran()
         this.setKademe()
-        this.setLego()
+        
     }
 
     setReveal()
@@ -627,6 +627,14 @@ export default class World
             y: -12
         })
         this.container.add(this.sections.projects.container)
+           // src/javascript/World/index.js, yaklaşık 469-478. satırlar
+   // Playground
+        this.sections.playground = new PlaygroundSection({
+           ...options,
+          x: - 38,
+          y: - 34
+       })
+       this.container.add(this.sections.playground.container)
     }
 
     setEasterEggs()
@@ -1067,70 +1075,8 @@ export default class World
         })
     }
     
-    // Lego modelini eklemek için metot
-    setLego()
-    {
-        // İlk lego parçası (Newton Salıncağı konumuna)
-        this.lego = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(40, -6, 0), // Newton Salıncağı konumu
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: Math.PI / 2 // 90 derece döndürme
-        });
         
-        // İkinci lego parçası (özel pozisyon)
-        this.lego2 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(40, -3, 0), // Newton konumunun yanı
-            rotateX: 0,
-            rotateY: Math.PI, // 180 derece farklı döndürme
-            rotateZ: Math.PI / 2 // 90 derece döndürme
-        });
-        
-        // Üçüncü lego parçası
-        this.lego3 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(43, -6, 0), // Newton konumunun yanı
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0 // Farklı bir rotasyon
-        });
-        
-        // Dördüncü lego parçası
-        this.lego4 = new Lego({
-            scene: this.scene,
-            resources: this.resources,
-            objects: this.objects,
-            physics: this.physics,
-            debug: this.debugFolder,
-            areas: this.areas,
-            materials: this.materials,
-            position: new THREE.Vector3(43, -3, 0), // Newton konumunun yanı
-            rotateX: Math.PI / 2, // X ekseninde 90 derece
-            rotateY: 0,
-            rotateZ: 0
-        });
-    }
-
+       
     // Yön Tabelası 2 modelini eklemek için metot
     setYonTabelasi2()
     {

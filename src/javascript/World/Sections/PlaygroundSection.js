@@ -29,11 +29,12 @@ export default class PlaygroundSection
         this.resources.items.areaResetTexture.magFilter = THREE.NearestFilter
         this.resources.items.areaResetTexture.minFilter = THREE.LinearFilter
 
-        this.setStatic()
+        //this.setStatic()
         this.setBricksWalls()
-        this.setBowling()
+        
+        //this.setBowling()
     }
-
+/*
     setFootballField() 
     {
         // Saha boyutları
@@ -65,6 +66,7 @@ export default class PlaygroundSection
         
         this.container.add(this.footballField)
     }
+        
 
 
     setStatic()
@@ -77,6 +79,8 @@ export default class PlaygroundSection
             mass: 0
         })
     }
+        
+        */
 
     setBricksWalls()
     {
@@ -85,6 +89,12 @@ export default class PlaygroundSection
         this.brickWalls.x = this.x + 15
         this.brickWalls.y = this.y + 14
         this.brickWalls.items = []
+
+        // Set up
+        this.brickWalls2 = {}
+        this.brickWalls2.x = this.x + 15
+        this.brickWalls2.y = this.y + 14
+        this.brickWalls2.items = []
 
         // Brick options
         this.brickWalls.brickOptions = {
@@ -97,16 +107,17 @@ export default class PlaygroundSection
             mass: 0.5,
             soundName: 'brick'
         }
-
+            
+     //1. lego alani icin
         this.brickWalls.items.push(
             this.walls.add({
                 object: this.brickWalls.brickOptions,
                 shape:
                 {
-                    type: 'rectangle',
+                    type: 'brick',
                     widthCount: 5,
                     heightCount: 6,
-                    position: new THREE.Vector3(this.brickWalls.x - 6, this.brickWalls.y, 0),
+                    position: new THREE.Vector3(this.brickWalls.x - 8 , this.brickWalls.y-50, 0),
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
@@ -120,7 +131,54 @@ export default class PlaygroundSection
                     type: 'brick',
                     widthCount: 5,
                     heightCount: 6,
-                    position: new THREE.Vector3(this.brickWalls.x - 12, this.brickWalls.y, 0),
+                    position: new THREE.Vector3(this.brickWalls.x - 13, this.brickWalls.y-50, 0),
+                    offsetWidth: new THREE.Vector3(0, 1.05, 0),
+                    offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                    randomOffset: new THREE.Vector3(0, 0, 0),
+                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                }
+            }),
+            
+            this.walls.add({
+                object: this.brickWalls.brickOptions,
+                shape:
+                {
+                    type: 'triangle',
+                    widthCount: 6,
+                    position: new THREE.Vector3(this.brickWalls.x - 18, this.brickWalls.y-50, 0),
+                    offsetWidth: new THREE.Vector3(0, 1.05, 0),
+                    offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                    randomOffset: new THREE.Vector3(0, 0, 0),
+                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                }
+            })
+        )
+
+        
+        
+        //2. lego alani icin
+        this.brickWalls2.items.push(
+            this.walls.add({
+                object: this.brickWalls.brickOptions,  // Aynı tuğla seçeneklerini kullan
+                shape: {
+                    type: 'brick',  // 'rectangle', 'brick' veya 'triangle' olabilir
+                    widthCount: 5,      // Genişlikteki tuğla sayısı
+                    heightCount: 6,     // Yükseklikteki tuğla sayısı
+                    position: new THREE.Vector3(this.brickWalls2.x+ 28, this.brickWalls2.y + 38, 0),
+                    offsetWidth: new THREE.Vector3(0, 1.05, 0),
+                    offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                    randomOffset: new THREE.Vector3(0, 0, 0),
+                    randomRotation: new THREE.Vector3(0, 0, 0.4)
+                }
+            }),
+            this.walls.add({
+                object: this.brickWalls.brickOptions,
+                shape:
+                {
+                    type: 'brick',
+                    widthCount: 5,
+                    heightCount: 6,
+                    position: new THREE.Vector3(this.brickWalls.x +33, this.brickWalls.y + 38, 0),
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
@@ -133,14 +191,17 @@ export default class PlaygroundSection
                 {
                     type: 'triangle',
                     widthCount: 6,
-                    position: new THREE.Vector3(this.brickWalls.x - 18, this.brickWalls.y, 0),
+                    position: new THREE.Vector3(this.brickWalls.x + 38, this.brickWalls.y + 38, 0),
                     offsetWidth: new THREE.Vector3(0, 1.05, 0),
                     offsetHeight: new THREE.Vector3(0, 0, 0.45),
                     randomOffset: new THREE.Vector3(0, 0, 0),
                     randomRotation: new THREE.Vector3(0, 0, 0.4)
                 }
             })
+
         )
+
+
 
         // Reset
         this.brickWalls.reset = () =>
@@ -154,9 +215,21 @@ export default class PlaygroundSection
             }
         }
 
+        //Reset 2
+        this.brickWalls2.reset = () =>
+            {
+                for(const _wall of this.brickWalls2.items)
+                {
+                    for(const _brick of _wall.items)
+                    {
+                        _brick.collision.reset()
+                    }
+                }
+            }
+
         // Reset area
         this.brickWalls.resetArea = this.areas.add({
-            position: new THREE.Vector2(this.brickWalls.x, this.brickWalls.y),
+            position: new THREE.Vector2(this.brickWalls.x, this.brickWalls.y-50),
             halfExtents: new THREE.Vector2(2, 2)
         })
         this.brickWalls.resetArea.on('interact', () =>
@@ -164,13 +237,32 @@ export default class PlaygroundSection
             this.brickWalls.reset()
         })
 
+         // Reset area 2
+         this.brickWalls2.resetArea = this.areas.add({
+            position: new THREE.Vector2(this.brickWalls2.x + 45, this.brickWalls2.y + 38),
+            halfExtents: new THREE.Vector2(2, 2)
+        })
+        this.brickWalls2.resetArea.on('interact', () =>
+        {
+            this.brickWalls2.reset()
+        })
+
         // Reset label
         this.brickWalls.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
-        this.brickWalls.areaLabelMesh.position.x = this.brickWalls.x
-        this.brickWalls.areaLabelMesh.position.y = this.brickWalls.y
+        this.brickWalls.areaLabelMesh.position.x = this.brickWalls.x 
+        this.brickWalls.areaLabelMesh.position.y = this.brickWalls.y -50
         this.brickWalls.areaLabelMesh.matrixAutoUpdate = false
         this.brickWalls.areaLabelMesh.updateMatrix()
         this.container.add(this.brickWalls.areaLabelMesh)
+
+        // Reset label 2
+        this.brickWalls2.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
+        this.brickWalls2.areaLabelMesh.position.x = this.brickWalls2.x + 45 
+        this.brickWalls2.areaLabelMesh.position.y = this.brickWalls2.y + 38
+        this.brickWalls2.areaLabelMesh.matrixAutoUpdate = false
+        this.brickWalls2.areaLabelMesh.updateMatrix()
+        this.container.add(this.brickWalls2.areaLabelMesh)
+        
 
         // Debug
         if(this.debugFolder)
@@ -178,7 +270,7 @@ export default class PlaygroundSection
             this.debugFolder.add(this.brickWalls, 'reset').name('brickWalls reset')
         }
     }
-
+    /*
     setBowling()
     {
         this.bowling = {}
@@ -252,6 +344,7 @@ export default class PlaygroundSection
         this.bowling.areaLabelMesh.matrixAutoUpdate = false
         this.bowling.areaLabelMesh.updateMatrix()
         this.container.add(this.bowling.areaLabelMesh)
+        
 
         // Debug
         if(this.debugFolder)
@@ -259,4 +352,5 @@ export default class PlaygroundSection
             this.debugFolder.add(this.bowling, 'reset').name('bowling reset')
         }
     }
+    */
 }
