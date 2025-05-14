@@ -4,7 +4,10 @@ import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
+
+
 const DEFAULT_POSITION = new THREE.Vector3(42.7, 13, -1.4); // Y ekseninde 2 birim yukarı taşındı (11 -> 13)
+
 
 export default class BilimMerkezi {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = Math.PI, areas = null, materials = null }) {
@@ -22,7 +25,9 @@ export default class BilimMerkezi {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
+
     this.buttonPosition = new THREE.Vector3(43, 5.5, 0); // Buton pozisyonu da yukarı taşındı (3.5 -> 5.5)
+
 
     // Platform
     this.platform = null;
@@ -107,7 +112,10 @@ export default class BilimMerkezi {
     });
     
     this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
+
+
     this.platform.position.set(42, 15, 0); // Y ekseninde 2 birim yukarı taşındı (13 -> 15)
+
     
     // Platformun rotasyonunu modelin rotasyonu ile aynı yap
     this.platform.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
@@ -127,7 +135,9 @@ export default class BilimMerkezi {
       
       const platformBody = new CANNON.Body({
         mass: 0, // Statik nesne
+
         position: new CANNON.Vec3(42, 15, 0), // Y ekseninde 2 birim yukarı taşındı (13 -> 15)
+
         material: this.physics.materials.items.floor
       });
       
@@ -332,40 +342,43 @@ export default class BilimMerkezi {
     canvas.width = 1024
     canvas.height = 256
     
-    const gradient = ctx.createRadialGradient(
-      canvas.width/2, canvas.height/2, 0,
-      canvas.width/2, canvas.height/2, canvas.width/2
-    )
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
-    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
+    // info_BG.png dosyasını önce canvas'a arka plan olarak çizelim
+    const buttonBg = new Image()
+    buttonBg.onload = () => {
+        // Resmi canvas'a çiz
+        ctx.drawImage(buttonBg, 0, 0, canvas.width, canvas.height)
+        
+        // Yazı ayarları - resmin üzerine yazdır
+        ctx.fillStyle = 'black'
+        ctx.font = 'bold 80px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+        
+        // Canvas değiştiğinde texture'ı güncelle
+        texture.needsUpdate = true
+    }
+    buttonBg.src = 'images/info_BG.png'
     
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    ctx.fillStyle = 'white'
-    ctx.font = 'bold 96px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-    
-    ctx.shadowColor = '#4285f4'
-    ctx.shadowBlur = 25
-    ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
-
     const texture = new THREE.CanvasTexture(canvas)
     texture.magFilter = THREE.LinearFilter
     texture.minFilter = THREE.LinearFilter
 
-    const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
+    // Tek bir geometri ve material kullan
+    const labelGeometry = new THREE.PlaneGeometry(3, 1.2)
     const labelMaterial = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide
     })
-
+    
+    // Mesh oluştur
     this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+    
+    // Grubun z-pozisyonu
     this.button.label.position.z = 0.2
+    
     this.button.container.add(this.button.label)
   }
   
