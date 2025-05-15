@@ -157,6 +157,7 @@ export default class EasterEggs
     {
         this.wigs = {}
         this.wigs.currentWig = null
+        this.wigs.popupVisible = false
 
         // Container
         this.wigs.container = new THREE.Object3D()
@@ -166,92 +167,113 @@ export default class EasterEggs
         this.wigs.container.updateMatrix()
         this.container.add(this.wigs.container)
 
-        // Materials
-        this.wigs.materials = [
-            this.materials.shades.items.green,
-            this.materials.shades.items.red,
-            this.materials.shades.items.emeraldGreen,
-            this.materials.shades.items.purple,
-            this.materials.shades.items.yellow,
-            this.materials.shades.items.white
-        ]
+        // Create popup
+        this.wigs.createPopup = () => {
+            // If popup is already visible, don't create another one
+            if(this.wigs.popupVisible) return;
+            
+            this.wigs.popupVisible = true;
 
-        // List
-        this.wigs.list = [
-            this.resources.items.wig1,
-            this.resources.items.wig2,
-            this.resources.items.wig3,
-            this.resources.items.wig4
-        ]
+            // Create popup element
+            const popup = document.createElement('div')
+            popup.id = 'developers-popup'
+            popup.style.position = 'fixed'
+            popup.style.top = '50%'
+            popup.style.left = '50%'
+            popup.style.transform = 'translate(-50%, -50%)'
+            popup.style.backgroundColor = 'rgba(240, 235, 225, 0.95)'
+            popup.style.borderRadius = '10px'
+            popup.style.padding = '20px'
+            popup.style.width = '300px'
+            popup.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)'
+            popup.style.zIndex = '1000'
+            popup.style.fontFamily = 'Arial, sans-serif'
+            
+            // Add title
+            const title = document.createElement('h2')
+            title.textContent = 'DEVELOPERS'
+            title.style.textAlign = 'center'
+            title.style.margin = '0 0 20px 0'
+            title.style.color = '#555'
+            popup.appendChild(title)
 
-        // Items
-        this.wigs.items = []
+            // Add developer names
+            const developerNames = [
+                'Muhammed Musab DİNÇ',
+                'Ahmet Can ÇITAK',
+                'Enes CEYLAN',
+                'Efsanur ÇELİKÖZ',
+                'Sariye ARICI',
+                'Mahmud Selman ŞAHİN',
+                'Hayri Talha ÖZKAN',
+                'Bilal YILMAZ',
+            ]
 
-        for(const _wig of this.wigs.list)
-        {
-            const container = new THREE.Object3D()
-            container.visible = false
-            container.matrixAutoUpdate = false
-            this.wigs.container.add(container)
+            developerNames.forEach(name => {
+                const nameElement = document.createElement('div')
+                nameElement.textContent = name
+                nameElement.style.padding = '8px 0'
+                nameElement.style.borderBottom = '1px solid #e0d8c8'
+                nameElement.style.textAlign = 'center'
+                nameElement.style.fontSize = '16px'
+                nameElement.style.color = '#333'
+                popup.appendChild(nameElement)
+            })
 
-            const children = [..._wig.scene.children]
-            for(const _mesh of children)
-            {
-                _mesh.material = this.wigs.materials[0]
-                container.add(_mesh)
-            }
+            // Add popup to document
+            document.body.appendChild(popup)
 
-            this.wigs.items.push(container)
+            // Add ESC key event listener to close popup
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.wigs.closePopup();
+                }
+            });
         }
 
-        // Change
-        this.wigs.change = () =>
-        {
-            // Hide previous wig
-            if(this.wigs.currentWig)
-            {
-                this.wigs.currentWig.visible = false
+        // Close popup function
+        this.wigs.closePopup = () => {
+            const popup = document.getElementById('developers-popup')
+            if(popup) {
+                document.body.removeChild(popup)
+                this.wigs.popupVisible = false
             }
-
-            // Set random wig
-            let randomWig = null
-            do
-            {
-                randomWig = this.wigs.items[Math.floor(Math.random() * this.wigs.items.length)]
-            } while(this.wigs.currentWig === randomWig)
-
-            this.wigs.currentWig = randomWig
-            this.wigs.currentWig.visible = true
-
-            // Set random material
-            const randomMaterial = this.wigs.materials[Math.floor(Math.random() * this.wigs.materials.length)]
-
-            for(const _mesh of this.wigs.currentWig.children)
-            {
-                _mesh.material = randomMaterial
-            }
-
-            // this.eggs.add({
-            //     offset: new THREE.Vector3(0, 80, 10),
-            //     material: this.materials.shades.items.metal,
-            //     code: 'MjAyMWVnZ2F6ZW9jYmI=',
-            //     sleep: false
-            // })
         }
 
-        // Area
+        // Area - only for car, not for mouse interaction
         this.wigs.area = this.areas.add({
-            position: new THREE.Vector2(0, 80),
-            halfExtents: new THREE.Vector2(2, 2)
+            position: new THREE.Vector2(83, 63),
+            halfExtents: new THREE.Vector2(2, 2),
+            testCar: true,
+            hasKey: false,
+            active: true
         })
-        this.wigs.area.on('interact', this.wigs.change)
+
+        // When car enters the area, show popup
+        this.wigs.area.on('in', () => {
+            this.wigs.createPopup();
+        })
+
+        // When car exits the area, close popup
+        this.wigs.area.on('out', () => {
+            this.wigs.closePopup();
+        })
+
+        // Completely disable mouse interaction
+        this.wigs.area.mouseMesh.material.visible = false;
+        this.wigs.area.mouseMesh.material.needsUpdate = true;
+        
+        // Remove mouse mesh from raycaster detection
+        if (this.wigs.area.mouseMesh.parent) {
+            this.wigs.area.mouseMesh.parent.remove(this.wigs.area.mouseMesh);
+        }
 
         // Label
         this.resources.items.areaQuestionMarkTexture.magFilter = THREE.NearestFilter
         this.resources.items.areaQuestionMarkTexture.minFilter = THREE.LinearFilter
         this.wigs.areaLabel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaQuestionMarkTexture }))
-        this.wigs.areaLabel.position.x = 0
-        this.wigs.areaLabel.position.y = 80
+        this.wigs.areaLabel.position.x = 83
+        this.wigs.areaLabel.position.y = 63
         this.wigs.areaLabel.matrixAutoUpdate = false
         this.wigs.areaLabel.updateMatrix()
         this.container.add(this.wigs.areaLabel)
