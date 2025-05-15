@@ -18,7 +18,7 @@ export class Rocket {
         this.container.position.copy(this.position)
         
         // Roketi zemin üzerine yükselt
-        this.container.position.z = 0.5
+        this.container.position.z = 1
         
         // İniş durumu takibi için
         this.isLaunched = false
@@ -28,7 +28,6 @@ export class Rocket {
         this.setPlatform()
         this.setLight()
         this.setAnimation()
-        this.setPhysics()
         this.setTriggers()
         
         // Debug
@@ -50,19 +49,19 @@ export class Rocket {
             this.model.mesh = this.resources.items.rocketModel.scene
             
             // Modeli ölçeklendir ve ayarla - daha küçük boyut
-            this.model.mesh.scale.set(1.5, 1.5, 1.5)  
+            this.model.mesh.scale.set(1.3, 1.3, 1.3)  
             
             // Rotasyonu ve pozisyonu ayarla - dik duracak şekilde
-            this.model.mesh.rotation.x = 0
-            this.model.mesh.rotation.y = 0
+            this.model.mesh.rotation.x = 1.57
+            this.model.mesh.rotation.y = 1.57
             this.model.mesh.rotation.z = 0
             
             // Roketi yatay düzlemde ortala (x ve y pozisyonları)
-            this.model.mesh.position.x = -0.2 // Sola doğru hafif kaydır
-            this.model.mesh.position.y = 0
+            this.model.mesh.position.x = -0.75 // Sola doğru hafif kaydır
+            this.model.mesh.position.y = 1.6
             
             // Roketi platform üzerine yükselt - şimdi tam platforma otursun
-            this.model.mesh.position.z = 0.0
+            this.model.mesh.position.z = 0.4
             
             // Basit materyal kullanarak renklendirme
             this.model.mesh.traverse((child) => {
@@ -365,25 +364,6 @@ export class Rocket {
         })
     }
 
-    setPhysics() {
-        // Fizik ayarları
-        this.physics.body = new CANNON.Body({
-            mass: 100,
-            position: new CANNON.Vec3(
-                this.container.position.x,
-                this.container.position.y,
-                this.container.position.z
-            ),
-            shape: new CANNON.Box(new CANNON.Vec3(0.4, 0.4, 0.9)),
-            material: this.physics.materials.items.dummy
-        })
-        
-        // Dünya fiziğine ekle
-        this.physics.world.addBody(this.physics.body)
-        
-        // Başlangıçta uyku modunda
-        this.physics.body.sleep()
-    }
 
     setTriggers() {
         // Roket fırlatma yöntemleri
@@ -411,14 +391,14 @@ export class Rocket {
                 this.platform.mesh = this.resources.items.rocketPlatformModel.scene.clone()
                 
                 // Platformu konumlandır (zemin seviyesinde)
-                this.platform.mesh.position.set(-10, -2, 0)
+                this.platform.mesh.position.set(-10, -2, -0.8)
                 
                 // Ölçeği ayarla
                 this.platform.mesh.scale.set(1.3, 1.3 ,1.3)
                 
                 // Rotasyonu ayarla
                 this.platform.mesh.rotation.x = 0
-                this.platform.mesh.rotation.y = 0
+                this.platform.mesh.rotation.y = 3.14
                 this.platform.mesh.rotation.z = 0
                 
                 // Platformu konumlandır
@@ -549,4 +529,4 @@ export class Rocket {
             }
         }
     }
-} 
+}   

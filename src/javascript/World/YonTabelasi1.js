@@ -26,6 +26,7 @@ export default class YonTabelasi1 {
     this.addColumnCollision5()
     this.GreenBoxCollision1()
     this.GreenBoxCollision2()
+    this.RocketCollision()
   }
   
   setModel() {
@@ -316,7 +317,7 @@ export default class YonTabelasi1 {
     }
     
     // Kolon için sabit konum
-    const columnPosition = new THREE.Vector3(-36.9, -40.4, 0)
+    const columnPosition = new THREE.Vector3(-37.1, -43, 0)
     
     // Kolon için rotasyon açıları (radyan cinsinden)
     const columnRotateX = 0  // X ekseni etrafında 22.5 derece
@@ -324,8 +325,8 @@ export default class YonTabelasi1 {
     const columnRotateZ = 0  // Z ekseni etrafında 30 derece
     
     // Kolon boyutları - Y ekseni boyunca uzun bir kolon
-    const columnWidth = 5.5  // X ekseni genişliği
-    const columnHeight = 5.5 // Y ekseni yüksekliği (dikey uzunluk)
+    const columnWidth = 8  // X ekseni genişliği
+    const columnHeight = 8 // Y ekseni yüksekliği (dikey uzunluk)
     const columnDepth = 7    // Z ekseni derinliği
     
     // Kolon görsel temsili oluştur
@@ -604,6 +605,81 @@ export default class YonTabelasi1 {
                 THREE.MathUtils.radToDeg(columnRotateY),
                 THREE.MathUtils.radToDeg(columnRotateZ))
   }
+
+
+  RocketCollision() {
+    if (!this.physics) {
+      console.warn('Kolon için physics parametresi verilmedi, collision eklenmeyecek.')
+      return
+    }
+    
+    // Kolon için sabit konum
+    const columnPosition = new THREE.Vector3(57.2, 15.7, 1)
+    
+    // Kolon için rotasyon açıları (radyan cinsinden)
+    const columnRotateX = 0  // X ekseni etrafında 22.5 derece
+    const columnRotateY = 0            // Y ekseni etrafında rotasyon yok
+    const columnRotateZ = 0  // Z ekseni etrafında 30 derece
+    
+    // Kolon boyutları - Y ekseni boyunca uzun bir kolon
+    const columnWidth = 3  // X ekseni genişliği
+    const columnHeight = 3 // Y ekseni yüksekliği (dikey uzunluk)
+    const columnDepth = 2.2    // Z ekseni derinliği
+    
+    // Kolon görsel temsili oluştur
+    const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth)
+    const columnMaterial = new THREE.MeshBasicMaterial({
+      color: 0x660099, // Yeşil kolon
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+    
+    this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)
+    
+    // Kolonu doğrudan sahneye ekle
+    this.columnMesh.position.copy(columnPosition)
+    
+    // Kolona rotasyon ekle
+    this.columnMesh.rotation.set(columnRotateX, columnRotateY, columnRotateZ)
+    
+    this.scene.add(this.columnMesh)
+    
+    // Kolon için fizik gövdesi
+    const columnShape = new CANNON.Box(
+      new CANNON.Vec3(columnWidth/2, columnHeight/2, columnDepth/2)
+    )
+    
+    // Fizik gövdesi oluştur
+    this.columnBody = new CANNON.Body({
+      mass: 0, // Statik nesne
+      position: new CANNON.Vec3(
+        columnPosition.x,
+        columnPosition.y,
+        columnPosition.z
+      ),
+      material: this.physics.materials ? this.physics.materials.items.floor : undefined
+    })
+    
+    // Fizik gövdesine rotasyon ekle
+    const quat = new CANNON.Quaternion()
+    quat.setFromEuler(columnRotateX, columnRotateY, columnRotateZ, 'XYZ')
+    this.columnBody.quaternion.copy(quat)
+    
+    // Şekli gövdeye ekle
+    this.columnBody.addShape(columnShape)
+    
+    // Fizik dünyasına ekle
+    this.physics.world.addBody(this.columnBody)
+    
+    console.log('Kolon collision eklendi, konum:', columnPosition.x, columnPosition.y, columnPosition.z, 
+                'boyutlar:', columnWidth, columnHeight, columnDepth,
+                'rotasyon (derece):', 
+                THREE.MathUtils.radToDeg(columnRotateX),
+                THREE.MathUtils.radToDeg(columnRotateY),
+                THREE.MathUtils.radToDeg(columnRotateZ))
+  }
+
 
 
 } 
