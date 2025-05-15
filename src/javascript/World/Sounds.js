@@ -187,7 +187,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [21, -65, 0] 
+                defaultPosition: [5.5, -66.6, 1.5] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound4',
@@ -213,7 +213,7 @@ export default class Sounds
                 rateMin: 1,
                 rateMax: 1,
                 spatial: true,
-                defaultPosition: [-50, -10, 0] 
+                defaultPosition: [-42, -20, 3] 
             },
             {//Uzamsal sesler icin.
                 name: 'spatialSound6',
@@ -453,7 +453,7 @@ export default class Sounds
                         coneOuterAngle: 360,
                         coneInnerAngle: 360
                     };
-                    _options.volumeMax = 4;
+                    _options.volumeMax = 6;
                 }
                 
                 // spatialSound2 için özel ayarlar
@@ -767,7 +767,7 @@ export default class Sounds
                     }
                     
                     // Roket sesi için özel ayarlar
-                    sound.volume(1);  // Tam ses
+                    sound.volume(0.1);  // Ses seviyesini yarıya düşür
                     
                     // Hazırlanma sesi bittikten sonra fırlatma sesini çal
                     sound.on('end', () => {
@@ -806,7 +806,7 @@ export default class Sounds
                     }
                     
                     // Roket sesi için özel ayarlar
-                    sound.volume(1);  // Tam ses
+                    sound.volume(0.1);  // Ses seviyesini yarıya düşür
                     sound.play();
                     
                     // Son çalma zamanını güncelle
@@ -838,7 +838,7 @@ export default class Sounds
                     }
                     
                     // Roket iniş sesi için özel ayarlar (volume değerini arttırıyoruz)
-                    sound.volume(1.0);  // Tam ses seviyesi
+                    sound.volume(0.1);  // Ses seviyesini yarıya düşür
                     sound.rate(0.9);    // Hafif düşük hızda çal, ama daha belirgin
                     sound.play();
                     
