@@ -38,6 +38,7 @@ export default class Football
     initialize() {
         if (this.initialized) return;
         
+        this.setGround()
         this.setGoal()
         this.setBall()
         this.setGUI()
@@ -68,8 +69,8 @@ export default class Football
 
         // Topun başlangıç pozisyonu - kaleden belirli bir mesafede
         this.models.ball.initialPosition = new THREE.Vector3(
-            this.models.goal.position.x + 5, // Kaleden 5 birim uzakta
-            this.models.goal.position.y + 3, // Y ekseninde 5 birim daha yüksekte
+            this.models.goal.position.x + 2.5, // Kaleden 5 birim uzakta
+            this.models.goal.position.y + 2, // Y ekseninde 5 birim daha yüksekte
             this.models.ball.offset.z
         )
         this.models.ball.position.copy(this.models.ball.initialPosition)
@@ -82,6 +83,216 @@ export default class Football
             this.models.goal.position.y,
             this.models.goal.position.z + this.models.goal.size.z / 2
         )
+        
+        // Zemin modeli tanımları
+        this.models.ground = {}
+        this.models.ground.size = new THREE.Vector2(20, 15) // Zeminin genişliği ve derinliği
+        // Zeminin pozisyonu - kalenin önünde ve topun etrafında yeterli alan olacak şekilde
+        this.models.ground.position = new THREE.Vector3(
+            this.models.goal.position.x + 2.5, // Kalenin biraz sağında
+            this.models.goal.position.y+2.3,     // Kale ile aynı y koordinatında
+            -0.01                           // Zemin seviyesinde, hafif aşağıda
+        )
+    }
+
+    /**
+     * Futbol sahasını/zeminini oluştur
+     */
+    setGround() {
+        try {
+            this.ground = {}
+            
+            // Zemin container'ı
+            this.ground.container = new THREE.Object3D()
+            this.ground.container.position.copy(this.models.ground.position)
+            
+            // Zemin boyutları
+            const groundWidth = this.models.ground.size.x
+            const groundDepth = this.models.ground.size.y
+            
+            // Çim dokusu oluştur
+            const textureSize = 512
+            const canvas = document.createElement('canvas')
+            canvas.width = textureSize
+            canvas.height = textureSize
+            const ctx = canvas.getContext('2d')
+            
+            // Koyu yeşil arka plan
+            ctx.fillStyle = '#1a6300'
+            ctx.fillRect(0, 0, textureSize, textureSize)
+            
+            // Çizgiler için açık yeşil
+            ctx.fillStyle = '#2e8c0e'
+            
+            // Yatay çim şeritleri (satranç deseni)
+            const stripeCount = 9
+            const stripeWidth = textureSize / stripeCount
+            
+            for(let i = 0; i < stripeCount; i += 2) {
+                ctx.fillRect(0, i * stripeWidth, textureSize, stripeWidth)
+            }
+            
+            // Texture oluştur
+            const grassTexture = new THREE.CanvasTexture(canvas)
+            grassTexture.wrapS = THREE.RepeatWrapping
+            grassTexture.wrapT = THREE.RepeatWrapping
+            grassTexture.repeat.set(4, 3) // Dokuyu tekrarla
+            
+            // Normal haritası
+            const bumpCanvas = document.createElement('canvas')
+            bumpCanvas.width = textureSize
+            bumpCanvas.height = textureSize
+            const bumpCtx = bumpCanvas.getContext('2d')
+            
+            // Rastgele bump/yükseklik değerleri ekle
+            bumpCtx.fillStyle = '#888888'
+            bumpCtx.fillRect(0, 0, textureSize, textureSize)
+            
+            for(let i = 0; i < 1000; i++) {
+                const x = Math.random() * textureSize
+                const y = Math.random() * textureSize
+                const size = 1 + Math.random() * 2
+                const brightness = Math.random() * 50 + 80 // 80-130 arası gri ton
+                
+                bumpCtx.fillStyle = `rgb(${brightness},${brightness},${brightness})`
+                bumpCtx.beginPath()
+                bumpCtx.arc(x, y, size, 0, Math.PI * 2)
+                bumpCtx.fill()
+            }
+            
+            const bumpTexture = new THREE.CanvasTexture(bumpCanvas)
+            bumpTexture.wrapS = THREE.RepeatWrapping
+            bumpTexture.wrapT = THREE.RepeatWrapping
+            bumpTexture.repeat.set(8, 6) // Daha fazla detay için daha fazla tekrar
+            
+            // Zemin materyali
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                map: grassTexture,
+                bumpMap: bumpTexture,
+                bumpScale: 0.02,
+                roughness: 0.8,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            })
+            
+            // Zemin geometrisi
+            const groundGeometry = new THREE.PlaneGeometry(groundWidth, groundDepth, 1, 1)
+            
+            // Zemin mesh'i oluştur - XY düzleminde, Z'ye dik
+            this.ground.mesh = new THREE.Mesh(groundGeometry, groundMaterial)
+            this.ground.mesh.rotation.x = -Math.PI // Yatay düzleme döndür
+            this.ground.mesh.receiveShadow = true
+            
+            // Futbol sahası çizgileri
+            this.addFieldLines()
+            
+            // Ana container'a ekle
+            this.ground.container.add(this.ground.mesh)
+            this.container.add(this.ground.container)
+            
+            console.log('Futbol sahası zemini başarıyla oluşturuldu')
+        } catch(error) {
+            console.error('Futbol sahası zemini oluşturulamadı:', error)
+        }
+    }
+    
+    /**
+     * Futbol sahası çizgilerini ekle
+     */
+    addFieldLines() {
+        if (!this.ground || !this.ground.mesh) return
+        
+        const groundWidth = this.models.ground.size.x
+        const groundDepth = this.models.ground.size.y
+        
+        // Çizgi materyali
+        const lineMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xffffff,
+            linewidth: 2
+        })
+        
+        // Saha dış çerçevesi
+        const borderPoints = []
+        const halfWidth = groundWidth / 2 
+        const halfDepth = groundDepth / 2
+        const lineHeight = 0.01 // Çizgileri zeminden biraz yükseğe yerleştir
+        
+        // Saha kenarlarını oluştur - dikdörtgen
+        borderPoints.push(new THREE.Vector3(-halfWidth, -halfDepth, lineHeight))
+        borderPoints.push(new THREE.Vector3(halfWidth, -halfDepth, lineHeight))
+        borderPoints.push(new THREE.Vector3(halfWidth, halfDepth, lineHeight))
+        borderPoints.push(new THREE.Vector3(-halfWidth, halfDepth, lineHeight))
+        borderPoints.push(new THREE.Vector3(-halfWidth, -halfDepth, lineHeight))
+        
+        // Geometri ve line mesh oluştur
+        const borderGeometry = new THREE.BufferGeometry().setFromPoints(borderPoints)
+        const borderLine = new THREE.Line(borderGeometry, lineMaterial)
+        
+        // Orta çizgi
+        const middlePoints = []
+        middlePoints.push(new THREE.Vector3(-halfWidth, 0, lineHeight))
+        middlePoints.push(new THREE.Vector3(halfWidth, 0, lineHeight))
+        
+        const middleGeometry = new THREE.BufferGeometry().setFromPoints(middlePoints)
+        const middleLine = new THREE.Line(middleGeometry, lineMaterial)
+        
+        // Orta nokta dairesi
+        const centerCircleRadius = groundDepth / 8
+        const centerCircleSegments = 32
+        const centerCirclePoints = []
+        
+        for (let i = 0; i <= centerCircleSegments; i++) {
+            const theta = (i / centerCircleSegments) * Math.PI * 2
+            const x = Math.cos(theta) * centerCircleRadius
+            const y = Math.sin(theta) * centerCircleRadius
+            centerCirclePoints.push(new THREE.Vector3(x, y, lineHeight))
+        }
+        
+        const centerCircleGeometry = new THREE.BufferGeometry().setFromPoints(centerCirclePoints)
+        const centerCircle = new THREE.Line(centerCircleGeometry, lineMaterial)
+        
+        // Kaleci sahası (küçük dikdörtgen)
+        const goalAreaWidth = groundWidth / 8
+        const goalAreaDepth = groundDepth / 6
+        const goalAreaPoints = []
+        
+        goalAreaPoints.push(new THREE.Vector3(-halfWidth, -goalAreaDepth/2, lineHeight))
+        goalAreaPoints.push(new THREE.Vector3(-halfWidth + goalAreaWidth, -goalAreaDepth/2, lineHeight))
+        goalAreaPoints.push(new THREE.Vector3(-halfWidth + goalAreaWidth, goalAreaDepth/2, lineHeight))
+        goalAreaPoints.push(new THREE.Vector3(-halfWidth, goalAreaDepth/2, lineHeight))
+        goalAreaPoints.push(new THREE.Vector3(-halfWidth, -goalAreaDepth/2, lineHeight))
+        
+        const goalAreaGeometry = new THREE.BufferGeometry().setFromPoints(goalAreaPoints)
+        const goalArea = new THREE.Line(goalAreaGeometry, lineMaterial)
+        
+        // Ceza sahası (büyük dikdörtgen)
+        const penaltyAreaWidth = groundWidth / 4
+        const penaltyAreaDepth = groundDepth / 2
+        const penaltyAreaPoints = []
+        
+        penaltyAreaPoints.push(new THREE.Vector3(-halfWidth, -penaltyAreaDepth/2, lineHeight))
+        penaltyAreaPoints.push(new THREE.Vector3(-halfWidth + penaltyAreaWidth, -penaltyAreaDepth/2, lineHeight))
+        penaltyAreaPoints.push(new THREE.Vector3(-halfWidth + penaltyAreaWidth, penaltyAreaDepth/2, lineHeight))
+        penaltyAreaPoints.push(new THREE.Vector3(-halfWidth, penaltyAreaDepth/2, lineHeight))
+        penaltyAreaPoints.push(new THREE.Vector3(-halfWidth, -penaltyAreaDepth/2, lineHeight))
+        
+        const penaltyAreaGeometry = new THREE.BufferGeometry().setFromPoints(penaltyAreaPoints)
+        const penaltyArea = new THREE.Line(penaltyAreaGeometry, lineMaterial)
+        
+        // Penaltı noktası
+        const penaltySpotGeometry = new THREE.CircleGeometry(0.2, 16)
+        const penaltySpotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
+        const penaltySpot = new THREE.Mesh(penaltySpotGeometry, penaltySpotMaterial)
+        penaltySpot.position.set(-halfWidth + penaltyAreaWidth/2, 0, lineHeight)
+        penaltySpot.rotation.x = -Math.PI / 2
+        
+        // Çizgileri ground container'a ekle
+        this.ground.container.add(borderLine)
+        this.ground.container.add(middleLine)
+        this.ground.container.add(centerCircle)
+        this.ground.container.add(goalArea)
+        this.ground.container.add(penaltyArea)
+        this.ground.container.add(penaltySpot)
     }
 
     /**
@@ -613,7 +824,7 @@ export default class Football
             this.resetArea = this.areas.add({
                 position: new THREE.Vector2(
                     this.models.ball.initialPosition.x +5 , // Topun sol tarafında
-                    this.models.ball.initialPosition.y   // Ve biraz aşağısında
+                    this.models.ball.initialPosition.y+0.3   // Ve biraz aşağısında
                 ),
                 halfExtents: new THREE.Vector2(2.5, 2.5), // 5 kat daha büyük (0.5 * 5 = 2.5)
                 debug: this.debug ? { color: 0x00ff00 } : false,

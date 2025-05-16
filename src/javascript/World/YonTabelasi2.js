@@ -72,7 +72,7 @@ export default class YonTabelasi2 {
     
     // Fizik gövdesi oluştur
     if (this.physics) {
-      const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2.5)
+      const halfExtents = new CANNON.Vec3(size.x / 4.5, size.y / 4.5, size.z / 2.5)
       const boxShape = new CANNON.Box(halfExtents)
       
       const body = new CANNON.Body({

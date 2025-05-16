@@ -196,6 +196,9 @@ export default class GreenBox
             this.resetBackground();
             this.forceResetBackground = false; // Flag'i temizle
         }
+        
+        // Arabanın buton üzerinde olup olmadığını kontrol et ve panelleri göster/gizle
+        this.checkCarOverButton();
     }
 
     setupButton()
@@ -452,12 +455,15 @@ export default class GreenBox
         // Arkaplan sıfırlama için zamanlayıcı referansı
         this.resetBackgroundTimer = null;
         
+        // Son buton hover durumu - yeni kontrol mantığı için
+        this._lastButtonHoverState = false;
+        
         // Etkileşimli alan oluştur (AreaFence gibi)
         if (this.areas) {
-            // Etkileşimli alan ekle - Boyutu küçültüldü
+            // Etkileşimli alan ekle - Boyutu büyütüldü
             this.interactiveArea = this.areas.add({
                 position: new THREE.Vector2(this.buttonPosition.x, this.buttonPosition.y),
-                halfExtents: new THREE.Vector2(1.5, 1.5), // Küçültüldü (3, 3 -> 1.5, 1.5)
+                halfExtents: new THREE.Vector2(2, 2), // Büyütüldü (1.5, 1.5 -> 2.5, 2.5)
                 floorShadowType: 'primary',
                 debug: false
             });
@@ -465,60 +471,84 @@ export default class GreenBox
             console.log('GreenBox: interactiveArea oluşturuldu', this.interactiveArea);
             
             // Artık interactiveArea'nın interact olayını kullanmıyoruz,
-            // çünkü sadece Enter tuşu ile tetiklenecek
+            // çünkü sadece Enter tuşu ile tetiklenecek ve checkCarOverButton() ile kontrol edeceğiz
             
-            // Buton hover etkisi - araç içeri girdiğinde
-            this.interactiveArea.on('in', () => {
-                // Koyu panel parlaklık artışı
-                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
-                    gsap.to(this.button.darkPanel.material, {
-                        opacity: 1.0,
-                        duration: 0.3
-                    });
-                }
-                
-                // Renk değişimi - fence için
-                if (this.button && this.button.fence && this.button.fence.material) {
-                    gsap.to(this.button.fence.material.color, {
-                        r: 0.1,
-                        g: 0.7,
-                        b: 1.0,
-                        duration: 0.3
-                    });
-                }
-                
-                // Araba tekrar alana girerse zamanlayıcıyı temizle
-                if (this.resetBackgroundTimer) {
-                    console.log('Araba tekrar alana girdi, zamanlayıcı iptal ediliyor...');
-                    clearTimeout(this.resetBackgroundTimer);
-                    this.resetBackgroundTimer = null;
-                    this.forceResetBackground = false; // Force reset'i de iptal et
-                }
-            });
+            // Bilgi paneli oluştur
+            this.infoPanel = document.createElement('div');
+            this.infoPanel.style.position = 'absolute';
+            this.infoPanel.style.bottom = '20px';
+            this.infoPanel.style.right = '20px';
+            this.infoPanel.style.left = 'auto';
+            this.infoPanel.style.transform = 'none';
+            this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            this.infoPanel.style.color = 'white';
+            this.infoPanel.style.padding = '20px';
+            this.infoPanel.style.borderRadius = '10px';
+            this.infoPanel.style.fontFamily = 'Arial, sans-serif';
+            this.infoPanel.style.zIndex = '1000';
+            this.infoPanel.style.display = 'none';
+            this.infoPanel.style.transition = 'opacity 0.3s ease-in-out';
+            this.infoPanel.style.textAlign = 'center';
+            this.infoPanel.style.maxWidth = '600px';
+            this.infoPanel.style.fontSize = '14px';
             
-            // Buton hover çıkışı - araç dışarı çıktığında
-            this.interactiveArea.on('out', () => {
-                // Koyu panel normale dönüş
-                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
-                    gsap.to(this.button.darkPanel.material, {
-                        opacity: 0.8,
-                        duration: 0.3
-                    });
-                }
+            // Bilgi paneli içeriği
+            this.infoPanel.innerHTML = `
+                <h3 style="margin: 0 0 10px 0; color: #4285f4;">Divizyon'un Konya'daki Greenbox Stüdyosu</h3>
+                <p style="margin: 0 0 10px 0;">Divizyon'un Konya'daki Greenbox Stüdyosu, gençlerin yaratıcılığını ve dijital üretim becerilerini desteklemek amacıyla kurulmuş yenilikçi bir prodüksiyon alanıdır. Konya Büyükşehir Belediyesi'nin bölgesel kalkınma ve inovasyon stratejisi çerçevesinde geliştirilen Divizyon projesi, yazılım ve dijital sanatlar alanında disiplinler arası iş birliği ve kolektif üretim süreçlerini destekleyen bir açık inovasyon platformudur.</p>
                 
-                // Orijinal renk - fence için
-                if (this.button && this.button.fence && this.button.fence.material) {
-                    gsap.to(this.button.fence.material.color, {
-                        r: 0.25,
-                        g: 0.52,
-                        b: 0.95,
-                        duration: 0.3
-                    });
-                }
+                <h4 style="margin: 10px 0 5px 0; color: #4285f4;">Altyapı ve Donanım Özellikleri</h4>
+                <p style="margin: 0 0 10px 0;">Provideo Teknoloji tarafından inşa edilen stüdyo, sağlam bir demir konstrüksiyon temel üzerine kurulmuştur. Akustik ses yalıtımı sayesinde dış seslerden izole bir ortam sunar. Enerji altyapısı, kesintisiz ve güvenilir bir çalışma ortamı sağlamak üzere özel olarak tasarlanmıştır.</p>
                 
-                // İpucunu kaldır
-                this.hideEnterHint();
-            });
+                <h4 style="margin: 10px 0 5px 0; color: #4285f4;">Prodüksiyon Ekipmanları</h4>
+                <p style="margin: 0 0 10px 0;">Stüdyo, gençlerin hem canlı yayın yapabileceği hem de prodüksiyon projelerini hayata geçirebileceği şekilde donatılmıştır. Üç kameralı reji sistemi, Canon XF605 kamerayla desteklenerek yüksek çözünürlüklü görüntüler sunar. Sunucular için Fortinge PROX15 15'' Stüdyo Prompter, ses için Sennheiser EW-DP ME mikrofonlar ve prodüksiyon için vMix Prodüksiyon Bilgisayarı kullanılmıştır. Işıklandırma tarafında Swit CL-100D ve CL-120D LED Panel Light panelleriyle homojen bir aydınlatma sağlanmıştır. Ayrıca, Sony FX3 Body ve Sony FE 24-70mm F/2.8 GM Lens ile gençler yaratıcı çekimlerini özgürce gerçekleştirebilmektedir.</p>
+                
+                <h4 style="margin: 10px 0 5px 0; color: #4285f4;">Gençlere Yönelik Fırsatlar</h4>
+                <p style="margin: 0 0 10px 0;">Divizyon'un misyonu, gençleri teknolojiyle buluşturarak onların potansiyelini ortaya çıkarmaktır. Bu greenbox stüdyo, sanal prodüksiyonlarla gençlerin hayal dünyasını gerçeğe dönüştürmelerine olanak tanır. Konya'da gerçekleştirilen bu proje, hem Divizyon'un vizyonunu güçlendirir hem de geleceğin profesyonellerine ilham verir.</p>
+                
+                <p style="margin-top: 15px;">Divizyon'un Greenbox Stüdyosu, gençlerin dijital içerik üretiminde profesyonel deneyim kazanmalarını sağlayarak, onları geleceğin medya ve teknoloji dünyasına hazırlar.</p>
+            `;
+            document.body.appendChild(this.infoPanel);
+            
+            // Sol taraftaki "Kullanmak için Enter tuşuna basın" ipucu kutusu
+            this.enterKeyHintBox = document.createElement('div');
+            this.enterKeyHintBox.className = 'enter-key-hint-box';
+            this.enterKeyHintBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 20px; 
+                transform: translateY(-50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px;
+                border-radius: 10px;
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                z-index: 1000;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                text-align: center;
+                transition: opacity 0.3s ease-in-out;
+                opacity: 0;
+                display: none;
+            `;
+            
+            // İpucu içeriği
+            this.enterKeyHintBox.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #4285f4;">Kullanmak için</strong>
+                </div>
+                <div style="display: inline-block; border: 2px solid white; padding: 5px 10px; border-radius: 5px; margin-top: 5px;">
+                    ENTER
+                </div>
+                <div style="margin-top: 10px;">
+                    tuşuna basın
+                </div>
+            `;
+            
+            document.body.appendChild(this.enterKeyHintBox);
+            
+            // NOT: Artık 'in' ve 'out' olaylarını kullanmıyoruz
+            // Bunun yerine her frame'de checkCarOverButton() metodu çağrılacak
         } else {
             console.warn('GreenBox: Areas bulunamadı, interactiveArea oluşturulamıyor');
         }
@@ -830,7 +860,7 @@ export default class GreenBox
         );
         
         // Etkileşim alanı yarıçapı - floorBorder geometrisinin yarısı
-        const interactionRadius = 1; // Küçültüldü (2 -> 1)
+        const interactionRadius = 2.5; // Büyütüldü (1 -> 2.5)
         
         // Araç çerçeve içinde mi?
         return distance < interactionRadius;
@@ -1917,5 +1947,100 @@ export default class GreenBox
     manualResetBackground() {
         console.log('!! Manuel reset çağrıldı !!');
         this.resetBackground();
+    }
+
+    // Yeni metod: Arabanın buton üzerinde olup olmadığını kontrol eder
+    // Butonun üzerindeyse panelleri gösterir, değilse gizler
+    checkCarOverButton() {
+        // Araba zaten içeride mi kontrol et
+        const isOver = this.isCarInside();
+        
+        // Durumu değişmiş mi kontrol et (sürekli tetikleme olmasın diye)
+        if (isOver !== this._lastButtonHoverState) {
+            this._lastButtonHoverState = isOver;
+            
+            if (isOver) {
+                // Araba butonun üzerinde, panelleri göster
+                console.log('GreenBox: Araba butonun üzerinde, panelleri gösteriliyor');
+                
+                // Buton efektleri
+                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
+                    gsap.to(this.button.darkPanel.material, {
+                        opacity: 1.0,
+                        duration: 0.3
+                    });
+                }
+                
+                if (this.button && this.button.fence && this.button.fence.material) {
+                    gsap.to(this.button.fence.material.color, {
+                        r: 0.1,
+                        g: 0.7,
+                        b: 1.0,
+                        duration: 0.3
+                    });
+                }
+                
+                // Bilgi panelini göster
+                if (this.infoPanel) {
+                    this.infoPanel.style.display = 'block';
+                    this.infoPanel.style.opacity = '0';
+                    setTimeout(() => {
+                        this.infoPanel.style.opacity = '1';
+                    }, 10);
+                }
+                
+                // "Enter tuşuna basın" ipucunu göster
+                if (this.enterKeyHintBox) {
+                    this.enterKeyHintBox.style.display = 'block';
+                    setTimeout(() => {
+                        this.enterKeyHintBox.style.opacity = '1';
+                    }, 10);
+                }
+                
+                // Araba tekrar alana girerse zamanlayıcıyı temizle
+                if (this.resetBackgroundTimer) {
+                    console.log('Araba tekrar alana girdi, zamanlayıcı iptal ediliyor...');
+                    clearTimeout(this.resetBackgroundTimer);
+                    this.resetBackgroundTimer = null;
+                    this.forceResetBackground = false; // Force reset'i de iptal et
+                }
+            } else {
+                // Araba butonun dışında, panelleri gizle
+                console.log('GreenBox: Araba butonun dışında, paneller gizleniyor');
+                
+                // Buton efektleri
+                if (this.button && this.button.darkPanel && this.button.darkPanel.material) {
+                    gsap.to(this.button.darkPanel.material, {
+                        opacity: 0.8,
+                        duration: 0.3
+                    });
+                }
+                
+                if (this.button && this.button.fence && this.button.fence.material) {
+                    gsap.to(this.button.fence.material.color, {
+                        r: 0.25,
+                        g: 0.52,
+                        b: 0.95,
+                        duration: 0.3
+                    });
+                }
+                
+                // Bilgi panelini gizle
+                if (this.infoPanel) {
+                    this.infoPanel.style.opacity = '0';
+                    setTimeout(() => {
+                        this.infoPanel.style.display = 'none';
+                    }, 300);
+                }
+                
+                // "Enter tuşuna basın" ipucunu gizle
+                if (this.enterKeyHintBox) {
+                    this.enterKeyHintBox.style.opacity = '0';
+                    setTimeout(() => {
+                        this.enterKeyHintBox.style.display = 'none';
+                    }, 300);
+                }
+            }
+        }
     }
 }

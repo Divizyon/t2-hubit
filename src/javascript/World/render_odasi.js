@@ -17,8 +17,8 @@ export default class Render_odasi {
         
         // Buton için konum belirleme
         this.buttonPosition = {
-            x: -67,
-            y: -16
+            x: -70,
+            y: -12.5
         };
         
         this.setModel();
@@ -50,7 +50,7 @@ export default class Render_odasi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-79, -11, 2);
+            this.model.position.set(-79, -11, 3);
             this.model.scale.set(3.4, 3.4, 3.4);
             
             // Modeli döndür
@@ -164,20 +164,28 @@ export default class Render_odasi {
         this.infoPanel.style.transform = 'none'
         this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
         this.infoPanel.style.color = 'white'
-        this.infoPanel.style.padding = '15px'
+        this.infoPanel.style.padding = '20px'
         this.infoPanel.style.borderRadius = '10px'
         this.infoPanel.style.fontFamily = 'Arial, sans-serif'
         this.infoPanel.style.zIndex = '1000'
         this.infoPanel.style.display = 'none'
         this.infoPanel.style.transition = 'opacity 0.3s ease-in-out'
         this.infoPanel.style.textAlign = 'center'
-        this.infoPanel.style.maxWidth = '400px'
+        this.infoPanel.style.maxWidth = '600px'
+        this.infoPanel.style.fontSize = '14px'
         
         // Bilgi paneli içeriği
         this.infoPanel.innerHTML = `
-            <h3 style="margin: 0 0 10px 0; color: #4285f4;">Render Odası</h3>
-            <p style="margin: 0 0 10px 0;">Render odası hakkında detaylı bilgi burada yer alacak.</p>
-            <a href="#" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+            <h3 style="margin: 0 0 10px 0; color: #4285f4;">Divizyon'un Render Odası</h3>
+            <p style="margin: 0 0 10px 0;">Divizyon'un Render Odası, dijital üretimin en yoğun donanım ihtiyacı duyan aşamalarından biri olan işleme (render) süreçleri için özel olarak tasarlanmıştır. Bu oda, gençlerin 3D animasyon, video prodüksiyon, sinematik sahne oluşturma, oyun içi grafikler ve diğer yüksek çözünürlüklü içerikleri hızlı ve verimli bir şekilde işleyebilmeleri için üst düzey teknik altyapıya sahiptir.</p>
+            
+            <p style="margin: 0 0 10px 0;">Render Odası'nda yer alan yüksek performanslı bilgisayarlar; çok çekirdekli işlemciler, güçlü GPU'lar, geniş RAM kapasiteleri ve hızlı SSD disklerle donatılmıştır. Bu altyapı sayesinde uzun süren ve yoğun kaynak tüketen render işlemleri kesintisiz ve optimize şekilde gerçekleştirilebilir.</p>
+            
+            <p style="margin: 0 0 10px 0;">Ayrıca Blender, After Effects, Cinema 4D, Unreal Engine, Adobe Premiere gibi profesyonel yazılımlar da bu odada kullanılmak üzere hazır durumdadır. Gençler, projelerini getirdiklerinde doğrudan üretime geçebilir; işleme sürelerini minimuma indirerek zaman kazanabilirler.</p>
+            
+            <p style="margin: 0 0 10px 0;">Render Odası aynı zamanda sessiz, ergonomik ve odaklanmayı artıracak şekilde tasarlanmıştır. Bireysel çalışmaların yanı sıra ekip projeleri için de uygundur. Böylece takım çalışmasıyla yürütülen büyük çaplı dijital işlerde bile verimli sonuçlar elde edilebilir.</p>
+            
+            <p style="margin: 0 0 10px 0;">Divizyon'un Render Odası, fikirlerin dijital sanat eserlerine dönüştüğü, emekle hayal gücünün birleştiği bir üretim alanıdır. Bu alan sayesinde gençler, sadece düşünmekle kalmayıp düşündüklerini yüksek kalitede gerçeğe dönüştürebilirler.</p>
         `
         document.body.appendChild(this.infoPanel)
 
@@ -218,7 +226,9 @@ export default class Render_odasi {
                 // Enter tuşu için event listener ekleniyor
                 this.enterKeyListener = (event) => {
                     if (event.key === 'Enter') {
-                        window.open('#', '_blank');
+                        event.preventDefault();
+                        event.stopPropagation();
+                        // Herhangi bir şey yapmıyoruz, sadece olay yayılımını engelliyoruz
                     }
                 };
                 window.addEventListener('keydown', this.enterKeyListener);
@@ -257,7 +267,8 @@ export default class Render_odasi {
             
             // Doğrudan etkileşim için tıklama desteği ekle
             this.interactiveArea.on('interact', () => {
-                window.open('#', '_blank');
+                // Sadece popup'ı görüntüle, herhangi bir yönlendirme yok
+                // Bilgi paneli zaten 'in' olayında gösteriliyor
             });
         }
     }

@@ -143,20 +143,30 @@ export default class SesOdasi {
     this.infoPanel.style.transform = 'none'
     this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
     this.infoPanel.style.color = 'white'
-    this.infoPanel.style.padding = '15px'
+    this.infoPanel.style.padding = '20px'
     this.infoPanel.style.borderRadius = '10px'
     this.infoPanel.style.fontFamily = 'Arial, sans-serif'
     this.infoPanel.style.zIndex = '1000'
     this.infoPanel.style.display = 'none'
     this.infoPanel.style.transition = 'opacity 0.3s ease-in-out'
     this.infoPanel.style.textAlign = 'center'
-    this.infoPanel.style.maxWidth = '400px'
+    this.infoPanel.style.maxWidth = '600px'
+    this.infoPanel.style.fontSize = '14px'
     
     // Bilgi paneli içeriği
     this.infoPanel.innerHTML = `
-      <h3 style="margin: 0 0 10px 0; color: #4285f4;">Ses Odası</h3>
-      <p style="margin: 0 0 10px 0;">Ses odası hakkında detaylı bilgi burada yer alacak.</p>
-      <a href="#" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+      <h3 style="margin: 0 0 10px 0; color: #4285f4;">Divizyon'un Konya'daki Ses Stüdyosu</h3>
+      <p style="margin: 0 0 10px 0;">Gençlerin ve yaratıcı profesyonellerin ses prodüksiyonu alanında özgün projeler geliştirebilecekleri, yüksek teknolojiyle donatılmış bir üretim alanıdır. Konya Büyükşehir Belediyesi'nin desteklediği bu açık inovasyon platformu, yazılım ve dijital sanatlar alanında disiplinler arası iş birliğini teşvik etmektedir.</p>
+      
+      <h4 style="margin: 10px 0 5px 0; color: #4285f4;">Teknik Altyapı ve Olanaklar</h4>
+      <p style="margin: 0 0 10px 0;">Ses Stüdyosu, akustik ses yalıtımı sayesinde dış seslerden izole bir ortam sunar ve bu sayede profesyonel ses kayıtları yapılmasına olanak tanır. Stüdyo, podcast, sesli kitap, müzik prodüksiyonu ve sesli içerik üretimi gibi çeşitli projeler için uygundur.</p>
+      
+      <h4 style="margin: 10px 0 5px 0; color: #4285f4;">Gençlere Yönelik Fırsatlar</h4>
+      <p style="margin: 0 0 10px 0;">Divizyon'un misyonu, gençleri teknolojiyle buluşturarak onların potansiyelini ortaya çıkarmaktır. Ses Stüdyosu, gençlerin ses prodüksiyonu alanında deneyim kazanmalarını sağlayarak, onları geleceğin medya ve teknoloji dünyasına hazırlar.</p>
+      
+      <h4 style="margin: 10px 0 5px 0; color: #4285f4;">İletişim ve Ulaşım</h4>
+      <p style="margin: 0 0 10px 0;">Divizyon Ses Stüdyosu, Selçuklu/Konya'da Bosna Hersek Mahallesi, Osmanlı Caddesi No: 2 adresinde bulunmaktadır. Stüdyo, Pazartesi'den Cuma'ya kadar 09:00 - 18:00 saatleri arasında hizmet vermektedir.</p>
+      <p style="margin: 0 0 10px 0;">Detaylı bilgi ve rezervasyon için (0332) 205 42 42 numaralı telefonu arayabilir veya bilgi@divizyon.org adresine e-posta gönderebilirsiniz.</p>
     `
     document.body.appendChild(this.infoPanel)
 
@@ -197,7 +207,9 @@ export default class SesOdasi {
         // Enter tuşu için event listener ekleniyor
         this.enterKeyListener = (event) => {
           if (event.key === 'Enter') {
-            window.open('#', '_blank');
+            event.preventDefault();
+            event.stopPropagation();
+            // Herhangi bir şey yapmıyoruz, sadece olay yayılımını engelliyoruz
           }
         };
         window.addEventListener('keydown', this.enterKeyListener);
@@ -236,7 +248,8 @@ export default class SesOdasi {
       
       // Doğrudan etkileşim için tıklama desteği ekle
       this.interactiveArea.on('interact', () => {
-        window.open('#', '_blank');
+        // Sadece popup'ı görüntüle, herhangi bir yönlendirme yok
+        // Bilgi paneli zaten 'in' olayında gösteriliyor
       });
     }
   }

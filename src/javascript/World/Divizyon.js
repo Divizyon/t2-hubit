@@ -22,7 +22,8 @@ export default class Divizyon {
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
-    this.buttonPosition = new THREE.Vector3(-74.4, -27.4, 0); // Buton pozisyonu güncellendi
+    this.buttonPosition = new THREE.Vector3(-74.4, -25, 0); // Buton pozisyonu güncellendi
+    this.lastDivizyonOpenTime = 0;
 
     this._buildModel();
     this.scene.add(this.container);
@@ -176,8 +177,8 @@ export default class Divizyon {
     // Bilgi paneli içeriği
     this.infoPanel.innerHTML = `
       <h3 style="margin: 0 0 10px 0; color: #4285f4;">Divizyon</h3>
-      <p style="margin: 0 0 10px 0;">Divizyon hakkında detaylı bilgi burada yer alacak.</p>
-      <a href="https://www.divizyon.org/" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+      <p style="margin: 0 0 10px 0;">Divizyon hakkında detaylı bilgi için tıklayınız.</p>
+      <a id="divizyon-info-link" href="#" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
     `
     document.body.appendChild(this.infoPanel)
 
@@ -189,6 +190,8 @@ export default class Divizyon {
         floorShadowType: 'primary',
         debug: false
       });
+      // Area.js'den gelen interact tetiklenmesin diye
+      this.interactiveArea.off('interact');
 
       this.interactiveArea.on('in', () => {
         if (this.button && this.button.label) {
@@ -218,7 +221,7 @@ export default class Divizyon {
         // Enter tuşu için event listener ekleniyor
         this.enterKeyListener = (event) => {
           if (event.key === 'Enter') {
-            window.open('https://www.divizyon.org/', '_blank');
+            this.openDivizyonURL();
           }
         };
         window.addEventListener('keydown', this.enterKeyListener);
@@ -253,11 +256,6 @@ export default class Divizyon {
           window.removeEventListener('keydown', this.enterKeyListener);
           this.enterKeyListener = null;
         }
-      });
-      
-      // Doğrudan etkileşim için tıklama desteği ekle
-      this.interactiveArea.on('interact', () => {
-        window.open('https://www.divizyon.org/', '_blank');
       });
     }
   }
@@ -325,6 +323,14 @@ export default class Divizyon {
     }
     
     animate()
+  }
+
+  openDivizyonURL() {
+    const now = Date.now();
+    if (now - this.lastDivizyonOpenTime > 1000) { // 1 saniyede birden fazla açılmasın
+      window.open('https://www.divizyon.org/', '_blank');
+      this.lastDivizyonOpenTime = now;
+    }
   }
 }
 
