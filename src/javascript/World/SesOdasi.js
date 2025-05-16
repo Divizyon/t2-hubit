@@ -197,7 +197,7 @@ export default class SesOdasi {
         // Enter tuşu için event listener ekleniyor
         this.enterKeyListener = (event) => {
           if (event.key === 'Enter') {
-            window.open('#', '_blank');
+            window.open('https://www.instagram.com/reel/DGgFTOKskN9/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==', '_blank');
           }
         };
         window.addEventListener('keydown', this.enterKeyListener);
@@ -236,7 +236,7 @@ export default class SesOdasi {
       
       // Doğrudan etkileşim için tıklama desteği ekle
       this.interactiveArea.on('interact', () => {
-        window.open('#', '_blank');
+        window.open('https://www.instagram.com/reel/DGgFTOKskN9/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==', '_blank');
       });
     }
   }

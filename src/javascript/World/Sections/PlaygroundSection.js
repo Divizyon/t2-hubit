@@ -155,13 +155,44 @@ export default class PlaygroundSection
             this.brickWalls.reset()
         })
 
-        // Reset label
-        this.brickWalls.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
-        this.brickWalls.areaLabelMesh.position.x = this.brickWalls.x
-        this.brickWalls.areaLabelMesh.position.y = this.brickWalls.y
-        this.brickWalls.areaLabelMesh.matrixAutoUpdate = false
-        this.brickWalls.areaLabelMesh.updateMatrix()
-        this.container.add(this.brickWalls.areaLabelMesh)
+        // Diğer butonlar gibi canvas ile yazı label'ı ekle
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1024;
+        canvas.height = 256;
+        const gradient = ctx.createRadialGradient(
+            canvas.width/2, canvas.height/2, 0,
+            canvas.width/2, canvas.height/2, canvas.width/2
+        );
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)');
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 96px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('YENİLE', canvas.width/2, canvas.height/2);
+        ctx.shadowColor = '#4285f4';
+        ctx.shadowBlur = 25;
+        ctx.fillText('YENİLE', canvas.width/2, canvas.height/2);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.magFilter = THREE.LinearFilter;
+        texture.minFilter = THREE.LinearFilter;
+        const labelGeometry = new THREE.PlaneGeometry(3, 0.8);
+        const labelMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+        const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
+        labelMesh.position.x = this.brickWalls.x;
+        labelMesh.position.y = this.brickWalls.y;
+        labelMesh.position.z = 0.01;
+        labelMesh.matrixAutoUpdate = false;
+        labelMesh.updateMatrix();
+        this.container.add(labelMesh);
 
         // Debug
         if(this.debugFolder)

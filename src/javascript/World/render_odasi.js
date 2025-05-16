@@ -17,7 +17,7 @@ export default class Render_odasi {
         
         // Buton için konum belirleme
         this.buttonPosition = {
-            x: -67,
+            x: -70,
             y: -16
         };
         
@@ -218,7 +218,7 @@ export default class Render_odasi {
                 // Enter tuşu için event listener ekleniyor
                 this.enterKeyListener = (event) => {
                     if (event.key === 'Enter') {
-                        window.open('#', '_blank');
+                        window.open('#https://www.instagram.com/reel/DGgFTOKskN9/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==', '_blank');
                     }
                 };
                 window.addEventListener('keydown', this.enterKeyListener);
@@ -257,7 +257,7 @@ export default class Render_odasi {
             
             // Doğrudan etkileşim için tıklama desteği ekle
             this.interactiveArea.on('interact', () => {
-                window.open('#', '_blank');
+                window.open('https://www.instagram.com/reel/DGgFTOKskN9/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==', '_blank');
             });
         }
     }
@@ -282,11 +282,11 @@ export default class Render_odasi {
         ctx.font = 'bold 96px Arial'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+        ctx.fillText('RENDER ODASI', canvas.width/2, canvas.height/2)
         
         ctx.shadowColor = '#4285f4'
         ctx.shadowBlur = 25
-        ctx.fillText('ZİYARET ET', canvas.width/2, canvas.height/2)
+        ctx.fillText('RENDER ODASI', canvas.width/2, canvas.height/2)
 
         const texture = new THREE.CanvasTexture(canvas)
         texture.magFilter = THREE.LinearFilter

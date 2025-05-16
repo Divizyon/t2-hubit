@@ -198,12 +198,42 @@ export default class Project
         })
 
         // Area label
-        this.floor.areaLabel = this.meshes.areaLabel.clone()
-        this.floor.areaLabel.position.x = this.link.x
-        this.floor.areaLabel.position.y = this.link.y
-        this.floor.areaLabel.position.z = 0.001
-        this.floor.areaLabel.matrixAutoUpdate = false
-        this.floor.areaLabel.updateMatrix()
-        this.floor.container.add(this.floor.areaLabel)
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1024;
+        canvas.height = 256;
+        const gradient = ctx.createRadialGradient(
+            canvas.width/2, canvas.height/2, 0,
+            canvas.width/2, canvas.height/2, canvas.width/2
+        );
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)');
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 96px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('KEŞFET', canvas.width/2, canvas.height/2);
+        ctx.shadowColor = '#4285f4';
+        ctx.shadowBlur = 25;
+        ctx.fillText('KEŞFET', canvas.width/2, canvas.height/2);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.magFilter = THREE.LinearFilter;
+        texture.minFilter = THREE.LinearFilter;
+        const labelGeometry = new THREE.PlaneGeometry(3, 0.8);
+        const labelMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+        const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
+        labelMesh.position.x = this.link.x;
+        labelMesh.position.y = this.link.y;
+        labelMesh.position.z = 0.001;
+        labelMesh.matrixAutoUpdate = false;
+        labelMesh.updateMatrix();
+        this.floor.container.add(labelMesh);
     }
 }

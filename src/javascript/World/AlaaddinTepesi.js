@@ -23,7 +23,7 @@ export default class AlaaddinTepesi {
      
         this.setModel();
         this.createPlatform();
-        this.buttonPosition = new THREE.Vector3(21, -66, 0); // X pozisyonunu 3 birim sağa kaydırdım (18 -> 21)
+        this.buttonPosition = new THREE.Vector3(46, -56, 0); // 5 birim daha sağa kaydırıldı (41, -56, 0 -> 46, -56, 0)
         this.setupButton();
         
         if (this.time) {
@@ -47,7 +47,7 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(5.5, -66.6, 1.5); // X pozisyonunu 5 birim sağa kaydırdım (0.5 -> 5.5)
+            this.model.position.set(30.5, -56.6, 1.5); // 5 birim daha sağa kaydırıldı (25.5, -56.6, 1.5)
             this.model.scale.set(1, 1, 1);
             
             // Modeli döndür
@@ -138,7 +138,7 @@ export default class AlaaddinTepesi {
         });
         
         this.platform = new THREE.Mesh(platformGeometry, platformMaterial);
-        this.platform.position.set(5.5, -66, 0); // X pozisyonu aynı kaldı
+        this.platform.position.set(30.5, -56, 0); // 5 birim daha sağa kaydırıldı (25.5, -56, 0)
         this.platform.rotation.x = Math.PI; // Yatay duruma getir
         this.platform.castShadow = true;
         this.platform.receiveShadow = true;
@@ -153,7 +153,7 @@ export default class AlaaddinTepesi {
             
             const platformBody = new CANNON.Body({
                 mass: 0, // Statik nesne
-                position: new CANNON.Vec3(5.5, -66, 0), // X pozisyonu aynı kaldı
+                position: new CANNON.Vec3(30.5, -56, 0), // 5 birim daha sağa kaydırıldı (25.5, -56, 0)
                 material: this.physics.materials.items.floor
             });
             
@@ -246,12 +246,19 @@ export default class AlaaddinTepesi {
         // Buton animasyonu
         this.animateButton()
 
+        // Butonun kendisine tıklanınca linke git
+        this.button.container.userData = this.button.container.userData || {};
+        this.button.container.userData.onClick = () => {
+            window.open('https://gokonya.com/tr/alaeddin-tepesi-1', '_blank');
+        };
+
         // Bilgi paneli oluştur
         this.infoPanel = document.createElement('div')
         this.infoPanel.style.position = 'absolute'
         this.infoPanel.style.bottom = '20px'
-        this.infoPanel.style.left = '50%'
-        this.infoPanel.style.transform = 'translateX(-50%)'
+        this.infoPanel.style.right = '20px'
+        this.infoPanel.style.left = 'auto'
+        this.infoPanel.style.transform = 'none'
         this.infoPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
         this.infoPanel.style.color = 'white'
         this.infoPanel.style.padding = '15px'
@@ -267,9 +274,26 @@ export default class AlaaddinTepesi {
         this.infoPanel.innerHTML = `
             <h3 style="margin: 0 0 10px 0; color: #4285f4;">Alaaddin Tepesi</h3>
             <p style="margin: 0 0 10px 0;">Konya'nın en yüksek noktası olan Alaaddin Tepesi, şehrin tarihi ve kültürel merkezidir.</p>
-            <a href="https://www.konya.bel.tr/alaaddin-tepesi" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+            <a id="alaaddin-link" href="https://gokonya.com/tr/alaeddin-tepesi-1" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
         `
         document.body.appendChild(this.infoPanel)
+
+        // Panel tıklanınca linke git
+        this.infoPanel.style.cursor = 'pointer';
+        this.infoPanel.onclick = () => {
+            window.open('https://gokonya.com/tr/alaeddin-tepesi-1', '_blank');
+        };
+
+        // <a> etiketi tıklanınca da window.open ile yönlendir
+        setTimeout(() => {
+            const link = document.getElementById('alaaddin-link');
+            if (link) {
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    window.open('https://gokonya.com/tr/alaeddin-tepesi-1', '_blank');
+                };
+            }
+        }, 50);
 
         // Etkileşimli alan
         if (this.areas) {
@@ -329,6 +353,11 @@ export default class AlaaddinTepesi {
                 setTimeout(() => {
                     this.infoPanel.style.display = 'none'
                 }, 300)
+            });
+
+            // Doğrudan etkileşim için tıklama ve Enter desteği ekle
+            this.interactiveArea.on('interact', () => {
+                window.open('https://gokonya.com/tr/alaeddin-tepesi-1', '_blank');
             });
         }
     }

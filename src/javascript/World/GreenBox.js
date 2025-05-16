@@ -312,113 +312,53 @@ export default class GreenBox
         this.button.labelContainer = new THREE.Object3D()
         this.button.labelContainer.position.z = 0.3
         this.button.container.add(this.button.labelContainer)
+
+        // Diğer butonlar gibi canvas ile yazı oluştur
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = 1024
+        canvas.height = 256
         
+        const gradient = ctx.createRadialGradient(
+            canvas.width/2, canvas.height/2, 0,
+            canvas.width/2, canvas.height/2, canvas.width/2
+        )
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.6)')
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)')
         
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = 'white'
+        ctx.font = 'bold 96px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ÇEKİM YAP', canvas.width/2, canvas.height/2)
         
-        // Texture ile buton oluştur
-        this.setupButtonWithTexture = (texture) => {
-            texture.magFilter = THREE.LinearFilter
-            texture.minFilter = THREE.LinearFilter
-            
-            // Etiket mesh'i oluştur
-            const labelGeometry = new THREE.PlaneGeometry(1.2, 1.2) // Kare şeklinde ve büyük
-            const labelMaterial = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true,
-                depthWrite: false,
-                side: THREE.DoubleSide
-            })
-            
-            this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
-            this.button.label.position.z = 0.025 // Koyu panelin biraz üzerinde
-            this.button.label.rotation.x = -Math.PI * 0.5 // Yatay pozisyon, panelle aynı düzlemde
-            this.button.labelContainer.add(this.button.label)
-            
-            // Label konteynerini matris güncellemesini manuel yap
-            this.button.labelContainer.matrixAutoUpdate = false
-            this.button.labelContainer.updateMatrix()
-        }
-        
-        // Yedek olarak canvas ile oluştur - görseller yüklenemezse
-        this.createFallbackEnterCanvas = () => {
-            // "ENTER" simgesi için canvas oluştur - Büyük boyutlu
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-            canvas.width = 512
-            canvas.height = 512 // Daha kare şeklinde
-            
-            // Canvas'ı temizle (şeffaf)
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            
-            // 90 derece döndürülmüş içerik için tüm canvas'ı döndür
-            ctx.save();
-            ctx.translate(canvas.width/2, canvas.height/2);
-            ctx.rotate(Math.PI/2); // 90 derece döndür
-            
-            // Enter tuşu simgesi - büyütülmüş
-            const keySize = 280; // Daha büyük
-            const keyX = 0; // Merkezde
-            const keyY = 0; // Merkezde
-            
-            // Tuş çerçevesi - hafif yuvarlak köşeli dikdörtgen
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 4;
-            
-            // Yuvarlak köşeli tuş çerçevesi çiz
-            const cornerRadius = 8;
-            const width = keySize;
-            const height = keySize * 0.6;
-            const x = keyX - width/2;
-            const y = keyY - height/2;
-            
-            ctx.beginPath();
-            ctx.moveTo(x + cornerRadius, y);
-            ctx.lineTo(x + width - cornerRadius, y);
-            ctx.arcTo(x + width, y, x + width, y + cornerRadius, cornerRadius);
-            ctx.lineTo(x + width, y + height - cornerRadius);
-            ctx.arcTo(x + width, y + height, x + width - cornerRadius, y + height, cornerRadius);
-            ctx.lineTo(x + cornerRadius, y + height);
-            ctx.arcTo(x, y + height, x, y + height - cornerRadius, cornerRadius);
-            ctx.lineTo(x, y + cornerRadius);
-            ctx.arcTo(x, y, x + cornerRadius, y, cornerRadius);
-            ctx.stroke();
-            
-            // Tuş içinde Enter ok simgesi
-            const arrowSize = keySize * 0.4;
-            const arrowX = keyX;
-            const arrowY = keyY;
-            
-            // L şeklindeki ok
-            ctx.lineWidth = 5;
-            
-            // Yatay çizgi
-            ctx.beginPath();
-            ctx.moveTo(arrowX - arrowSize/3, arrowY);
-            ctx.lineTo(arrowX + arrowSize/3, arrowY);
-            ctx.stroke();
-            
-            // Dikey çizgi
-            ctx.beginPath();
-            ctx.moveTo(arrowX - arrowSize/3, arrowY);
-            ctx.lineTo(arrowX - arrowSize/3, arrowY - arrowSize/2);
-            ctx.stroke();
-            
-            // Ok başı
-            ctx.beginPath();
-            ctx.moveTo(arrowX + arrowSize/3 - arrowSize/6, arrowY - arrowSize/8);
-            ctx.lineTo(arrowX + arrowSize/3 - arrowSize/6, arrowY + arrowSize/8);
-            ctx.lineTo(arrowX + arrowSize/3, arrowY);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Canvas döndürme işlemini geri al
-            ctx.restore();
-            
-            // Texture oluştur
-            const texture = new THREE.CanvasTexture(canvas)
-            this.setupButtonWithTexture(texture)
-        }
+        ctx.shadowColor = '#4285f4'
+        ctx.shadowBlur = 25
+        ctx.fillText('ÇEKİM YAP', canvas.width/2, canvas.height/2)
+
+        const texture = new THREE.CanvasTexture(canvas)
+        texture.magFilter = THREE.LinearFilter
+        texture.minFilter = THREE.LinearFilter
+
+        const labelGeometry = new THREE.PlaneGeometry(3, 0.8)
+        const labelMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        })
+
+        this.button.label = new THREE.Mesh(labelGeometry, labelMaterial)
+        this.button.label.position.z = 0.025 // Koyu panelin biraz üzerinde
+        this.button.label.rotation.x = 0 // Düz görünsün
+        this.button.labelContainer.add(this.button.label)
+
+        // Label konteynerini matris güncellemesini manuel yap
+        this.button.labelContainer.matrixAutoUpdate = false
+        this.button.labelContainer.updateMatrix()
     }
     
     animateButton()
