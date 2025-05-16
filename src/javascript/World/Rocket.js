@@ -28,7 +28,6 @@ export class Rocket {
         this.setPlatform()
         this.setLight()
         this.setAnimation()
-        this.setPhysics()
         this.setTriggers()
         
         // Debug
@@ -364,26 +363,7 @@ export class Rocket {
             }
         })
     }
-
-    setPhysics() {
-        // Fizik ayarları
-        this.physics.body = new CANNON.Body({
-            mass: 100,
-            position: new CANNON.Vec3(
-                this.container.position.x,
-                this.container.position.y,
-                this.container.position.z
-            ),
-            shape: new CANNON.Box(new CANNON.Vec3(0.4, 0.4, 0.9)),
-            material: this.physics.materials.items.dummy
-        })
-        
-        // Dünya fiziğine ekle
-        this.physics.world.addBody(this.physics.body)
-        
-        // Başlangıçta uyku modunda
-        this.physics.body.sleep()
-    }
+   
 
     setTriggers() {
         // Roket fırlatma yöntemleri

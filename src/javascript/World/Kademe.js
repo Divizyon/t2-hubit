@@ -99,7 +99,7 @@ export default class Kademe {
       color: 0x660099, // Yeşil kolon
       wireframe: true,
       transparent: true,
-      opacity: 1
+      opacity: 0
     })
     
     this.columnMesh = new THREE.Mesh(columnGeometry, columnMaterial)

@@ -4,7 +4,7 @@ import AreaFloorBorderGeometry from '../Geometries/AreaFloorBorderGeometry.js';
 import AreaFenceGeometry from '../Geometries/AreaFenceGeometry.js';
 import gsap from 'gsap';
 
-const DEFAULT_POSITION = new THREE.Vector3(32, -14, 1.5); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(32, -14, 2.5); // Artık doğru yerde tanımlandı
 
 export default class KapsulBinasi {
   constructor({ 
