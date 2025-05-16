@@ -192,10 +192,14 @@ export default class Project
             position: new THREE.Vector2(this.x + this.link.x, this.y + this.floor.y + this.link.y),
             halfExtents: new THREE.Vector2(this.link.halfExtents.x, this.link.halfExtents.y)
         })
-        this.floor.area.on('interact', () =>
-        {
-            window.open(this.link.href, '_blank')
-        })
+
+        // Sadece Enter ile link açılsın
+        this._enterListener = (event) => {
+            if ((event.key === 'Enter' || event.key === 'e' || event.key === 'f') && this.floor.area.isIn) {
+                window.open(this.link.href, '_blank');
+            }
+        };
+        window.addEventListener('keydown', this._enterListener);
 
         // Area label
         const canvas = document.createElement('canvas');
