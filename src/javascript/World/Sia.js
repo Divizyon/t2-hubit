@@ -332,7 +332,7 @@ export default class Sia {
     this.infoPanel.innerHTML = `
       <h3 style="margin: 0 0 10px 0; color: #4285f4;">Sia</h3>
       <p style="margin: 0 0 10px 0;">Sosyal İnovasyon Ajansı hakkında detaylı bilgi burada yer alacak.</p>
-      <a href="https://www.sia.gov.tr/" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
+      <a href="https://www.sosyalinovasyonajansi.com/" target="_blank" style="color: #4285f4; text-decoration: none; font-weight: bold;">Daha Fazla Bilgi →</a>
     `
     document.body.appendChild(this.infoPanel)
 
